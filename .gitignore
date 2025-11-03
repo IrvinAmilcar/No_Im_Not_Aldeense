@@ -35,13 +35,6 @@
 *.suo.DotSettings.user
 *.sln.Startup.user
 
-# Unity3D generated meta files
-*.pidb
-*.meta
-*.unityproj.meta
-*.csproj.meta
-*.sln.meta
-
 # Unity3D generated file on crash reports
 sysinfo.txt
 
