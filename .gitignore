@@ -63,12 +63,10 @@ ehthumbs.db
 Thumbs.db
 /.vscode
 *.csproj
-*.csproj
 Assembly-CSharp-Editor.csproj
 No_Im_Not_Aldeense.sln
 No_Im_Not_Aldeense.slnx
 ProjectSettings/Packages/com.unity.polybrush/Settings.json
 ProjectSettings/Packages/com.unity.probuilder/Settings.json
-*.csproj
-Assembly-CSharp-Editor.csproj
-*.csproj
+
+
