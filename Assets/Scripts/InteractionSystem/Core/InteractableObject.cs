@@ -1,45 +1,122 @@
 using UnityEngine;
+using System.Collections;
 
 public class InteractableObject : MonoBehaviour
 {
-    public Transform peepholeCameraPoint; // ponto onde a câmera vai se mover
-    public Camera mainCamera;
+    [Header("Câmeras")]
+    public Camera playerCamera;       // câmera principal (do jogador)
+    public Camera peepholeCamera;     // câmera fixa do olho mágico
+
+    [Header("Referências de controle")]
+    public MonoBehaviour playerController;       // script de movimentação do player
+    public MonoBehaviour cameraLookController;   // script de rotação da câmera
+
+    [Header("Transição")]
+    public float transitionSpeed = 2f; // tempo da transição do fade (opcional)
 
     private bool isPeeking = false;
-    private Vector3 originalCamPosition;
-    private Quaternion originalCamRotation;
+    private bool isTransitioning = false;
+    private CanvasGroup fadeCanvas;
 
-    public void Interact()
+    void Start()
     {
-        if (!isPeeking)
-        {
-            StartPeeking();
-        }
-        else
+        // opcional: cria um fade preto suave na tela (pra não ser abrupto)
+        GameObject fadeObj = new GameObject("CameraFade");
+        fadeCanvas = fadeObj.AddComponent<CanvasGroup>();
+        Canvas canvas = fadeObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        fadeObj.AddComponent<CanvasRenderer>();
+
+        RectTransform rect = fadeObj.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        UnityEngine.UI.Image img = fadeObj.AddComponent<UnityEngine.UI.Image>();
+        img.color = Color.black;
+        fadeCanvas.alpha = 0f;
+    }
+
+    void Update()
+    {
+        // sair do modo espiar
+        if (isPeeking && !isTransitioning && Input.GetKeyDown(KeyCode.Space))
         {
             StopPeeking();
         }
     }
 
+    public void Interact()
+    {
+        if (!isPeeking && !isTransitioning)
+            StartPeeking();
+    }
+
     void StartPeeking()
     {
         isPeeking = true;
-
-        // guarda posição original
-        originalCamPosition = mainCamera.transform.position;
-        originalCamRotation = mainCamera.transform.rotation;
-
-        // move a câmera pro ponto do olho mágico
-        mainCamera.transform.position = peepholeCameraPoint.position;
-        mainCamera.transform.rotation = peepholeCameraPoint.rotation;
+        StartCoroutine(SwitchToPeepholeCamera());
     }
 
     void StopPeeking()
     {
         isPeeking = false;
+        StartCoroutine(SwitchToPlayerCamera());
+    }
 
-        // volta a câmera pra posição original
-        mainCamera.transform.position = originalCamPosition;
-        mainCamera.transform.rotation = originalCamRotation;
+    IEnumerator SwitchToPeepholeCamera()
+    {
+        isTransitioning = true;
+
+        // bloqueia controles
+        if (playerController != null) playerController.enabled = false;
+        if (cameraLookController != null) cameraLookController.enabled = false;
+
+        // fade suave
+        yield return StartCoroutine(Fade(1f));
+
+        // troca de câmeras
+        playerCamera.enabled = false;
+        peepholeCamera.enabled = true;
+
+        // fade out
+        yield return StartCoroutine(Fade(0f));
+
+        isTransitioning = false;
+    }
+
+    IEnumerator SwitchToPlayerCamera()
+    {
+        isTransitioning = true;
+
+        yield return StartCoroutine(Fade(1f));
+
+        // volta pro player
+        peepholeCamera.enabled = false;
+        playerCamera.enabled = true;
+
+        // reativa controles
+        if (playerController != null) playerController.enabled = true;
+        if (cameraLookController != null) cameraLookController.enabled = true;
+
+        yield return StartCoroutine(Fade(0f));
+
+        isTransitioning = false;
+    }
+
+    IEnumerator Fade(float targetAlpha)
+    {
+        float startAlpha = fadeCanvas.alpha;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime * transitionSpeed;
+            fadeCanvas.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+            yield return null;
+        }
+
+        fadeCanvas.alpha = targetAlpha;
     }
 }

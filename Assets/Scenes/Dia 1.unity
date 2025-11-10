@@ -4914,7 +4914,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseInteraction
   SimpleCameraController: {fileID: 1768271166}
-  interactionDistance: 3
+  interactionDistance: 2
 --- !u!1001 &71647844
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14840,7 +14840,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -14902,7 +14902,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 179
+  field of view: 42
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -14928,13 +14928,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 144429472}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.07610517, y: -0.017051274, z: -0.0012969164, w: -0.9969532}
+  m_LocalRotation: {x: 0, y: 0, z: -0.000008800916, w: 1}
   m_LocalPosition: {x: -394.74, y: 3.41, z: -145.61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.001}
 --- !u!1001 &148055437
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72717,8 +72717,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cad054fdcfadd84b812b7a08fc39349, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  peepholeCameraPoint: {fileID: 144429476}
-  mainCamera: {fileID: 1768271166}
+  playerCamera: {fileID: 1768271166}
+  peepholeCamera: {fileID: 144429475}
+  playerController: {fileID: 1732755551}
+  cameraLookController: {fileID: 1732755551}
+  transitionSpeed: 2
 --- !u!1001 &1062698026
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -117817,6 +117820,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6293de4ed7a9e1146823ff39f35d284e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactor
+--- !u!114 &1732755551 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114963311885979670, guid: 11aaea5348574644a9eb4f4504fcce3f,
+    type: 3}
+  m_PrefabInstance: {fileID: 70567387}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1732755545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97fca36bd81de7c4cafce7bbf02ca611, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1733244481
 Mesh:
   m_ObjectHideFlags: 0
