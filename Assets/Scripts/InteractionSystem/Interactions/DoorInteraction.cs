@@ -1,6 +1,4 @@
 /*
- * Arquivo: DoorInteraction.cs
- * Pasta: Interactions
  * Descrição: Herda de BasePeekInteraction.
  */
 
@@ -8,7 +6,7 @@
 public class DoorInteraction : BasePeekInteraction
 {
     // Este script pode ficar COMPLETAMENTE VAZIO.
-    // Toda a lógica está na classe "mãe".
-    // Todos os campos públicos (playerCamera, targetViewCamera, etc.)
+    // Toda a logica está na classe "mae".
+    // Todos os campos publicos (playerCamera, targetViewCamera, etc.)
     // aparecerão no Inspector do Unity automaticamente.
 }

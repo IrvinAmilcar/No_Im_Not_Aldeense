@@ -1,8 +1,6 @@
 /*
- * Arquivo: BasePeekInteraction.cs
- * Pasta: Interactions
- * Descrição: Classe "mãe" abstrata que contém TODA a lógica
- * de "espiar" (trocar câmera, fade, highlight).
+ * Descricao: Classe "mae" abstrata que contem TODA a lógica
+ * de "espiar" (trocar camera, fade, highlight).
  */
 using UnityEngine;
 using System.Collections;
@@ -13,8 +11,8 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     [Header("Configuração do Peek")]
     public Camera playerCamera;
 
-    // Campo genérico! No Inpector, você arrasta a câmera
-    // do olho mágico (para a porta) ou da janela (para a janela).
+    // Campo generico! No Inpector, voce arrasta a camera
+    // do olho magico (para a porta) ou da janela (para a janela).
     public Camera targetViewCamera;
 
     [Header("Referências de Controle")]
@@ -57,7 +55,7 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         }
     }
 
-    // --- Implementação dos Métodos IInteractable ---
+    // --- Implementação dos Metodos IInteractable ---
 
     // "virtual" significa que os filhos podem mudar esse comportamento
     public virtual void Interact()
@@ -78,7 +76,7 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
             objRenderer.material.color = originalColor;
     }
 
-    // --- Lógica Centralizada do Peek ---
+    // --- Logica Centralizada do Peek ---
 
     protected void StartPeeking()
     {
@@ -92,7 +90,7 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         StartCoroutine(SwitchToPlayerCamera());
     }
 
-    // Note que este método agora usa o CameraFader.Instance
+    // Note que este metodo agora usa o CameraFader.Instance
     IEnumerator SwitchToTargetCamera()
     {
         isTransitioning = true;
@@ -117,7 +115,7 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
 
-        targetViewCamera.enabled = false; // Usa a câmera alvo
+        targetViewCamera.enabled = false; // Usa a camera alvo
         playerCamera.enabled = true;
 
         if (playerController != null) playerController.enabled = true;
@@ -128,6 +126,4 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         isTransitioning = false;
     }
 
-    // O MÉTODO FADE FOI REMOVIDO DAQUI
-    // Ele agora está centralizado no CameraFader.cs
 }
