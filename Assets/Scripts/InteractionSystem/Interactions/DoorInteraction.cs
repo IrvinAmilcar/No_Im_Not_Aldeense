@@ -1,26 +1,48 @@
+/*
+ * Arquivo: DoorInteraction.cs
+ * Pasta: Interactions
+ * Descrição: Lógica específica para interagir com a porta (olho mágico).
+ * Implementa a interface IInteractable.
+ */
+
 using UnityEngine;
 using System.Collections;
 
-public class InteractableObject : MonoBehaviour
+// 1. Mudamos o nome da classe
+// 2. Adicionamos ", IInteractable" para assinar o contrato
+public class DoorInteraction : MonoBehaviour, IInteractable
 {
-    [Header("Câmeras")]
-    public Camera playerCamera;       // câmera principal (do jogador)
-    public Camera peepholeCamera;     // câmera fixa do olho mágico
+    [Header("Câmeras (Olho Mágico)")]
+    public Camera playerCamera;
+    public Camera peepholeCamera;
 
-    [Header("Referências de controle")]
-    public MonoBehaviour playerController;       // script de movimentação do player
-    public MonoBehaviour cameraLookController;   // script de rotação da câmera
+    [Header("Referências de Controle")]
+    public MonoBehaviour playerController;
+    public MonoBehaviour cameraLookController;
 
     [Header("Transição")]
-    public float transitionSpeed = 2f; // tempo da transição do fade (opcional)
+    public float transitionSpeed = 2f;
 
+    [Header("Highlight")]
+    public Color highlightColor = Color.yellow; // Cor do highlight
+
+    // Variáveis privadas
+    private Renderer objRenderer;
+    private Color originalColor;
     private bool isPeeking = false;
     private bool isTransitioning = false;
     private CanvasGroup fadeCanvas;
 
     void Start()
     {
-        // opcional: cria um fade preto suave na tela (pra não ser abrupto)
+        // Pega o Renderer para o highlight
+        objRenderer = GetComponent<Renderer>();
+        if (objRenderer != null)
+        {
+            originalColor = objRenderer.material.color;
+        }
+
+        // --- Resto do seu código Start original ---
         GameObject fadeObj = new GameObject("CameraFade");
         fadeCanvas = fadeObj.AddComponent<CanvasGroup>();
         Canvas canvas = fadeObj.AddComponent<Canvas>();
@@ -40,18 +62,38 @@ public class InteractableObject : MonoBehaviour
 
     void Update()
     {
-        // sair do modo espiar
+        // --- Seu código Update original ---
         if (isPeeking && !isTransitioning && Input.GetKeyDown(KeyCode.Space))
         {
             StopPeeking();
         }
     }
 
+    // ---------------------------------------------------
+    // MÉTODOS OBRIGATÓRIOS DA INTERFACE "IInteractable"
+    // ---------------------------------------------------
+
     public void Interact()
     {
         if (!isPeeking && !isTransitioning)
             StartPeeking();
     }
+
+    public void OnFocus()
+    {
+        if (objRenderer != null)
+            objRenderer.material.color = highlightColor;
+    }
+
+    public void OnLoseFocus()
+    {
+        if (objRenderer != null)
+            objRenderer.material.color = originalColor;
+    }
+
+    // ---------------------------------------------------
+    // MÉTODOS ORIGINAIS (Lógica do Olho Mágico)
+    // ---------------------------------------------------
 
     void StartPeeking()
     {
@@ -69,18 +111,12 @@ public class InteractableObject : MonoBehaviour
     {
         isTransitioning = true;
 
-        // bloqueia controles
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
 
-        // fade suave
         yield return StartCoroutine(Fade(1f));
-
-        // troca de câmeras
         playerCamera.enabled = false;
         peepholeCamera.enabled = true;
-
-        // fade out
         yield return StartCoroutine(Fade(0f));
 
         isTransitioning = false;
@@ -91,15 +127,10 @@ public class InteractableObject : MonoBehaviour
         isTransitioning = true;
 
         yield return StartCoroutine(Fade(1f));
-
-        // volta pro player
         peepholeCamera.enabled = false;
         playerCamera.enabled = true;
-
-        // reativa controles
         if (playerController != null) playerController.enabled = true;
         if (cameraLookController != null) cameraLookController.enabled = true;
-
         yield return StartCoroutine(Fade(0f));
 
         isTransitioning = false;
@@ -116,7 +147,6 @@ public class InteractableObject : MonoBehaviour
             fadeCanvas.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
             yield return null;
         }
-
         fadeCanvas.alpha = targetAlpha;
     }
 }
