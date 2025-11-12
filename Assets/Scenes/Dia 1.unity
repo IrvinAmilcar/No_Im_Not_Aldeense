@@ -91089,9 +91089,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RadioInteraction
   staticMessage: "Apenas barulho de est\xE1tica..."
   staticMessageDuration: 2
-  radioDialogueText: "ALOU ALGUEM EST\xC1 OUVINDO? eu me chamo irvin sou muito sigma
-    e estou tentando avisar que jair messias bolsonaro voltar\xE1 a ser presidente
-    em 2026"
+  radioDialoguePages:
+  - teste
+  - teste
+  - teste
   attentionClip: {fileID: 8300000, guid: 874bcf8758e327d4a94f88fbac445fc4, type: 3}
   radioDialogueClip: {fileID: 8300000, guid: 8d7927f1b8e80ba4ea27929ea0e716eb, type: 3}
   staticClip: {fileID: 8300000, guid: e4f7edc7e0eaea444932bf5b317eb6e4, type: 3}

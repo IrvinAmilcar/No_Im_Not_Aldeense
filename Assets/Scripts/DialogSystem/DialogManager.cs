@@ -28,32 +28,24 @@ namespace DialogSystem
         // --- Sistema 2: Diálogo do Rádio ---
         [Header("Config. Diálogo do Rádio")]
         [SerializeField] private Color radioBackgroundColor = new Color(0f, 0f, 0f, 0.85f);
-        
-        // --- (CORREÇÃO DE POSIÇÃO) ---
-        // O offset padrão agora é 0f, para colar na base.
-        [Tooltip("Distância da base da tela. 0 = colado na base.")]
         [SerializeField] private float radioImageBottomOffset = 0f; 
-        
-        [Tooltip("Tamanho (Largura, Altura) da imagem do rádio na tela.")]
         [SerializeField] private Vector2 radioImageSize = new Vector2(800f, 300f); 
 
-        // --- (NOVO: CONFIGURAÇÃO DOS TEXTOS) ---
         [Header("Config. Textos do Rádio")]
         [SerializeField] private float radioTextWidth = 800f;
         [SerializeField] private int radioDialogueFontSize = 22;
         [SerializeField] private int radioPromptFontSize = 18;
-        [SerializeField] private string radioPromptMessage = "Pressione [ESPAÇO] para guardar";
+        
+        [SerializeField] private string radioContinueMessage = "Pressione [ESPAÇO] para continuar...";
+        [SerializeField] private string radioCloseMessage = "Pressione [ESPAÇO] para guardar";
         
         private CanvasGroup radioCanvasGroup;
         private Image radioImageComponent;
         private AudioSource radioAudioSource;
+        private Text radioDialogueText;
+        private Text radioPromptText;  
         
-        // --- (NOVO: REFERÊNCIAS DE TEXTO) ---
-        private Text radioDialogueText; // O diálogo principal
-        private Text radioPromptText;   // O aviso "Pressione [ESPAÇO]"
-        
-        private bool isRadioDialogActive = false;
-        private System.Action onRadioDialogComplete; 
+        private Coroutine currentRadioCoroutine; 
 
         void Awake()
         {
@@ -72,24 +64,7 @@ namespace DialogSystem
 
         void Update()
         {
-            if (!isRadioDialogActive) return;
-
-            // Se o áudio JÁ TERMINOU de tocar...
-            if (!radioAudioSource.isPlaying)
-            {
-                // ...e o prompt de "guardar" AINDA NÃO está visível...
-                if (!radioPromptText.enabled)
-                {
-                    // ...mostre o prompt!
-                    radioPromptText.enabled = true;
-                }
-            }
-            
-            // Se o prompt está visível E o jogador apertar Espaço
-            if (radioPromptText.enabled && Input.GetKeyDown(KeyCode.Space))
-            {
-                StartCoroutine(HideRadioDialogCoroutine());
-            }
+            // Vazio!
         }
 
         #region Sistema 1: Mensagem Simples (Arma)
@@ -145,13 +120,12 @@ namespace DialogSystem
         }
         #endregion
 
-        // ===================================================================
-        // --- LÓGICA DO SISTEMA 2 (Diálogo do Rádio) ---
-        // (Grandes mudanças aqui)
-        // ===================================================================
 
+        #region Sistema 2: Diálogo do Rádio
+        
         void CreateRadioDialogUI()
         {
+            // ... (Criação do Canvas, Fundo e Imagem - Sem Mudanças) ...
             GameObject canvasObject = new GameObject("RadioDialogCanvas");
             canvasObject.transform.SetParent(this.transform);
             Canvas canvas = canvasObject.AddComponent<Canvas>();
@@ -161,8 +135,6 @@ namespace DialogSystem
             canvasObject.AddComponent<GraphicRaycaster>();
             radioCanvasGroup = canvasObject.AddComponent<CanvasGroup>();
             radioCanvasGroup.alpha = 0f; 
-
-            // 1. Fundo Preto
             GameObject bgObject = new GameObject("BackgroundScrim");
             bgObject.transform.SetParent(canvasObject.transform, false);
             RectTransform bgRect = bgObject.AddComponent<RectTransform>();
@@ -171,99 +143,139 @@ namespace DialogSystem
             bgRect.offsetMin = Vector2.zero;
             bgRect.offsetMax = Vector2.zero;
             bgObject.AddComponent<Image>().color = radioBackgroundColor;
-
-            // 2. Imagem das Mãos
             GameObject imageObject = new GameObject("RadioImage");
             imageObject.transform.SetParent(canvasObject.transform, false);
             radioImageComponent = imageObject.AddComponent<Image>();
             radioImageComponent.preserveAspect = true;
             RectTransform imageRect = radioImageComponent.GetComponent<RectTransform>();
-            imageRect.anchorMin = new Vector2(0.5f, 0f); // Base-Centro
-            imageRect.anchorMax = new Vector2(0.5f, 0f); // Base-Centro
-            imageRect.pivot = new Vector2(0.5f, 0f); // Pivô na Base
-            imageRect.anchoredPosition = new Vector2(0, radioImageBottomOffset); // Posição (0)
-            imageRect.sizeDelta = radioImageSize; // Tamanho (do Inspector)
+            imageRect.anchorMin = new Vector2(0.5f, 0f);
+            imageRect.anchorMax = new Vector2(0.5f, 0f);
+            imageRect.pivot = new Vector2(0.5f, 0f);
+            imageRect.anchoredPosition = new Vector2(0, radioImageBottomOffset);
+            imageRect.sizeDelta = radioImageSize; 
 
-            // --- (NOVO: OBJETO DE TEXTO DO DIÁLOGO) ---
+            // ... (Criação dos Textos - LÓGICA DE POSIÇÃO ALTERADA) ...
             GameObject dialogueTextObject = new GameObject("RadioDialogueText");
             dialogueTextObject.transform.SetParent(canvasObject.transform, false);
             radioDialogueText = dialogueTextObject.AddComponent<Text>();
             radioDialogueText.font = GetDefaultFont();
             radioDialogueText.fontSize = radioDialogueFontSize;
             radioDialogueText.color = Color.white;
-            radioDialogueText.alignment = TextAnchor.LowerCenter; // Alinha na base
+            radioDialogueText.alignment = TextAnchor.LowerCenter; 
             radioDialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
             radioDialogueText.verticalOverflow = VerticalWrapMode.Truncate;
             RectTransform dialogueRect = radioDialogueText.GetComponent<RectTransform>();
-            dialogueRect.anchorMin = new Vector2(0.5f, 0f); // Base-Centro
-            dialogueRect.anchorMax = new Vector2(0.5f, 0f); // Base-Centro
-            dialogueRect.pivot = new Vector2(0.5f, 0f); // Pivô na base
-            // Posiciona acima da imagem (altura da imagem + offset + 20px de padding)
-            float dialogueYPos = radioImageBottomOffset + radioImageSize.y + 20f;
-            dialogueRect.anchoredPosition = new Vector2(0, dialogueYPos);
-            dialogueRect.sizeDelta = new Vector2(radioTextWidth, 150f); // Largura (do Inspector) e Altura
-
-            // --- (NOVO: OBJETO DE TEXTO DO PROMPT) ---
+            dialogueRect.anchorMin = new Vector2(0.5f, 0f); 
+            dialogueRect.anchorMax = new Vector2(0.5f, 0f);
+            dialogueRect.pivot = new Vector2(0.5f, 0f);
+            
             GameObject promptTextObject = new GameObject("RadioPromptText");
             promptTextObject.transform.SetParent(canvasObject.transform, false);
             radioPromptText = promptTextObject.AddComponent<Text>();
             radioPromptText.font = GetDefaultFont();
             radioPromptText.fontSize = radioPromptFontSize;
-            radioPromptText.color = Color.grey; // Cinza para ser sutil
+            radioPromptText.color = Color.grey; 
             radioPromptText.alignment = TextAnchor.LowerCenter;
-            radioPromptText.text = radioPromptMessage; // Texto fixo
-            radioPromptText.enabled = false; // Começa invisível!
-            RectTransform promptRect = radioPromptText.GetComponent<RectTransform>();
-            promptRect.anchorMin = new Vector2(0.5f, 0f); // Base-Centro
-            promptRect.anchorMax = new Vector2(0.5f, 0f); // Base-Centro
-            promptRect.pivot = new Vector2(0.5f, 0f); // Pivô na base
-            // Posiciona logo acima da imagem (entre a imagem e o diálogo)
-            float promptYPos = radioImageBottomOffset + radioImageSize.y + 5f;
+            radioPromptText.enabled = false; 
+            RectTransform promptRect = promptTextObject.GetComponent<RectTransform>();
+            promptRect.anchorMin = new Vector2(0.5f, 0f);
+            promptRect.anchorMax = new Vector2(0.5f, 0f);
+            promptRect.pivot = new Vector2(0.5f, 0f);
+            
+            // Posição do "Aperte Espaço" (10px acima da imagem)
+            float promptYPos = radioImageBottomOffset + radioImageSize.y + 10f;
             promptRect.anchoredPosition = new Vector2(0, promptYPos);
-            promptRect.sizeDelta = new Vector2(radioTextWidth, 40f);
+            promptRect.sizeDelta = new Vector2(radioTextWidth, 40f); 
+
+            // Posição do Diálogo Principal (30px ACIMA do prompt)
+            float dialogueYPos = promptYPos + 30f; 
+            dialogueRect.anchoredPosition = new Vector2(0, dialogueYPos);
+            dialogueRect.sizeDelta = new Vector2(radioTextWidth, 150f); 
         }
 
-        // --- (MUDANÇA: AGORA RECEBE O TEXTO) ---
-        public void ShowRadioDialog(string dialogueText, Sprite radioSprite, AudioClip dialogueClip, System.Action onCompleteCallback)
+        public void ShowRadioDialog(string[] dialoguePages, Sprite radioSprite, AudioClip dialogueClip, System.Action onCompleteCallback)
         {
-            if (isRadioDialogActive) return;
-
-            isRadioDialogActive = true;
-            this.onRadioDialogComplete = onCompleteCallback;
-
-            // 1. Configura a UI
-            radioImageComponent.sprite = radioSprite;
-            radioDialogueText.text = dialogueText; // Define o texto do diálogo
-            radioPromptText.enabled = false;       // Esconde o prompt
-
-            // 2. Toca o áudio
-            if (dialogueClip != null)
+            if (currentRadioCoroutine != null)
             {
-                radioAudioSource.PlayOneShot(dialogueClip);
+                StopCoroutine(currentRadioCoroutine);
             }
-            else
-            {
-                // Se não houver áudio, mostre o prompt imediatamente
-                radioPromptText.enabled = true;
-            }
-
-            // 3. Mostra o Canvas (Fade In)
-            StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 1f, fadeSpeed));
+            currentRadioCoroutine = StartCoroutine(ShowRadioDialogCoroutine(dialoguePages, radioSprite, dialogueClip, onCompleteCallback));
         }
 
-        private IEnumerator HideRadioDialogCoroutine()
+        private IEnumerator ShowRadioDialogCoroutine(string[] pages, Sprite sprite, AudioClip clip, System.Action callback)
         {
-            isRadioDialogActive = false;
+            // 1. Configurar e Ligar
+            radioImageComponent.sprite = sprite;
+            radioPromptText.enabled = false; 
+            yield return StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 1f, fadeSpeed));
+
+            // 2. Tocar o Áudio (ele vai tocar em paralelo)
+            if (clip != null)
+            {
+                radioAudioSource.PlayOneShot(clip);
+            }
+
+            // 3. Loop pelas Páginas
+            if (pages != null && pages.Length > 0)
+            {
+                for (int i = 0; i < pages.Length; i++)
+                {
+                    radioDialogueText.text = pages[i]; 
+
+                    bool isLastPage = (i == pages.Length - 1);
+
+                    // --- (AQUI ESTÁ A CORREÇÃO 1) ---
+                    if (!isLastPage)
+                    {
+                        radioPromptText.text = radioContinueMessage;
+                        radioPromptText.enabled = true;
+                    }
+                    else
+                    {
+                        // É a última página, mostre o prompt de "guardar"
+                        radioPromptText.text = radioCloseMessage; 
+                        radioPromptText.enabled = true;
+                    }
+                    // --- FIM DA CORREÇÃO 1 ---
+
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    yield return null; 
+                }
+            }
+            
+            // 4. Páginas Acabaram. Limpe o texto.
+            //    (Não limpamos mais o texto aqui, pois o Fade Out fará isso)
+            // radioDialogueText.text = ""; // <-- REMOVIDO
+
+            // 5. Mostre o prompt de "guardar" IMEDIATAMENTE.
+            //    (Não é mais necessário, já foi feito no loop)
+            // radioPromptText.text = radioCloseMessage; // <-- REMOVIDO
+            // radioPromptText.enabled = true;            // <-- REMOVIDO
+            
+            // --- (AQUI ESTÁ A CORREÇÃO 2) ---
+            // O jogador já apertou "Espaço" na última página para chegar aqui.
+            // Não precisamos esperar de novo.
+            // 6. Espere o jogador apertar Espaço para fechar
+            // yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // <-- REMOVIDO
+            // yield return null;                                                  // <-- REMOVIDO
+            // --- FIM DA CORREÇÃO 2 ---
+
+            // 7. Agora, pare o áudio (se estiver tocando) e feche a UI
+            if (radioAudioSource.isPlaying)
+            {
+                radioAudioSource.Stop();
+            }
             
             yield return StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 0f, fadeSpeed));
-
-            // Limpa o callback
-            if (onRadioDialogComplete != null)
+            
+            if (callback != null)
             {
-                onRadioDialogComplete.Invoke();
+                callback.Invoke(); // Avisa o RadioInteraction que terminamos
             }
-            onRadioDialogComplete = null; 
+            currentRadioCoroutine = null;
         }
+
+        #endregion
 
         #region Funções Auxiliares
         private IEnumerator FadeCanvasGroup(CanvasGroup cg, float targetAlpha, float speed)

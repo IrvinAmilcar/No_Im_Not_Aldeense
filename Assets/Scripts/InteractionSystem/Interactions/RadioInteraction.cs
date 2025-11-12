@@ -10,11 +10,18 @@ public class RadioInteraction : MonoBehaviour, IInteractable
     public string staticMessage = "Apenas barulho de estática...";
     public float staticMessageDuration = 2.0f;
 
-    // --- (NOVO: CAMPO DE TEXTO) ---
+    // --- (A GRANDE MUDANÇA) ---
     [Header("Configuração do Diálogo")]
-    [Tooltip("O texto que aparecerá na tela durante o diálogo do rádio.")]
-    [TextArea(5, 10)]
-    public string radioDialogueText = "Dia 1...\n...ninguém respondeu ainda...";
+    [Tooltip("O diálogo do rádio, dividido em 'páginas'. O jogador apertará Espaço para avançar.")]
+    // --- (MUDANÇA 1: "private" e "SerializeField") ---
+    // Agora é privado, mas ainda visível no Inspector para testes.
+    // Use o novo método SetDailyDialogue para mudar isso via código.
+    [SerializeField] private string[] radioDialoguePages = { 
+        "Dia 1...", 
+        "...ninguém respondeu ainda...",
+        "Vou tentar de novo amanhã."
+    };
+    // --- FIM DA MUDANÇA ---
     
     [Header("Configuração dos Áudios")]
     public AudioClip attentionClip;
@@ -25,9 +32,7 @@ public class RadioInteraction : MonoBehaviour, IInteractable
     public Sprite radioImageSprite;
 
     [Header("Referências de Controle (Do Player)")]
-    [Tooltip("Arraste o script 'FirstPersonMovement' do seu Jogador para cá")]
     public MonoBehaviour playerController;
-    [Tooltip("Arraste o script 'FirstPersonLook' (ou similar) da Câmera do Jogador")]
     public MonoBehaviour cameraLookController;
 
     [Header("Configuração de Efeito (Highlight)")]
@@ -45,6 +50,13 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         audioSource = GetComponent<AudioSource>();
         audioSource.playOnAwake = false;
         
+        // (Vou deixar a configuração de áudio 3D aqui, mesmo que não funcione ainda,
+        // pois ela não quebra nada e será útil no futuro)
+        audioSource.spatialBlend = 1.0f; 
+        audioSource.minDistance = 1.0f;  
+        audioSource.maxDistance = 15.0f; 
+        audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+        
         objRenderer = GetComponent<Renderer>();
         if (objRenderer != null)
         {
@@ -54,17 +66,12 @@ public class RadioInteraction : MonoBehaviour, IInteractable
 
     void Start()
     {
-        // Força o áudio de "ambiente" (atenção/estática) a ser 3D
-        audioSource.spatialBlend = 1.0f; 
-        
-        // Começa o dia tocando o som de atenção
         StartAudioLoop(attentionClip);
     }
 
     private void StartAudioLoop(AudioClip clip)
     {
         if (audioSource == null || clip == null) return;
-        
         audioSource.Stop();
         audioSource.clip = clip;
         audioSource.loop = true;
@@ -101,9 +108,9 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         // 3. Chamar o DialogManager
         bool dialogueFinished = false;
         
-        // --- (MUDANÇA IMPORTANTE: ENVIANDO O TEXTO) ---
+        // --- (MUDANÇA IMPORTANTE: ENVIANDO O ARRAY) ---
         DialogManager.Instance.ShowRadioDialog(
-            radioDialogueText, // O novo parâmetro de texto
+            radioDialoguePages, // Enviando o array de páginas
             radioImageSprite,
             radioDialogueClip,
             () => { dialogueFinished = true; } // Callback
@@ -122,6 +129,18 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         
         isInteracting = false; 
     }
+
+    // --- (NOVO MÉTODO - Pedido 1) ---
+    /// <summary>
+    /// Define o diálogo do rádio para a próxima interação.
+    /// Chame isso a partir do seu GameManager ou DayManager no início do dia.
+    /// </summary>
+    /// <param name="newPages">O novo array de strings do diálogo.</param>
+    public void SetDailyDialogue(string[] newPages)
+    {
+        this.radioDialoguePages = newPages;
+    }
+    // --- FIM DA MUDANÇA ---
 
     public void OnFocus()
     {
