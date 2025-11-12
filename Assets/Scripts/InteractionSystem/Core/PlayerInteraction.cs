@@ -1,19 +1,19 @@
 /*
  * Arquivo: PlayerInteraction.cs
  * Pasta: Core
- * Descrição: Fica no jogador. Detecta objetos interativos à frente
- * e chama os métodos da interface IInteractable.
+ * Descriï¿½ï¿½o: Fica no jogador. Detecta objetos interativos ï¿½ frente
+ * e chama os mï¿½todos da interface IInteractable.
  */
 
 using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [Header("Configuração de Interação")]
+    [Header("Configuraï¿½ï¿½o de Interaï¿½ï¿½o")]
     public Camera playerCamera;
     public float interactionDistance = 3f;
 
-    // Armazena o objeto que está atualmente em foco
+    // Armazena o objeto que estï¿½ atualmente em foco
     private IInteractable interactableInView;
 
     void Update()
@@ -44,27 +44,27 @@ public class PlayerInteraction : MonoBehaviour
             }
             else
             {
-                // Se mirou em algo que não é interativo (ex: parede)
+                // Se mirou em algo que nï¿½o ï¿½ interativo (ex: parede)
                 ClearFocus();
             }
         }
         else
         {
-            // Se não mirou em nada
+            // Se nï¿½o mirou em nada
             ClearFocus();
         }
     }
 
     void HandleInteraction()
     {
-        // Se temos um objeto em foco e pressionamos Espaço
+        // Se temos um objeto em foco e pressionamos Espaï¿½o
         if (interactableInView != null && Input.GetKeyDown(KeyCode.Space))
         {
             interactableInView.Interact();
         }
     }
 
-    /// Avisa ao objeto que ele não está mais em foco.
+    /// Avisa ao objeto que ele nï¿½o estï¿½ mais em foco.
     void ClearFocus()
     {
         if (interactableInView != null)
