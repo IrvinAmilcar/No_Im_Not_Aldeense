@@ -1,36 +1,39 @@
 /*
- * Descricao: Classe "mae" abstrata que contem TODA a l�gica
+ * Descricao: Classe "mae" abstrata que contem TODA a lógica
  * de "espiar" (trocar camera, fade, highlight).
  */
 using UnityEngine;
 using System.Collections;
+using DialogSystem; // <-- Mantenha isso
 
 // Esta classe implementa o contrato IInteractable
 public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 {
-    [Header("Configura��o do Peek")]
+    [Header("Configuração do Peek")]
     public Camera playerCamera;
-
-    // Campo generico! No Inpector, voce arrasta a camera
-    // do olho magico (para a porta) ou da janela (para a janela).
     public Camera targetViewCamera;
 
-    [Header("Refer�ncias de Controle")]
+    [Header("Referências de Controle")]
     public MonoBehaviour playerController;
     public MonoBehaviour cameraLookController;
 
-    [Header("Configura��o de Efeito")]
+    [Header("Configuração de Efeito")]
     public float transitionSpeed = 2f;
     public Color highlightColor = Color.yellow;
+    
+    [Header("Configuração do Diálogo")]
+    [Tooltip("As páginas de diálogo para mostrar ao espiar.")]
+    [SerializeField] protected string[] dialoguePages;
+    [Tooltip("Tempo em segundos para esperar antes de mostrar o diálogo")]
+    public float dialogueStartDelay = 1.5f; 
 
-    // Vari�veis protegidas (acess�veis pelos "filhos")
+    // Variáveis protegidas (acessíveis pelos "filhos")
     protected Renderer objRenderer;
     protected Color originalColor;
     protected bool isPeeking = false;
     protected bool isTransitioning = false;
 
-    // Start � "virtual" para que os filhos possam sobrescrev�-lo
-    // se precisarem de l�gica extra no Start.
+    // Start é "virtual"
     protected virtual void Start()
     {
         objRenderer = GetComponent<Renderer>();
@@ -39,37 +42,23 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
             originalColor = objRenderer.material.color;
         }
 
-        // Garante que a c�mera alvo est� desligada
         if (targetViewCamera != null)
         {
             targetViewCamera.enabled = false;
         }
     }
 
-    // Update � "virtual" pelo mesmo motivo
-    protected virtual void Update()
-    {
-        if (isPeeking && !isTransitioning && Input.GetKeyDown(KeyCode.Space))
-        {
-            StopPeeking();
-        }
-    }
-
-    // --- Implementa��o dos Metodos IInteractable ---
-
-    // "virtual" significa que os filhos podem mudar esse comportamento
+    // --- Implementação dos Metodos IInteractable ---
     public virtual void Interact()
     {
         if (!isPeeking && !isTransitioning)
             StartPeeking();
     }
-
     public virtual void OnFocus()
     {
         if (objRenderer != null)
             objRenderer.material.color = highlightColor;
     }
-
     public virtual void OnLoseFocus()
     {
         if (objRenderer != null)
@@ -80,42 +69,64 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 
     protected void StartPeeking()
     {
-        isPeeking = true;
         StartCoroutine(SwitchToTargetCamera());
     }
 
     protected void StopPeeking()
     {
-        isPeeking = false;
+        if (!isPeeking || isTransitioning) return;
+
+        isPeeking = false; 
         StartCoroutine(SwitchToPlayerCamera());
     }
-
-    // Note que este metodo agora usa o CameraFader.Instance
+    
     IEnumerator SwitchToTargetCamera()
     {
         isTransitioning = true;
+        isPeeking = true; 
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
 
-        // Chama o Fader Singleton
+        // 1. Fade out
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
-
+        // 2. Troca a câmera
         playerCamera.enabled = false;
-        targetViewCamera.enabled = true; // Usa a c�mera alvo
-
-        // Chama o Fader Singleton
+        targetViewCamera.enabled = true; 
+        // 3. Fade in
         yield return StartCoroutine(CameraFader.Instance.Fade(0f, transitionSpeed));
 
         isTransitioning = false;
-    }
 
+        // 4. Espera o delay
+        yield return new WaitForSeconds(dialogueStartDelay);
+
+        // --- (AQUI ESTÁ A CORREÇÃO 1) ---
+        // 5. Verifica se temos algum diálogo VÁLIDO
+        if (HasValidDialoguePages())
+        {
+            // 6. Chama o DialogManager e passa o "callback"
+            DialogManager.Instance.ShowPeekDialogue(dialoguePages, () => {
+                // 7. Callback: Quando o diálogo terminar, chame StopPeeking()
+                StopPeeking();
+            });
+        }
+        else
+        {
+            // 8. Comportamento antigo:
+            // Se NÃO HÁ diálogo VÁLIDO, apenas espere o Espaço para fechar.
+            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+            StopPeeking();
+        }
+        // --- FIM DA CORREÇÃO 1 ---
+    }
+    
     IEnumerator SwitchToPlayerCamera()
     {
-        isTransitioning = true;
+        isTransitioning = true; 
 
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
 
-        targetViewCamera.enabled = false; // Usa a camera alvo
+        targetViewCamera.enabled = false; 
         playerCamera.enabled = true;
 
         if (playerController != null) playerController.enabled = true;
@@ -126,4 +137,29 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         isTransitioning = false;
     }
 
+    // --- (NOVA FUNÇÃO AUXILIAR) ---
+    /// <summary>
+    /// Verifica se o array de diálogo não é nulo, não está vazio
+    /// e contém pelo menos uma página que não é uma string vazia.
+    /// </summary>
+    private bool HasValidDialoguePages()
+    {
+        if (dialoguePages == null || dialoguePages.Length == 0)
+        {
+            return false; // Não tem array ou o array está vazio
+        }
+
+        // Verifica se TODAS as páginas são vazias ou nulas
+        foreach (string page in dialoguePages)
+        {
+            if (!string.IsNullOrEmpty(page))
+            {
+                return true; // Encontrou uma página com texto!
+            }
+        }
+
+        // Se saiu do loop, é porque o array existe mas só tem strings vazias
+        return false;
+    }
+    // --- FIM DA NOVA FUNÇÃO ---
 }

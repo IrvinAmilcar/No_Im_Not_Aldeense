@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Importante para a UI
 using System.Collections;
 using System.Collections.Generic; 
 
@@ -47,28 +47,45 @@ namespace DialogSystem
         
         private Coroutine currentRadioCoroutine; 
 
+        // --- Sistema 3: Diálogo de Peek (Janela) ---
+        [Header("Config. Diálogo de Peek (Janela)")]
+        [SerializeField] private Color peekPanelColor = new Color(0f, 0f, 0f, 0.75f);
+        [Tooltip("Tamanho da caixa de diálogo principal")]
+        [SerializeField] private Vector2 peekPanelSize = new Vector2(700f, 60f); // Caixa menor
+        [Tooltip("Distância do fundo da tela para a CAIXA DE DIÁLOGO")]
+        [SerializeField] private float peekPanelBottomOffset = 50f; // Posição da caixa
+        [Tooltip("Distância do fundo da tela para o TEXTO DE PROMPT")]
+        [SerializeField] private float peekPromptBottomOffset = 20f; // Posição do prompt (abaixo da caixa)
+        [SerializeField] private int peekDialogueFontSize = 18;
+        [SerializeField] private int peekPromptFontSize = 14;
+        [SerializeField] private string peekContinueMessage = "Pressione [ESPAÇO] para continuar...";
+        [SerializeField] private string peekCloseMessage = "Pressione [ESPAÇO] para voltar";
+
+        private CanvasGroup peekCanvasGroup;
+        private Text peekDialogueText;
+        private Text peekPromptText;
+        private Coroutine currentPeekCoroutine;
+        
         void Awake()
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+            // Cria as UIs para os 3 sistemas
             CreateMessageUI();
             CreateRadioDialogUI();
+            CreatePeekDialogueUI(); 
 
+            // Configura o AudioSource (usado apenas pelo Rádio)
             radioAudioSource = GetComponent<AudioSource>();
             radioAudioSource.playOnAwake = false;
             radioAudioSource.loop = false;
             radioAudioSource.spatialBlend = 0f; 
         }
 
-        void Update()
-        {
-            // Vazio!
-        }
-
         #region Sistema 1: Mensagem Simples (Arma)
-        // ... (Esta seção está 100% igual, sem mudanças) ...
+        
         void CreateMessageUI()
         {
             GameObject canvasObject = new GameObject("DialogMessageCanvas");
@@ -110,7 +127,7 @@ namespace DialogSystem
             messageText.text = message;
             currentMessageCoroutine = StartCoroutine(ShowMessageCoroutine(duration));
         }
-
+        
         private IEnumerator ShowMessageCoroutine(float duration)
         {
             yield return StartCoroutine(FadeCanvasGroup(messageCanvasGroup, 1f, fadeSpeed));
@@ -118,6 +135,7 @@ namespace DialogSystem
             yield return StartCoroutine(FadeCanvasGroup(messageCanvasGroup, 0f, fadeSpeed));
             currentMessageCoroutine = null;
         }
+        
         #endregion
 
 
@@ -125,7 +143,6 @@ namespace DialogSystem
         
         void CreateRadioDialogUI()
         {
-            // ... (Criação do Canvas, Fundo e Imagem - Sem Mudanças) ...
             GameObject canvasObject = new GameObject("RadioDialogCanvas");
             canvasObject.transform.SetParent(this.transform);
             Canvas canvas = canvasObject.AddComponent<Canvas>();
@@ -154,7 +171,6 @@ namespace DialogSystem
             imageRect.anchoredPosition = new Vector2(0, radioImageBottomOffset);
             imageRect.sizeDelta = radioImageSize; 
 
-            // ... (Criação dos Textos - LÓGICA DE POSIÇÃO ALTERADA) ...
             GameObject dialogueTextObject = new GameObject("RadioDialogueText");
             dialogueTextObject.transform.SetParent(canvasObject.transform, false);
             radioDialogueText = dialogueTextObject.AddComponent<Text>();
@@ -182,12 +198,10 @@ namespace DialogSystem
             promptRect.anchorMax = new Vector2(0.5f, 0f);
             promptRect.pivot = new Vector2(0.5f, 0f);
             
-            // Posição do "Aperte Espaço" (10px acima da imagem)
             float promptYPos = radioImageBottomOffset + radioImageSize.y + 10f;
             promptRect.anchoredPosition = new Vector2(0, promptYPos);
             promptRect.sizeDelta = new Vector2(radioTextWidth, 40f); 
 
-            // Posição do Diálogo Principal (30px ACIMA do prompt)
             float dialogueYPos = promptYPos + 30f; 
             dialogueRect.anchoredPosition = new Vector2(0, dialogueYPos);
             dialogueRect.sizeDelta = new Vector2(radioTextWidth, 150f); 
@@ -204,27 +218,22 @@ namespace DialogSystem
 
         private IEnumerator ShowRadioDialogCoroutine(string[] pages, Sprite sprite, AudioClip clip, System.Action callback)
         {
-            // 1. Configurar e Ligar
             radioImageComponent.sprite = sprite;
             radioPromptText.enabled = false; 
             yield return StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 1f, fadeSpeed));
 
-            // 2. Tocar o Áudio (ele vai tocar em paralelo)
             if (clip != null)
             {
                 radioAudioSource.PlayOneShot(clip);
             }
 
-            // 3. Loop pelas Páginas
             if (pages != null && pages.Length > 0)
             {
                 for (int i = 0; i < pages.Length; i++)
                 {
                     radioDialogueText.text = pages[i]; 
-
                     bool isLastPage = (i == pages.Length - 1);
 
-                    // --- (AQUI ESTÁ A CORREÇÃO 1) ---
                     if (!isLastPage)
                     {
                         radioPromptText.text = radioContinueMessage;
@@ -232,35 +241,15 @@ namespace DialogSystem
                     }
                     else
                     {
-                        // É a última página, mostre o prompt de "guardar"
                         radioPromptText.text = radioCloseMessage; 
                         radioPromptText.enabled = true;
                     }
-                    // --- FIM DA CORREÇÃO 1 ---
 
                     yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
                     yield return null; 
                 }
             }
             
-            // 4. Páginas Acabaram. Limpe o texto.
-            //    (Não limpamos mais o texto aqui, pois o Fade Out fará isso)
-            // radioDialogueText.text = ""; // <-- REMOVIDO
-
-            // 5. Mostre o prompt de "guardar" IMEDIATAMENTE.
-            //    (Não é mais necessário, já foi feito no loop)
-            // radioPromptText.text = radioCloseMessage; // <-- REMOVIDO
-            // radioPromptText.enabled = true;            // <-- REMOVIDO
-            
-            // --- (AQUI ESTÁ A CORREÇÃO 2) ---
-            // O jogador já apertou "Espaço" na última página para chegar aqui.
-            // Não precisamos esperar de novo.
-            // 6. Espere o jogador apertar Espaço para fechar
-            // yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space)); // <-- REMOVIDO
-            // yield return null;                                                  // <-- REMOVIDO
-            // --- FIM DA CORREÇÃO 2 ---
-
-            // 7. Agora, pare o áudio (se estiver tocando) e feche a UI
             if (radioAudioSource.isPlaying)
             {
                 radioAudioSource.Stop();
@@ -270,14 +259,134 @@ namespace DialogSystem
             
             if (callback != null)
             {
-                callback.Invoke(); // Avisa o RadioInteraction que terminamos
+                callback.Invoke();
             }
             currentRadioCoroutine = null;
+        }
+        #endregion
+
+
+        #region Sistema 3: Diálogo de Peek (Janela)
+
+        void CreatePeekDialogueUI()
+        {
+            // 1. Criar o Canvas
+            GameObject canvasObject = new GameObject("PeekDialogueCanvas");
+            canvasObject.transform.SetParent(this.transform);
+            Canvas canvas = canvasObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 996; 
+            canvasObject.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasObject.AddComponent<GraphicRaycaster>();
+            
+            peekCanvasGroup = canvasObject.AddComponent<CanvasGroup>();
+            peekCanvasGroup.alpha = 0f;
+
+            // 2. Criar o Painel (a "caixa preta") - SÓ PARA O DIÁLOGO
+            GameObject panelObject = new GameObject("PeekPanel");
+            panelObject.transform.SetParent(canvasObject.transform); // Filho do Canvas
+            RectTransform panelRect = panelObject.AddComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0.5f, 0f);
+            panelRect.anchorMax = new Vector2(0.5f, 0f);
+            panelRect.pivot = new Vector2(0.5f, 0f);
+            panelRect.sizeDelta = peekPanelSize; // (ex: 700, 60)
+            panelRect.anchoredPosition = new Vector2(0, peekPanelBottomOffset); // (ex: 50f)
+            panelObject.AddComponent<Image>().color = peekPanelColor;
+
+            // 3. Criar o Texto do Diálogo (DENTRO do painel)
+            GameObject dialogueObject = new GameObject("PeekDialogueText");
+            dialogueObject.transform.SetParent(panelObject.transform); // Filho do Painel
+            peekDialogueText = dialogueObject.AddComponent<Text>();
+            peekDialogueText.font = GetDefaultFont();
+            peekDialogueText.fontSize = peekDialogueFontSize;
+            peekDialogueText.color = Color.white;
+            peekDialogueText.alignment = TextAnchor.MiddleCenter; // Centralizado na caixa
+            peekDialogueText.raycastTarget = false;
+
+            RectTransform dialogueRect = dialogueObject.GetComponent<RectTransform>();
+            dialogueRect.anchorMin = Vector2.zero; // Preenche o painel
+            dialogueRect.anchorMax = Vector2.one;
+            dialogueRect.offsetMin = new Vector2(15, 10); // Padding
+            dialogueRect.offsetMax = new Vector2(-15, -10); // Padding
+
+            // 4. Criar o Texto do Prompt (FORA do painel, sem fundo)
+            GameObject promptObject = new GameObject("PeekPromptText");
+            promptObject.transform.SetParent(canvasObject.transform); // Filho do Canvas
+            peekPromptText = promptObject.AddComponent<Text>();
+            peekPromptText.font = GetDefaultFont();
+            peekPromptText.fontSize = peekPromptFontSize;
+            peekPromptText.color = Color.grey;
+            peekPromptText.alignment = TextAnchor.LowerCenter;
+            peekPromptText.raycastTarget = false;
+            
+            RectTransform promptRect = promptObject.GetComponent<RectTransform>();
+            promptRect.anchorMin = new Vector2(0.5f, 0f);
+            promptRect.anchorMax = new Vector2(0.5f, 0f);
+            promptRect.pivot = new Vector2(0.5f, 0f);
+            promptRect.sizeDelta = new Vector2(peekPanelSize.x, 30f); // Mesma largura, 30px altura
+            promptRect.anchoredPosition = new Vector2(0, peekPromptBottomOffset); // (ex: 20f)
+        }
+        
+        public void ShowPeekDialogue(string[] dialoguePages, System.Action onCompleteCallback)
+        {
+            if (currentPeekCoroutine != null)
+            {
+                StopCoroutine(currentPeekCoroutine);
+            }
+            currentPeekCoroutine = StartCoroutine(ShowPeekDialogueCoroutine(dialoguePages, onCompleteCallback));
+        }
+
+        private IEnumerator ShowPeekDialogueCoroutine(string[] pages, System.Action callback)
+        {
+            // Limpa o texto antigo ANTES de mostrar o painel (Correção do Flicker)
+            peekDialogueText.text = "";
+            peekPromptText.text = "";
+            peekPromptText.enabled = false; 
+
+            // 1. Ligar a UI (agora limpa)
+            yield return StartCoroutine(FadeCanvasGroup(peekCanvasGroup, 1f, fadeSpeed));
+
+            // 2. Loop pelas Páginas
+            if (pages != null && pages.Length > 0)
+            {
+                for (int i = 0; i < pages.Length; i++)
+                {
+                    peekDialogueText.text = pages[i];
+                    bool isLastPage = (i == pages.Length - 1);
+
+                    if (!isLastPage)
+                    {
+                        peekPromptText.text = peekContinueMessage;
+                        peekPromptText.enabled = true;
+                    }
+                    else
+                    {
+                        peekPromptText.text = peekCloseMessage;
+                        peekPromptText.enabled = true;
+                    }
+
+                    // Espera o Espaço
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    yield return null; // Espera 1 frame para evitar input duplicado
+                }
+            }
+            
+            // 3. Desligar a UI
+            yield return StartCoroutine(FadeCanvasGroup(peekCanvasGroup, 0f, fadeSpeed));
+
+            // 4. Chamar o Callback (avisar a janela para "voltar")
+            if (callback != null)
+            {
+                callback.Invoke(); 
+            }
+            currentPeekCoroutine = null;
         }
 
         #endregion
 
+
         #region Funções Auxiliares
+        
         private IEnumerator FadeCanvasGroup(CanvasGroup cg, float targetAlpha, float speed)
         {
             float startAlpha = cg.alpha;
@@ -294,10 +403,19 @@ namespace DialogSystem
         private Font GetDefaultFont()
         {
             if (messageFont != null) return messageFont;
+            
             Debug.LogWarning("Nenhuma fonte foi assignada no 'Message Font' do DialogManager. Usando 'Arial' do sistema.");
-            try { return Font.CreateDynamicFontFromOSFont("Arial", 14); }
-            catch { Debug.LogError("FALHA AO CARREGAR FONTE! Por favor, arraste uma fonte (Arial) para o slot 'Message Font' no DialogManager."); return null; }
+            try 
+            { 
+                return Font.CreateDynamicFontFromOSFont("Arial", 14); 
+            }
+            catch 
+            { 
+                Debug.LogError("FALHA AO CARREGAR FONTE! Por favor, arraste uma fonte (Arial) para o slot 'Message Font' no DialogManager."); 
+                return null; 
+            }
         }
+        
         #endregion
     }
 }
