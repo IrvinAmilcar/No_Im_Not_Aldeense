@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DialogSystem
 {
-    [RequireComponent(typeof(AudioSource))]
+    // NÃO REQUER MAIS O AUDIOSOURCE
     public class DialogManager : MonoBehaviour
     {
         public static DialogManager Instance { get; private set; }
@@ -31,6 +31,8 @@ namespace DialogSystem
         [SerializeField] private float radioImageBottomOffset = 0f; 
         [SerializeField] private Vector2 radioImageSize = new Vector2(800f, 300f); 
 
+        // REMOVEMOS O [SerializeField] private AudioSource radioAudioSource; 
+
         [Header("Config. Textos do Rádio")]
         [SerializeField] private float radioTextWidth = 800f;
         [SerializeField] private int radioDialogueFontSize = 22;
@@ -41,13 +43,14 @@ namespace DialogSystem
         
         private CanvasGroup radioCanvasGroup;
         private Image radioImageComponent;
-        private AudioSource radioAudioSource;
+        // private AudioSource radioAudioSource; // REMOVIDO
         private Text radioDialogueText;
         private Text radioPromptText;  
         
         private Coroutine currentRadioCoroutine; 
 
         // --- Sistema 3: Diálogo de Peek (Janela) ---
+        // (NENHUMA MUDANÇA AQUI)
         [Header("Config. Diálogo de Peek (Janela)")]
         [SerializeField] private Color peekPanelColor = new Color(0f, 0f, 0f, 0.75f);
         [Tooltip("Tamanho da caixa de diálogo principal")]
@@ -77,15 +80,12 @@ namespace DialogSystem
             CreateRadioDialogUI();
             CreatePeekDialogueUI(); 
 
-            // Configura o AudioSource (usado apenas pelo Rádio)
-            radioAudioSource = GetComponent<AudioSource>();
-            radioAudioSource.playOnAwake = false;
-            radioAudioSource.loop = false;
-            radioAudioSource.spatialBlend = 0f; 
+            // REMOVEMOS TODA A CONFIGURAÇÃO DE AUDIOSOURCE DAQUI
         }
 
         #region Sistema 1: Mensagem Simples (Arma)
         
+        // (NENHUMA MUDANÇA AQUI)
         void CreateMessageUI()
         {
             GameObject canvasObject = new GameObject("DialogMessageCanvas");
@@ -141,6 +141,7 @@ namespace DialogSystem
 
         #region Sistema 2: Diálogo do Rádio
         
+        // (NENHUMA MUDANÇA AQUI)
         void CreateRadioDialogUI()
         {
             GameObject canvasObject = new GameObject("RadioDialogCanvas");
@@ -207,25 +208,26 @@ namespace DialogSystem
             dialogueRect.sizeDelta = new Vector2(radioTextWidth, 150f); 
         }
 
-        public void ShowRadioDialog(string[] dialoguePages, Sprite radioSprite, AudioClip dialogueClip, System.Action onCompleteCallback)
+        // --- MUDANÇA: REMOVIDO O PARÂMETRO 'AudioClip dialogueClip' ---
+        public void ShowRadioDialog(string[] dialoguePages, Sprite radioSprite, System.Action onCompleteCallback)
         {
             if (currentRadioCoroutine != null)
             {
                 StopCoroutine(currentRadioCoroutine);
             }
-            currentRadioCoroutine = StartCoroutine(ShowRadioDialogCoroutine(dialoguePages, radioSprite, dialogueClip, onCompleteCallback));
+            // --- MUDANÇA: NÃO PASSAMOS MAIS O 'dialogueClip' ---
+            currentRadioCoroutine = StartCoroutine(ShowRadioDialogCoroutine(dialoguePages, radioSprite, onCompleteCallback));
         }
 
-        private IEnumerator ShowRadioDialogCoroutine(string[] pages, Sprite sprite, AudioClip clip, System.Action callback)
+        // --- MUDANÇA: REMOVIDO O PARÂMETRO 'AudioClip clip' ---
+        private IEnumerator ShowRadioDialogCoroutine(string[] pages, Sprite sprite, System.Action callback)
         {
             radioImageComponent.sprite = sprite;
             radioPromptText.enabled = false; 
             yield return StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 1f, fadeSpeed));
 
-            if (clip != null)
-            {
-                radioAudioSource.PlayOneShot(clip);
-            }
+            // --- MUDANÇA: REMOVIDO O BLOCO QUE TOCA O ÁUDIO ---
+            // if (clip != null) ...
 
             if (pages != null && pages.Length > 0)
             {
@@ -250,10 +252,8 @@ namespace DialogSystem
                 }
             }
             
-            if (radioAudioSource.isPlaying)
-            {
-                radioAudioSource.Stop();
-            }
+            // --- MUDANÇA: REMOVIDO O BLOCO QUE PARA O ÁUDIO ---
+            // if (radioAudioSource.isPlaying) ...
             
             yield return StartCoroutine(FadeCanvasGroup(radioCanvasGroup, 0f, fadeSpeed));
             
@@ -268,6 +268,7 @@ namespace DialogSystem
 
         #region Sistema 3: Diálogo de Peek (Janela)
 
+        // (NENHUMA MUDANÇA AQUI)
         void CreatePeekDialogueUI()
         {
             // 1. Criar o Canvas
@@ -387,6 +388,7 @@ namespace DialogSystem
 
         #region Funções Auxiliares
         
+        // (NENHUMA MUDANÇA AQUI)
         private IEnumerator FadeCanvasGroup(CanvasGroup cg, float targetAlpha, float speed)
         {
             float startAlpha = cg.alpha;

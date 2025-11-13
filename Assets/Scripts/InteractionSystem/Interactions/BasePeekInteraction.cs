@@ -1,6 +1,9 @@
 /*
  * Descricao: Classe "mae" abstrata que contem TODA a lógica
  * de "espiar" (trocar camera, fade, highlight).
+ * * --- VERSÃO FINAL ---
+ * Adiciona um método público "SetMusicOverride" para controle externo
+ * e mantém toda a lógica de diálogo original.
  */
 using UnityEngine;
 using System.Collections;
@@ -27,11 +30,32 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     [Tooltip("Tempo em segundos para esperar antes de mostrar o diálogo")]
     public float dialogueStartDelay = 1.5f; 
 
+    // --- VARIÁVEL DE ÁUDIO ---
+    [Header("Configuração de Áudio Opcional")]
+    [Tooltip("Valor padrão. Pode ser alterado via código por SetMusicOverride().")]
+    [SerializeField] private bool overrideMusicOnPeek = false;
+    // -----------------------------
+
     // Variáveis protegidas (acessíveis pelos "filhos")
     protected Renderer objRenderer;
     protected Color originalColor;
     protected bool isPeeking = false;
     protected bool isTransitioning = false;
+
+    // --- (NOVO MÉTODO PÚBLICO) ---
+    /// <summary>
+    /// Permite que um sistema externo (como um GameManager) 
+    /// decida se a PRÓXIMA interação de "peek" deve
+    /// disparar a música especial.
+    /// </summary>
+    /// <param name="shouldOverride">True para tocar a música especial, 
+    /// false para manter a música principal.</param>
+    public void SetMusicOverride(bool shouldOverride)
+    {
+        this.overrideMusicOnPeek = shouldOverride;
+    }
+    // --- FIM DA MODIFICAÇÃO ---
+
 
     // Start é "virtual"
     protected virtual void Start()
@@ -87,6 +111,14 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
 
+        // --- (MODIFICAÇÃO PONTO 2) ---
+        // Se esta interação deve trocar a música, chama o manager
+        if (overrideMusicOnPeek && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.StartSpecialPeekMusic();
+        }
+        // --- FIM DA MODIFICAÇÃO ---
+
         // 1. Fade out
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
         // 2. Troca a câmera
@@ -100,7 +132,6 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         // 4. Espera o delay
         yield return new WaitForSeconds(dialogueStartDelay);
 
-        // --- (AQUI ESTÁ A CORREÇÃO 1) ---
         // 5. Verifica se temos algum diálogo VÁLIDO
         if (HasValidDialoguePages())
         {
@@ -117,12 +148,19 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
             yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
             StopPeeking();
         }
-        // --- FIM DA CORREÇÃO 1 ---
     }
     
     IEnumerator SwitchToPlayerCamera()
     {
         isTransitioning = true; 
+
+        // --- (MODIFICAÇÃO PONTO 2) ---
+        // Restaura a música principal ANTES do fade de volta
+        if (overrideMusicOnPeek && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.StopSpecialPeekMusic();
+        }
+        // --- FIM DA MODIFICAÇÃO ---
 
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
 
@@ -137,7 +175,6 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         isTransitioning = false;
     }
 
-    // --- (NOVA FUNÇÃO AUXILIAR) ---
     /// <summary>
     /// Verifica se o array de diálogo não é nulo, não está vazio
     /// e contém pelo menos uma página que não é uma string vazia.
@@ -161,5 +198,4 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         // Se saiu do loop, é porque o array existe mas só tem strings vazias
         return false;
     }
-    // --- FIM DA NOVA FUNÇÃO ---
 }

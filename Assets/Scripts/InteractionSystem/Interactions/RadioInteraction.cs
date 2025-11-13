@@ -98,34 +98,54 @@ public class RadioInteraction : MonoBehaviour, IInteractable
     {
         isInteracting = true; 
 
-        // 1. TRAVAR O JOGADOR
+        // --- (MUDANÇA DE LÓGICA DE ÁUDIO) ---
+
+        // 1. ABAIXAR A MÚSICA AMBIENTE (do GameAudioManager)
+        if (GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.DuckMainMusic();
+        }
+
+        // 2. TRAVAR O JOGADOR
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
         
-        // 2. Parar o áudio 3D (o som de "atenção")
-        audioSource.Stop();
+        // 3. TOCAR O ÁUDIO DO DIÁLOGO (neste AudioSource 3D)
+        audioSource.Stop(); // Para o som de "attention"
+        audioSource.loop = false; // Diálogo não é loop
+        if (radioDialogueClip != null)
+        {
+            audioSource.PlayOneShot(radioDialogueClip);
+        }
+        // --- (FIM DA MUDANÇA DE LÓGICA) ---
 
-        // 3. Chamar o DialogManager
+        // 4. Chamar o DialogManager (SEM ENVIAR O ÁUDIO)
         bool dialogueFinished = false;
         
         // --- (MUDANÇA IMPORTANTE: ENVIANDO O ARRAY) ---
         DialogManager.Instance.ShowRadioDialog(
             radioDialoguePages, // Enviando o array de páginas
             radioImageSprite,
-            radioDialogueClip,
+            // (NÃO ENVIAMOS MAIS O radioDialogueClip)
             () => { dialogueFinished = true; } // Callback
         );
 
-        // 4. Esperar o DialogManager nos avisar que terminou
+        // 5. Esperar o DialogManager nos avisar que terminou
         yield return new WaitUntil(() => dialogueFinished);
         
-        // 5. Atualizar o estado do rádio
+        // 6. Atualizar o estado do rádio
         hasBeenUsedToday = true;
         StartAudioLoop(staticClip); // Agora, comece o loop de estática (em 3D)
 
-        // 6. DESTRAVAR O JOGADOR
+        // 7. DESTRAVAR O JOGADOR
         if (playerController != null) playerController.enabled = true;
         if (cameraLookController != null) cameraLookController.enabled = true;
+
+        // 8. RESTAURAR A MÚSICA AMBIENTE
+        if (GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.RestoreMainMusicVolume();
+        }
         
         isInteracting = false; 
     }
