@@ -30331,6 +30331,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &335978923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335978916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ee9ca65ad8288341bf539b90324a451, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GeneratorManager
 --- !u!1 &339510597
 GameObject:
   m_ObjectHideFlags: 0
@@ -135730,9 +135742,10 @@ GameObject:
   - component: {fileID: 1811935116}
   - component: {fileID: 1811935115}
   - component: {fileID: 1811935117}
+  - component: {fileID: 1811935118}
   m_Layer: 0
   m_Name: Generator (1)
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -135830,6 +135843,20 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2698757342573874753, guid: 24ea797f89a741b4abdf5fef2d9157cb, type: 3}
+--- !u!114 &1811935118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1811935113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fdc1157b755911488505f10ca73a4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GeneratorInteractable
+  messageDuration: 2.5
+  focusMessage: Verificar Gerador
 --- !u!1001 &1812028236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -159725,6 +159752,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 335978922}
+    - targetCorrespondingSourceObject: {fileID: 2584603125777386749, guid: 2de520ea30141294a8ebc2dbdabc4440,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 335978923}
   m_SourcePrefab: {fileID: 100100000, guid: 2de520ea30141294a8ebc2dbdabc4440, type: 3}
 --- !u!1001 &1033870637929807011
 PrefabInstance:
