@@ -30343,6 +30343,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ee9ca65ad8288341bf539b90324a451, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorManager
+--- !u!114 &335978924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335978916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c147c6cb4b8ae54a893859787eb6006, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayCycleManager
+  allDays:
+  - dayName: Dia 1
+    expectedVisitors: 2
+    musicSetup: {fileID: 0}
+    wakeUpMessage: 
+  - dayName: Dia 2
+    expectedVisitors: 3
+    musicSetup: {fileID: 0}
+    wakeUpMessage: 
+  - dayName: Dia 3
+    expectedVisitors: 4
+    musicSetup: {fileID: 0}
+    wakeUpMessage: 
+  - dayName: Dia 4
+    expectedVisitors: 3
+    musicSetup: {fileID: 0}
+    wakeUpMessage: 
+  - dayName: Dia 5
+    expectedVisitors: 2
+    musicSetup: {fileID: 0}
+    wakeUpMessage: 
+  radioInteraction: {fileID: 1218564210}
 --- !u!1 &339510597
 GameObject:
   m_ObjectHideFlags: 0
@@ -135857,6 +135891,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorInteractable
   messageDuration: 2.5
   focusMessage: Verificar Gerador
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1001 &1812028236
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -151731,6 +151766,7 @@ GameObject:
   - component: {fileID: 2041123715}
   - component: {fileID: 2041123717}
   - component: {fileID: 2041123716}
+  - component: {fileID: 2041123718}
   m_Layer: 0
   m_Name: Cube.077 (2)
   m_TagString: Untagged
@@ -151809,6 +151845,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2041123714}
   m_Mesh: {fileID: 2726277716269829465, guid: 3cb42b673b1040b448ffe10f96fa1fdb, type: 3}
+--- !u!114 &2041123718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041123714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03af943a2eb72ce4b80ef404711f7dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BedroomDoorInteraction
 --- !u!1001 &2041780695
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -159756,6 +159804,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 335978923}
+    - targetCorrespondingSourceObject: {fileID: 2584603125777386749, guid: 2de520ea30141294a8ebc2dbdabc4440,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 335978924}
   m_SourcePrefab: {fileID: 100100000, guid: 2de520ea30141294a8ebc2dbdabc4440, type: 3}
 --- !u!1001 &1033870637929807011
 PrefabInstance:
