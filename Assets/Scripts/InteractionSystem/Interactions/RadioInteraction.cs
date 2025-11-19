@@ -1,3 +1,8 @@
+/*
+ * Descricao: Lógica de interação com o Rádio.
+ * O Rádio só pode ser ligado uma vez por dia.
+ * Liga/Desliga a música principal e exibe uma mensagem de diálogo.
+ */
 using UnityEngine;
 using System.Collections;
 using DialogSystem; 
@@ -10,18 +15,14 @@ public class RadioInteraction : MonoBehaviour, IInteractable
     public string staticMessage = "Apenas barulho de estática...";
     public float staticMessageDuration = 2.0f;
 
-    // --- (A GRANDE MUDANÇA) ---
+    // --- (CAMPO CENTRAL: O diálogo que será mudado pelo DayCycleManager) ---
     [Header("Configuração do Diálogo")]
     [Tooltip("O diálogo do rádio, dividido em 'páginas'. O jogador apertará Espaço para avançar.")]
-    // --- (MUDANÇA 1: "private" e "SerializeField") ---
-    // Agora é privado, mas ainda visível no Inspector para testes.
-    // Use o novo método SetDailyDialogue para mudar isso via código.
     [SerializeField] private string[] radioDialoguePages = { 
         "Dia 1...", 
         "...ninguém respondeu ainda...",
         "Vou tentar de novo amanhã."
     };
-    // --- FIM DA MUDANÇA ---
     
     [Header("Configuração dos Áudios")]
     public AudioClip attentionClip;
@@ -50,8 +51,6 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         audioSource = GetComponent<AudioSource>();
         audioSource.playOnAwake = false;
         
-        // (Vou deixar a configuração de áudio 3D aqui, mesmo que não funcione ainda,
-        // pois ela não quebra nada e será útil no futuro)
         audioSource.spatialBlend = 1.0f; 
         audioSource.minDistance = 1.0f;  
         audioSource.maxDistance = 15.0f; 
@@ -98,8 +97,6 @@ public class RadioInteraction : MonoBehaviour, IInteractable
     {
         isInteracting = true; 
 
-        // --- (MUDANÇA DE LÓGICA DE ÁUDIO) ---
-
         // 1. ABAIXAR A MÚSICA AMBIENTE (do GameAudioManager)
         if (GameAudioManager.Instance != null)
         {
@@ -117,16 +114,13 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         {
             audioSource.PlayOneShot(radioDialogueClip);
         }
-        // --- (FIM DA MUDANÇA DE LÓGICA) ---
 
         // 4. Chamar o DialogManager (SEM ENVIAR O ÁUDIO)
         bool dialogueFinished = false;
         
-        // --- (MUDANÇA IMPORTANTE: ENVIANDO O ARRAY) ---
         DialogManager.Instance.ShowRadioDialog(
             radioDialoguePages, // Enviando o array de páginas
             radioImageSprite,
-            // (NÃO ENVIAMOS MAIS O radioDialogueClip)
             () => { dialogueFinished = true; } // Callback
         );
 
@@ -150,10 +144,10 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         isInteracting = false; 
     }
 
-    // --- (NOVO MÉTODO - Pedido 1) ---
+    // --- (MÉTODO REQUERIDO PELO DAYCYCLEMANAGER) ---
     /// <summary>
     /// Define o diálogo do rádio para a próxima interação.
-    /// Chame isso a partir do seu GameManager ou DayManager no início do dia.
+    /// Chamado isso a partir do seu GameManager ou DayManager no início do dia.
     /// </summary>
     /// <param name="newPages">O novo array de strings do diálogo.</param>
     public void SetDailyDialogue(string[] newPages)

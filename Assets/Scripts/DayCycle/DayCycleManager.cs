@@ -2,13 +2,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using DialogSystem;
-using System.Linq; // Necessário para usar o .FirstOrDefault()
+using System.Linq; 
 
 public class DayCycleManager : MonoBehaviour
 {
     public static DayCycleManager Instance { get; private set; }
 
-    // --- NOVA ESTRUTURA PARA CONFIGURAR O DIÁLOGO DA JANELA ---
+    // --- Estrutura para Janelas (Mantida) ---
     [System.Serializable]
     public struct WindowDayConfig
     {
@@ -19,7 +19,7 @@ public class DayCycleManager : MonoBehaviour
         [TextArea(3, 5)] 
         public string[] dialogue; 
     }
-    // --------------------------------------------------------
+    // ----------------------------------------
 
     [System.Serializable]
     public struct DayConfig
@@ -27,24 +27,26 @@ public class DayCycleManager : MonoBehaviour
         public string dayName; // Ex: "Dia 1"
         public int expectedVisitors; // Quantas pessoas/eventos precisam passar pela porta
         public DayMusicSetup musicSetup; // Música deste dia (opcional)
-        [TextArea] public string wakeUpMessage; // Mensagem ao acordar (ex: Rádio do Dia X)
+        [TextArea] public string wakeUpMessage; // Mensagem ao acordar (opcional)
         
-        // --- CAMPO ATUALIZADO (Array de configurações) ---
+        // --- NOVO CAMPO DE DIÁLOGO DO RÁDIO ---
+        [Tooltip("O diálogo (reportagem) que será exibido ao interagir com o rádio neste dia.")]
+        [TextArea(3, 5)] 
+        public string[] radioDialogue; 
+        // ------------------------------------
+
         [Tooltip("As configurações de diálogo para TODAS as janelas neste dia.")]
         public WindowDayConfig[] windowDialogues; 
-        // ------------------------------------------------
     }
 
     [Header("Configuração dos 5 Dias")]
     public DayConfig[] allDays;
 
     [Header("Referências")]
-    public RadioInteraction radioInteraction; // Para resetar o rádio
+    public RadioInteraction radioInteraction; // Para resetar e configurar o rádio
     
-    // --- REFERÊNCIA ATUALIZADA (Array de janelas) ---
     [Tooltip("Arrastar TODAS as janelas (BasePeekInteraction) da cena aqui.")]
     public BasePeekInteraction[] allWindows; 
-    // ------------------------------------------------
 
     // Estado Atual
     private int currentDayIndex = 0; // 0 = Dia 1
@@ -134,39 +136,47 @@ public class DayCycleManager : MonoBehaviour
 
         Debug.Log($"--- INICIANDO {config.dayName} ---");
 
-        // 1. Configura Música e Rádio
+        // 1. Configura Música e Rádio (Reset + Diálogo)
         if (GameAudioManager.Instance != null && config.musicSetup != null)
         {
             GameAudioManager.Instance.LoadDayMusic(config.musicSetup);
         }
+        
         if (radioInteraction != null)
         {
             radioInteraction.ResetForNewDay();
+
+            // --- LÓGICA DO RÁDIO: ATRIBUI O DIÁLOGO DO DIA ---
+            if (config.radioDialogue != null && config.radioDialogue.Length > 0)
+            {
+                radioInteraction.SetDailyDialogue(config.radioDialogue);
+            }
+            else
+            {
+                // Se não houver diálogo configurado, define uma mensagem padrão.
+                radioInteraction.SetDailyDialogue(new string[] { "O rádio está mudo." });
+            }
         }
 
-        // --- LÓGICA NOVA: CONFIGURAR DIÁLOGOS DAS MÚLTIPLAS JANELAS ---
+        // 2. CONFIGURAR DIÁLOGOS DAS MÚLTIPLAS JANELAS (Lógica anterior, mantida)
         if (allWindows != null && config.windowDialogues != null)
         {
             foreach (BasePeekInteraction window in allWindows)
             {
-                // Tenta encontrar a configuração de diálogo correspondente pelo WindowID
                 WindowDayConfig? dialogueConfig = config.windowDialogues
                     .FirstOrDefault(d => d.windowID == window.windowID);
 
                 if (dialogueConfig.HasValue && dialogueConfig.Value.dialogue != null)
                 {
-                    // Atribui o diálogo específico
                     window.SetDailyDialogue(dialogueConfig.Value.dialogue);
                 }
                 else
                 {
-                    // Atribui um diálogo padrão se não for configurado para esta janela
                     window.SetDailyDialogue(new string[] { $"[Janela {window.windowID}]: Eu não vejo nada de novo por aqui." });
                 }
             }
         }
-        // ------------------------------------------------------------
-
+        
         // 3. (IMPORTANTE) Aqui você avisaria seu "VisitorSpawner" para começar a lógica do novo dia
         // Ex: VisitorSpawner.Instance.SetDay(dayIndex + 1);
     }

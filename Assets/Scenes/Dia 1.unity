@@ -30360,6 +30360,10 @@ MonoBehaviour:
     expectedVisitors: 2
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue:
+    - Parece que o sol sumiu
+    - "aldeia est\xE1 sem luz de novo"
+    - e bolsonaro voltou
     windowDialogues:
     - windowID: 1
       dialogue:
@@ -30378,21 +30382,38 @@ MonoBehaviour:
     expectedVisitors: 3
     musicSetup: {fileID: 0}
     wakeUpMessage: 
-    windowDialogues: []
+    radioDialogue:
+    - olaa
+    - 'alouu
+
+'
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - 'teste
+
+'
+    - windowID: 
+      dialogue: []
+    - windowID: 
+      dialogue: []
   - dayName: Dia 3
     expectedVisitors: 4
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
     windowDialogues: []
   - dayName: Dia 4
     expectedVisitors: 3
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
     windowDialogues: []
   - dayName: Dia 5
     expectedVisitors: 2
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
     windowDialogues: []
   radioInteraction: {fileID: 1218564210}
   allWindows:
@@ -151792,9 +151813,10 @@ GameObject:
   - component: {fileID: 2041123717}
   - component: {fileID: 2041123716}
   - component: {fileID: 2041123718}
+  - component: {fileID: 2041123719}
   m_Layer: 0
   m_Name: Cube.077 (2)
-  m_TagString: Untagged
+  m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -151885,6 +151907,28 @@ MonoBehaviour:
   notReadyMessage: "Ainda \xE9 cedo, preciso processar mais visitantes."
   messageDuration: 2.5
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!64 &2041123719
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041123714}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2726277716269829465, guid: 3cb42b673b1040b448ffe10f96fa1fdb, type: 3}
 --- !u!1001 &2041780695
 PrefabInstance:
   m_ObjectHideFlags: 0
