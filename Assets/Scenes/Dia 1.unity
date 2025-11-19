@@ -25481,7 +25481,7 @@ PrefabInstance:
     - target: {fileID: 5306720150920072664, guid: 51326e06f63cfad47a879bfdd4d414fc,
         type: 3}
       propertyPath: m_Name
-      value: Window Template (2)
+      value: Janela_Fundos
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -30360,23 +30360,45 @@ MonoBehaviour:
     expectedVisitors: 2
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - se Deus quiser
+      - "Funcionar\xE1"
+    - windowID: 2
+      dialogue:
+      - "Gra\xE7as a Deus"
+      - De segunda
+      - Funcionou!
+      - "N\xE3o era pra ter 4 paginas"
+    - windowID: 3
+      dialogue:
+      - OLAAAAA
   - dayName: Dia 2
     expectedVisitors: 3
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    windowDialogues: []
   - dayName: Dia 3
     expectedVisitors: 4
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    windowDialogues: []
   - dayName: Dia 4
     expectedVisitors: 3
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    windowDialogues: []
   - dayName: Dia 5
     expectedVisitors: 2
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    windowDialogues: []
   radioInteraction: {fileID: 1218564210}
+  allWindows:
+  - {fileID: 2053819254}
+  - {fileID: 1724584005}
+  - {fileID: 1396684743}
 --- !u!1 &339510597
 GameObject:
   m_ObjectHideFlags: 0
@@ -79520,6 +79542,7 @@ MonoBehaviour:
   cameraLookController: {fileID: 144429473}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: Janela_Principal
   dialoguePages: []
   dialogueStartDelay: 1.5
   overrideMusicOnPeek: 0
@@ -92623,7 +92646,7 @@ PrefabInstance:
     - target: {fileID: 5306720150920072664, guid: 51326e06f63cfad47a879bfdd4d414fc,
         type: 3}
       propertyPath: m_Name
-      value: Window Template (1)
+      value: Janela_vizinhos
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -104396,6 +104419,7 @@ MonoBehaviour:
   cameraLookController: {fileID: 1569853827}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: 3
   dialoguePages: []
   dialogueStartDelay: 1.5
   overrideMusicOnPeek: 0
@@ -129266,6 +129290,7 @@ MonoBehaviour:
   cameraLookController: {fileID: 566574591}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: 2
   dialoguePages:
   - ola
   - alou
@@ -151857,6 +151882,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03af943a2eb72ce4b80ef404711f7dc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BedroomDoorInteraction
+  notReadyMessage: "Ainda \xE9 cedo, preciso processar mais visitantes."
+  messageDuration: 2.5
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1001 &2041780695
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -153103,7 +153131,7 @@ PrefabInstance:
     - target: {fileID: 5306720150920072664, guid: 51326e06f63cfad47a879bfdd4d414fc,
         type: 3}
       propertyPath: m_Name
-      value: Window Template
+      value: Janela_Lado
       objectReference: {fileID: 0}
     - target: {fileID: 5306720150920072664, guid: 51326e06f63cfad47a879bfdd4d414fc,
         type: 3}
@@ -153151,9 +153179,8 @@ MonoBehaviour:
   cameraLookController: {fileID: 1959727322}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  dialoguePages:
-  - '- Barulhos da mata silvestre de aldeia -'
-  - que esquisito, ninguem passando..
+  windowID: 1
+  dialoguePages: []
   dialogueStartDelay: 1
   overrideMusicOnPeek: 0
 --- !u!64 &2053819255

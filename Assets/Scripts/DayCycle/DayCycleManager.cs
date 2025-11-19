@@ -2,25 +2,49 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using DialogSystem;
+using System.Linq; // Necess√°rio para usar o .FirstOrDefault()
 
 public class DayCycleManager : MonoBehaviour
 {
     public static DayCycleManager Instance { get; private set; }
+
+    // --- NOVA ESTRUTURA PARA CONFIGURAR O DI√ÅLOGO DA JANELA ---
+    [System.Serializable]
+    public struct WindowDayConfig
+    {
+        [Tooltip("Deve ser IGUAL ao 'Window ID' da janela no script BasePeekInteraction.")]
+        public string windowID;
+        
+        [Tooltip("O di√°logo da Janela para este dia.")]
+        [TextArea(3, 5)] 
+        public string[] dialogue; 
+    }
+    // --------------------------------------------------------
 
     [System.Serializable]
     public struct DayConfig
     {
         public string dayName; // Ex: "Dia 1"
         public int expectedVisitors; // Quantas pessoas/eventos precisam passar pela porta
-        public DayMusicSetup musicSetup; // M˙sica deste dia (opcional)
-        [TextArea] public string wakeUpMessage; // Mensagem ao acordar (ex: R·dio do Dia X)
+        public DayMusicSetup musicSetup; // M√∫sica deste dia (opcional)
+        [TextArea] public string wakeUpMessage; // Mensagem ao acordar (ex: R√°dio do Dia X)
+        
+        // --- CAMPO ATUALIZADO (Array de configura√ß√µes) ---
+        [Tooltip("As configura√ß√µes de di√°logo para TODAS as janelas neste dia.")]
+        public WindowDayConfig[] windowDialogues; 
+        // ------------------------------------------------
     }
 
-    [Header("ConfiguraÁ„o dos 5 Dias")]
+    [Header("Configura√ß√£o dos 5 Dias")]
     public DayConfig[] allDays;
 
-    [Header("ReferÍncias")]
-    public RadioInteraction radioInteraction; // Para resetar o r·dio
+    [Header("Refer√™ncias")]
+    public RadioInteraction radioInteraction; // Para resetar o r√°dio
+    
+    // --- REFER√äNCIA ATUALIZADA (Array de janelas) ---
+    [Tooltip("Arrastar TODAS as janelas (BasePeekInteraction) da cena aqui.")]
+    public BasePeekInteraction[] allWindows; 
+    // ------------------------------------------------
 
     // Estado Atual
     private int currentDayIndex = 0; // 0 = Dia 1
@@ -40,7 +64,6 @@ public class DayCycleManager : MonoBehaviour
 
     /// <summary>
     /// Chama toda vez que um visitante vai embora (Aceito ou Rejeitado).
-    /// VocÍ deve chamar isso no seu script de Decis„o/VisitorManager.
     /// </summary>
     public void RegisterVisitorProcessed()
     {
@@ -51,7 +74,7 @@ public class DayCycleManager : MonoBehaviour
         {
             // Feedback visual ou sonoro que o dia pode ser encerrado
             if (DialogManager.Instance != null)
-                DialogManager.Instance.ShowMessage("O silÍncio voltou... Acho que posso dormir agora.", 3f);
+                DialogManager.Instance.ShowMessage("O sil√™ncio voltou... Acho que posso dormir agora.", 3f);
         }
     }
 
@@ -64,23 +87,23 @@ public class DayCycleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// A sequÍncia de dormir e acordar no prÛximo dia.
+    /// A sequ√™ncia de dormir e acordar no pr√≥ximo dia.
     /// </summary>
     public IEnumerator AdvanceToNextDaySequence()
     {
         // 1. Fade Out (Escurece a tela)
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, 2f));
 
-        // 2. LÛgica de Passagem de Tempo
+        // 2. L√≥gica de Passagem de Tempo
         yield return new WaitForSeconds(2f); // Tempo "dormindo"
 
-        // Atualiza Ìndice do dia
+        // Atualiza √≠ndice do dia
         currentDayIndex++;
 
         if (currentDayIndex >= allDays.Length)
         {
             Debug.Log("FIM DE JOGO - Sobreviveu aos 5 dias!");
-            // Aqui vocÍ chamaria a cena de VitÛria ou CrÈditos
+            // Aqui voc√™ chamaria a cena de Vit√≥ria ou Cr√©ditos
             yield break;
         }
 
@@ -111,21 +134,40 @@ public class DayCycleManager : MonoBehaviour
 
         Debug.Log($"--- INICIANDO {config.dayName} ---");
 
-        // 1. Configura M˙sica
+        // 1. Configura M√∫sica e R√°dio
         if (GameAudioManager.Instance != null && config.musicSetup != null)
         {
             GameAudioManager.Instance.LoadDayMusic(config.musicSetup);
         }
-
-        // 2. Reseta o R·dio para ser usado novamente
         if (radioInteraction != null)
         {
             radioInteraction.ResetForNewDay();
-            // Opcional: Se vocÍ quiser mudar o di·logo do r·dio por dia, faria aqui:
-            // radioInteraction.SetDailyDialogue(novasPaginas);
         }
 
-        // 3. (IMPORTANTE) Aqui vocÍ avisaria seu "VisitorSpawner" para comeÁar a lÛgica do novo dia
+        // --- L√ìGICA NOVA: CONFIGURAR DI√ÅLOGOS DAS M√öLTIPLAS JANELAS ---
+        if (allWindows != null && config.windowDialogues != null)
+        {
+            foreach (BasePeekInteraction window in allWindows)
+            {
+                // Tenta encontrar a configura√ß√£o de di√°logo correspondente pelo WindowID
+                WindowDayConfig? dialogueConfig = config.windowDialogues
+                    .FirstOrDefault(d => d.windowID == window.windowID);
+
+                if (dialogueConfig.HasValue && dialogueConfig.Value.dialogue != null)
+                {
+                    // Atribui o di√°logo espec√≠fico
+                    window.SetDailyDialogue(dialogueConfig.Value.dialogue);
+                }
+                else
+                {
+                    // Atribui um di√°logo padr√£o se n√£o for configurado para esta janela
+                    window.SetDailyDialogue(new string[] { $"[Janela {window.windowID}]: Eu n√£o vejo nada de novo por aqui." });
+                }
+            }
+        }
+        // ------------------------------------------------------------
+
+        // 3. (IMPORTANTE) Aqui voc√™ avisaria seu "VisitorSpawner" para come√ßar a l√≥gica do novo dia
         // Ex: VisitorSpawner.Instance.SetDay(dayIndex + 1);
     }
 }

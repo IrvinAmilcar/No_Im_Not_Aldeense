@@ -7,7 +7,7 @@
  */
 using UnityEngine;
 using System.Collections;
-using DialogSystem; // <-- Mantenha isso
+using DialogSystem;
 
 // Esta classe implementa o contrato IInteractable
 public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
@@ -25,6 +25,10 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     public Color highlightColor = Color.yellow;
     
     [Header("Configuração do Diálogo")]
+    // --- NOVO CAMPO DE ID ---
+    [Tooltip("ID único para o DayCycleManager identificar esta janela.")]
+    public string windowID = "Janela_Principal";
+    // ----------------------
     [Tooltip("As páginas de diálogo para mostrar ao espiar.")]
     [SerializeField] protected string[] dialoguePages;
     [Tooltip("Tempo em segundos para esperar antes de mostrar o diálogo")]
@@ -42,20 +46,25 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     protected bool isPeeking = false;
     protected bool isTransitioning = false;
 
-    // --- (NOVO MÉTODO PÚBLICO) ---
     /// <summary>
     /// Permite que um sistema externo (como um GameManager) 
     /// decida se a PRÓXIMA interação de "peek" deve
     /// disparar a música especial.
     /// </summary>
-    /// <param name="shouldOverride">True para tocar a música especial, 
-    /// false para manter a música principal.</param>
     public void SetMusicOverride(bool shouldOverride)
     {
         this.overrideMusicOnPeek = shouldOverride;
     }
-    // --- FIM DA MODIFICAÇÃO ---
 
+    /// <summary>
+    /// Define o diálogo para a próxima interação de "peek".
+    /// Chamado por um sistema externo (ex: DayCycleManager).
+    /// </summary>
+    /// <param name="newPages">O novo array de strings do diálogo.</param>
+    public void SetDailyDialogue(string[] newPages)
+    {
+        this.dialoguePages = newPages;
+    }
 
     // Start é "virtual"
     protected virtual void Start()
@@ -111,13 +120,11 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
 
-        // --- (MODIFICAÇÃO PONTO 2) ---
         // Se esta interação deve trocar a música, chama o manager
         if (overrideMusicOnPeek && GameAudioManager.Instance != null)
         {
             GameAudioManager.Instance.StartSpecialPeekMusic();
         }
-        // --- FIM DA MODIFICAÇÃO ---
 
         // 1. Fade out
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
@@ -154,13 +161,11 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     {
         isTransitioning = true; 
 
-        // --- (MODIFICAÇÃO PONTO 2) ---
         // Restaura a música principal ANTES do fade de volta
         if (overrideMusicOnPeek && GameAudioManager.Instance != null)
         {
             GameAudioManager.Instance.StopSpecialPeekMusic();
         }
-        // --- FIM DA MODIFICAÇÃO ---
 
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
 
