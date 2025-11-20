@@ -25,17 +25,10 @@ public class DoorInteraction : BasePeekInteraction
     }
 
     // --- IMPORTANTE: Como voltar ao normal? ---
-    // Este método deve ser chamado pelo botão "Fechar" do PeepholeManager (UI)
-    // Ou você pode adicionar um listener via código no Start.
-
+    // Este método agora é chamado pelo PeepholeManager quando o jogador clica em "Encerrar" ou "Fechar"
     public void ExitInteraction()
     {
-        StopPeeking(); // Chama o método da base para desfazer a câmera
-
-        // Garante que a UI feche também
-        if (PeepholeManager.Instance != null)
-        {
-            PeepholeManager.Instance.ClosePeephole();
-        }
+        // Apenas sai da câmera (retorna para o PlayerController)
+        StopPeeking();
     }
 }
