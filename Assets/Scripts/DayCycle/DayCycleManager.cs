@@ -1,55 +1,30 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections; // Necessário para Corrotinas (IEnumerator)
 using System.Collections.Generic;
-using DialogSystem;
-using System.Linq; 
+using DialogSystem; // Necessário se for mostrar mensagens de "Bom dia"
 
 public class DayCycleManager : MonoBehaviour
 {
     public static DayCycleManager Instance { get; private set; }
 
-    // --- Estrutura para Janelas (Mantida) ---
-    [System.Serializable]
-    public struct WindowDayConfig
-    {
-        [Tooltip("Deve ser IGUAL ao 'Window ID' da janela no script BasePeekInteraction.")]
-        public string windowID;
-        
-        [Tooltip("O diálogo da Janela para este dia.")]
-        [TextArea(3, 5)] 
-        public string[] dialogue; 
-    }
-    // ----------------------------------------
-
     [System.Serializable]
     public struct DayConfig
     {
         public string dayName; // Ex: "Dia 1"
-        public int expectedVisitors; // Quantas pessoas/eventos precisam passar pela porta
-        public DayMusicSetup musicSetup; // Música deste dia (opcional)
+        public List<VisitorProfile> visitorsForThisDay;
+        public DayMusicSetup musicSetup; // Música do dia (opcional)
         [TextArea] public string wakeUpMessage; // Mensagem ao acordar (opcional)
-        
-        // --- NOVO CAMPO DE DIÁLOGO DO RÁDIO ---
-        [Tooltip("O diálogo (reportagem) que será exibido ao interagir com o rádio neste dia.")]
-        [TextArea(3, 5)] 
-        public string[] radioDialogue; 
-        // ------------------------------------
-
-        [Tooltip("As configurações de diálogo para TODAS as janelas neste dia.")]
-        public WindowDayConfig[] windowDialogues; 
     }
 
-    [Header("Configuração dos 5 Dias")]
+    [Header("Configuração dos Dias")]
     public DayConfig[] allDays;
 
     [Header("Referências")]
-    public RadioInteraction radioInteraction; // Para resetar e configurar o rádio
-    
-    [Tooltip("Arrastar TODAS as janelas (BasePeekInteraction) da cena aqui.")]
-    public BasePeekInteraction[] allWindows; 
+    public RadioInteraction radioInteraction; // Para resetar o rádio (opcional)
 
-    // Estado Atual
-    private int currentDayIndex = 0; // 0 = Dia 1
+    // Estado Interno
+    private int currentDayIndex = 0;
+    private Queue<VisitorProfile> dailyQueue = new Queue<VisitorProfile>();
     private int visitorsProcessedToday = 0;
 
     void Awake()
@@ -60,124 +35,127 @@ public class DayCycleManager : MonoBehaviour
 
     void Start()
     {
-        // Inicializa o Dia 1
-        StartDay(0);
+        StartDay(0); // Começa no Dia 1 (index 0)
     }
 
-    /// <summary>
-    /// Chama toda vez que um visitante vai embora (Aceito ou Rejeitado).
-    /// </summary>
+    private void StartDay(int dayIndex)
+    {
+        currentDayIndex = dayIndex;
+        visitorsProcessedToday = 0;
+        dailyQueue.Clear();
+
+        if (dayIndex >= allDays.Length)
+        {
+            Debug.Log("Fim de Jogo! Você sobreviveu.");
+            // Aqui você pode carregar uma cena de vitória
+            return;
+        }
+
+        DayConfig config = allDays[dayIndex];
+
+        // 1. Enfileira os visitantes
+        foreach (var v in config.visitorsForThisDay)
+        {
+            dailyQueue.Enqueue(v);
+        }
+
+        // 2. Configura Música (se tiver o sistema de áudio)
+        if (GameAudioManager.Instance != null && config.musicSetup != null)
+        {
+            GameAudioManager.Instance.LoadDayMusic(config.musicSetup);
+        }
+
+        // 3. Reseta o Rádio (se tiver referência)
+        if (radioInteraction != null)
+        {
+            radioInteraction.ResetForNewDay();
+        }
+
+        Debug.Log($"Iniciando {config.dayName}. Visitantes na fila: {dailyQueue.Count}");
+    }
+
+    // --- Interação com a Porta / Olho Mágico ---
+
+    public void CheckDoorForVisitor()
+    {
+        if (dailyQueue.Count > 0)
+        {
+            VisitorProfile nextVisitor = dailyQueue.Peek();
+            PeepholeManager.Instance.StartEncounter(nextVisitor);
+        }
+        else
+        {
+            Debug.Log("Ninguém na porta.");
+            if (DialogManager.Instance != null)
+                DialogManager.Instance.ShowMessage("Silêncio total lá fora.", 2f);
+        }
+    }
+
     public void RegisterVisitorProcessed()
     {
-        visitorsProcessedToday++;
-        Debug.Log($"Visitante processado. Progresso: {visitorsProcessedToday}/{allDays[currentDayIndex].expectedVisitors}");
-
-        if (visitorsProcessedToday >= allDays[currentDayIndex].expectedVisitors)
+        if (dailyQueue.Count > 0)
         {
-            // Feedback visual ou sonoro que o dia pode ser encerrado
+            dailyQueue.Dequeue();
+        }
+
+        visitorsProcessedToday++;
+
+        if (dailyQueue.Count == 0)
+        {
+            Debug.Log("Todos os visitantes do dia foram atendidos. Pode dormir.");
             if (DialogManager.Instance != null)
                 DialogManager.Instance.ShowMessage("O silêncio voltou... Acho que posso dormir agora.", 3f);
         }
     }
 
+    // --- Lógica de Dormir / Avançar Dia (Corrige o Erro CS1061) ---
+
     /// <summary>
-    /// Verifica se pode dormir.
+    /// Verifica se o jogador pode dormir (se a fila de visitantes está vazia).
     /// </summary>
     public bool CanAdvanceDay()
     {
-        return visitorsProcessedToday >= allDays[currentDayIndex].expectedVisitors;
+        return dailyQueue.Count == 0;
     }
 
     /// <summary>
-    /// A sequência de dormir e acordar no próximo dia.
+    /// Sequência completa de dormir: Fade Out -> Espera -> Perde Energia -> Novo Dia -> Fade In.
     /// </summary>
     public IEnumerator AdvanceToNextDaySequence()
     {
         // 1. Fade Out (Escurece a tela)
-        yield return StartCoroutine(CameraFader.Instance.Fade(1f, 2f));
+        if (CameraFader.Instance != null)
+            yield return StartCoroutine(CameraFader.Instance.Fade(1f, 2f));
+        else
+            yield return new WaitForSeconds(1f); // Fallback se não tiver fader
 
         // 2. Lógica de Passagem de Tempo
         yield return new WaitForSeconds(2f); // Tempo "dormindo"
 
-        // Atualiza índice do dia
+        // 3. Atualiza índice do dia
         currentDayIndex++;
 
-        if (currentDayIndex >= allDays.Length)
-        {
-            Debug.Log("FIM DE JOGO - Sobreviveu aos 5 dias!");
-            // Aqui você chamaria a cena de Vitória ou Créditos
-            yield break;
-        }
-
-        // 3. Aplica penalidades no Gerador
+        // 4. Aplica penalidades no Gerador (Se existir o Manager)
         if (GeneratorManager.Instance != null)
         {
-            GeneratorManager.Instance.TransitionToNextDay(); // Remove 50% energia
+            GeneratorManager.Instance.TransitionToNextDay();
         }
 
-        // 4. Prepara o novo dia
+        // 5. Inicia o novo dia (Lógica interna)
         StartDay(currentDayIndex);
 
-        // 5. Fade In (Clareia a tela)
-        yield return StartCoroutine(CameraFader.Instance.Fade(0f, 2f));
+        // 6. Fade In (Clareia a tela)
+        if (CameraFader.Instance != null)
+            yield return StartCoroutine(CameraFader.Instance.Fade(0f, 2f));
 
-        // 6. Mensagem de bom dia (opcional)
-        string msg = allDays[currentDayIndex].wakeUpMessage;
-        if (!string.IsNullOrEmpty(msg) && DialogManager.Instance != null)
+        // 7. Mensagem de bom dia (Opcional)
+        if (currentDayIndex < allDays.Length)
         {
-            DialogManager.Instance.ShowMessage(msg, 4f);
-        }
-    }
-
-    private void StartDay(int dayIndex)
-    {
-        visitorsProcessedToday = 0;
-        DayConfig config = allDays[dayIndex];
-
-        Debug.Log($"--- INICIANDO {config.dayName} ---");
-
-        // 1. Configura Música e Rádio (Reset + Diálogo)
-        if (GameAudioManager.Instance != null && config.musicSetup != null)
-        {
-            GameAudioManager.Instance.LoadDayMusic(config.musicSetup);
-        }
-        
-        if (radioInteraction != null)
-        {
-            radioInteraction.ResetForNewDay();
-
-            // --- LÓGICA DO RÁDIO: ATRIBUI O DIÁLOGO DO DIA ---
-            if (config.radioDialogue != null && config.radioDialogue.Length > 0)
+            string msg = allDays[currentDayIndex].wakeUpMessage;
+            if (!string.IsNullOrEmpty(msg) && DialogManager.Instance != null)
             {
-                radioInteraction.SetDailyDialogue(config.radioDialogue);
-            }
-            else
-            {
-                // Se não houver diálogo configurado, define uma mensagem padrão.
-                radioInteraction.SetDailyDialogue(new string[] { "O rádio está mudo." });
+                DialogManager.Instance.ShowMessage(msg, 4f);
             }
         }
-
-        // 2. CONFIGURAR DIÁLOGOS DAS MÚLTIPLAS JANELAS (Lógica anterior, mantida)
-        if (allWindows != null && config.windowDialogues != null)
-        {
-            foreach (BasePeekInteraction window in allWindows)
-            {
-                WindowDayConfig? dialogueConfig = config.windowDialogues
-                    .FirstOrDefault(d => d.windowID == window.windowID);
-
-                if (dialogueConfig.HasValue && dialogueConfig.Value.dialogue != null)
-                {
-                    window.SetDailyDialogue(dialogueConfig.Value.dialogue);
-                }
-                else
-                {
-                    window.SetDailyDialogue(new string[] { $"[Janela {window.windowID}]: Eu não vejo nada de novo por aqui." });
-                }
-            }
-        }
-        
-        // 3. (IMPORTANTE) Aqui você avisaria seu "VisitorSpawner" para começar a lógica do novo dia
-        // Ex: VisitorSpawner.Instance.SetDay(dayIndex + 1);
     }
 }

@@ -1,0 +1,1226 @@
+:: StoryTitle
+No im not aldeense
+
+
+:: StoryData
+{
+  "ifid": "55BE2EB7-93EA-4B80-9E70-F72080E2328A",
+  "format": "Twison",
+  "format-version": "0.0.1",
+  "start": "Cinematica-Abertura",
+  "zoom": 1
+}
+
+
+:: Amanda-Conversa1 {"position":"1675,50","size":"100,100"}
+[Uma mulher com camisa desbotada da Ferrari esta na porta.]
+**Amanda:** Graças a Deus!
+**Amanda:** Você tem um rádio? Internet? Qualquer coisa?
+**Amanda:** Eu PRECISO saber o que aconteceu!
+
+[[1. "O que aconteceu onde?"->Amanda-Conversa2]]
+[[2. "Com o eclipse? Ninguém sabe."->Amanda-Conversa2B]]
+
+
+:: Amanda-Conversa2 {"position":"1950,250","size":"100,100"}
+**Amanda:** A corrida! O GP de Singapura!
+**Amanda:** Eu estava assistindo quando a TV... *parou*. O Verstappen tinha rodado.
+**Amanda:** O Hamilton... ele... ele conseguiu?
+
+[[1. "O mundo está acabando e você quer saber de F1?"->Amanda-Conversa3-D]]
+[[2. "Eu não faço ideia."->Amanda-Conversa3-B]]
+
+
+:: Amanda-Conversa2B {"position":"1700,275","size":"100,100"}
+**Amanda:** Eclipse? Que se dane o eclipse! Eu estava assistindo o GP!
+**Amanda:** A TV apagou no meio da corrida! O Verstappen estava em segundo!
+
+[[1. "Isso não é importante agora."->Amanda-Conversa3-A]]
+[[2. "Você parece... obcecada com isso."->Amanda-Conversa3-C]]
+
+
+:: Amanda-Conversa3-A {"position":"1750,475","size":"100,100"}
+**Amanda:** NÃO É IMPORTANTE?! É a única coisa que *é*! O resto... o resto é só... esse... breu.
+**Amanda:** Se eu souber o resultado... eu sei que ainda é real. Que o tempo ainda 'tá passando.
+**Amanda:** Me deixa entrar. Só preciso de notícias. Por favor... essa *quietude*... 'tá me enlouquecendo.
+
+[[...->Amanda-Fim-Dialogo]]
+
+
+:: Amanda-Conversa3-B {"position":"2025,475","size":"100,100"}
+**Amanda:**Como não? Você não tem um radio por ai não?
+**Amanda:**Olha cara eu to com pressa a corrida ta rolando ainda.
+**Amanda:** Eu só preciso de energia!
+**Amanda:** Me deixa entrar. Eu sou quieta, juro.
+
+[[...->Amanda-Fim-Dialogo]]
+
+
+:: Amanda-Conversa3-C {"position":"1600,500","size":"100,100"}
+**Amanda:** 'Obcecada? é a maior corrida do ano!
+**Amanda:** Esperei o ano todo por essa corrida não vai ser um eclipsezinho que vai me impedir de assistir!
+**Amanda:** Me deixa entrar. Eu preciso descobrir quem ganhou.
+
+[[...->Amanda-Fim-Dialogo]]
+
+
+:: Amanda-Conversa3-D {"position":"1875,475","size":"100,100"}
+**Amanda:**Claro! Eu esperei o ano todo por essa corrida não vai ser um apagãozinho que vai me fazer perder ela!
+**Amanda:**Eae vai me deixar entrar?
+[[...->Amanda-Fim-Dialogo]]
+
+
+:: Amanda-Fim-Dialogo {"position":"1825,650","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Amanda entrar)->Amanda-Fim-Entra]]
+[[2. (Mandar Amanda sair)->Amanda-Fim-Sai]]
+[[3. (Usar o DE3000)->Amanda-Scan]]
+
+
+:: Amanda-Fim-Entra {"position":"1600,750","size":"100,100"}
+[Você abre a porta. Amanda entra, mas ignora você. Ela vai direto para a TV desligada e coloca a mão na tela.]
+**Amanda:** ...Não 'tem nem estatica...
+[Ela se afasta para dentro da escuridão da sua casa, abraçando os joelhos, e desaparece.]
+
+
+
+
+:: Amanda-Fim-Sai {"position":"1850,825","size":"100,100"}
+[Você manda ela sair.]
+**Amanda:** Certo... Certo...
+[Ela se vira e começa a andar, murmurando para si mesma.]
+**Amanda:** ... volta 34... pneus médios... ele vai parar no box... volta 34...
+[Ela desaparece na escuridão, repetindo seu mantra contra a quietude.]
+
+
+
+
+:: Amanda-Scan {"position":"2075,775","size":"100,100"}
+[Você usa o DE3000. A máquina bipa, analisando a mulher.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Amanda entrar)->Amanda-Fim-Entra]]
+[[2. (Mandar Amanda sair)->Amanda-Fim-Sai]]
+
+
+:: Bernardo-Conversa1 {"position":"5250,275","size":"100,100"}
+[Um rapaz com capuz preto, carregando um Laptop.]
+**Bernardo:** Que alivio tem alguem vivo ainda...
+**Bernardo:** As outras casas que eu passei ou estavam apagadas ou ninguem respondia
+**Bernardo:** Talvez estão com medo.
+
+[[1. "Quem é você?"->Bernardo-Conversa2A]]
+
+
+:: Bernardo-Conversa2A {"position":"5425,250","size":"100,100"}
+**Bernardo:** Me chamo Bernardo. Eu... trabalhava na prefeitura.
+**Bernardo:** Antes... antes de tudo ficar esse breu.
+
+[[1. "Esse computador funciona?"->Bernardo-Conversa2A2]]
+[[2. "Como chegou aqui?"->Bernardo-Conversa2A3]]
+
+
+:: Bernardo-Conversa2A2 {"position":"5300,425","size":"100,100"}
+**Bernardo:** Está sem bateria. Tava na prefeitura quando tudo... Apagou.
+**Bernardo:** Eu tava tentando interceptar uma mensagem do governo
+**Bernardo:** Eles estavam falando que algo escapou...
+**Bernardo:**Ai tudo apagou...
+**Bernardo:**E eu tive que sair de la as pressas
+**Bernardo:**Você precisa me deixar entrar, tenho que colocar ele para carregar
+
+[[...->Bernardo-Fim-Dialogo]]
+
+
+:: Bernardo-Conversa2A3 {"position":"5550,375","size":"100,100"}
+**Bernardo:** peguei um carro da prefeitura. 'Tava... um caos lá. Pior que caos.
+**Bernardo:** Chegou uns homens trajados de amarelo... Eles juntaram as pessoas na...
+**Bernardo:** Na delegacia... falaram que era seguro... eles... tacaram fogo no predio...
+**Bernardo:**Com todo mundo la dentro...
+**Bernardo:** Os gritos... eu...eu não consigo esquecer eles
+**Bernardo:** Por favor me deixa entrar eu preciso descansar um pouco!
+
+[[...->Bernardo-Fim-Dialogo]]
+
+
+:: Bernardo-Fim-Dialogo {"position":"5475,550","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Bernardo entrar)->Bernardo-Fim-Entra]]
+[[2. (Mandar Bernardo sair)->Bernardo-Fim-Sai]]
+[[3. (Usar o DE3000)->Bernardo-Scan]]
+
+
+:: Bernardo-Fim-Entra {"position":"5300,700","size":"100,100"}
+[Você abre. Bernardo entra, e imediatamente começa a ligar cabos no seu gerador.]
+**Bernardo:** Droga... estão todos queimados
+[Ele desaparece na escuridão da casa.]
+
+
+
+:: Bernardo-Fim-Sai {"position":"5475,775","size":"100,100"}
+[Você manda ele sair.]
+**Bernardo:** Serio isso?
+**Bernardo:**Deixa so a energia voltar eu vou vazar seu historico do celular!
+[Ele se vira e desaparece na escuridão.]
+
+
+
+:: Bernardo-Scan {"position":"5700,750","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Bernardo entrar)->Bernardo-Fim-Entra]]
+[[2. (Mandar Bernardo sair)->Bernardo-Fim-Sai]]
+
+
+:: Cinematica-Abertura {"position":"150,200","size":"100,100"}
+[A cena abre com o chiado de uma TV.
+A imagem falha, mas estabiliza em um estúdio de telejornal.]
+
+**Vinicius (Repórter):** ...e essa foi a cobertura das chuvas no Agreste.
+Agora, uma notícia de última hora.
+
+[A câmera corta para um gráfico do Nordeste com um ícone de eclipse.]
+
+**Vinicius:** Cientistas da USP confirmaram que haverá um eclipse total atípico que afetará toda região nordeste hoje, a partir das 17:00.
+**Vinicius:** A natureza do evento... parece ser desconhecida. Autoridades pedem que todos permaneçam em locais...
+
+[A imagem distorce e corta para a estática. A tela fica preta.]
+
+[[...->Radio-Dia1]]
+
+
+:: Claudia-Conversa1 {"position":"4500,200","size":"100,100"}
+[Uma mulher mal vestida está na porta. Ela parece estar machucada.]
+**Claudia:** É impressionante como somos frageis!
+**Claudia:**Como a escuridão tira nossa humanidade...
+
+[[1. "O que aconteceu com você?"->Claudia-Conversa2]]
+[[2. "Do que você está falando?"->Claudia-Conversa2A]]
+
+
+:: Claudia-Conversa2 {"position":"4725,275","size":"100,100"}
+**Claudia:** Ontem eu estava dormindo e do nada uma mulher veio e me chutou
+**Claudia:**O sapato dela saiu voando para dentro do mato 
+**Claudia:**Eu aproveitei para correr e me enfiei entre duas arvores
+**Claudia:**Acabei desmaiando e acordei quase agora
+**Claudia:**Mas antes de desmaiar eu vi que um homem muito palido estava observando um grupo que estava um pouco distante daquela mulher.
+**Claudia:**Depois disso eu não me lembro de mais nada...
+
+
+
+[[Por que alguem faria isso com você?->Claudia-Conversa2B]]
+[[Você quer algum remedio?->Claudia-Conversa2C]]
+
+
+:: Claudia-Conversa2A {"position":"4350,450","size":"100,100"}
+**Claudia:** Estou falando de como essa escuridão muda as pessoas
+**Claudia:** A um dia atras fui atacada por uma mulher e acabei desmaiando
+**Claudia:** E olha que eu so tava dormindo
+**Claudia:** Sera que tem como me ajudar?
+**Claudia:** Preciso de um lugar que não seja o chão para dormir
+
+[[...->Claudia-Fim-Dialogo]]
+
+
+:: Claudia-Conversa2B {"position":"4550,400","size":"100,100"}
+**Claudia:**Estamos vivendo em um mundo de cães agora
+**Claudia:**Se não algum humano alguma daquelas coisas que se figem como um
+**Claudia:**Vão tentar nos matar.
+[A voz da mulher esta ficando mais e mais fraca]
+**Claudia:**Então... posso entrar?
+
+[[...->Claudia-Fim-Dialogo]]
+
+
+:: Claudia-Conversa2C {"position":"4725,450","size":"100,100"}
+**Claudia:**Eu so preciso de um lugar para descansar
+**Claudia:**Que de preferencia não seja o chão
+[[...->Claudia-Fim-Dialogo]]
+
+
+:: Claudia-Fim-Dialogo {"position":"4550,600","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Claudia entrar)->Claudia-Fim-Entra]]
+[[2. (Mandar Claudia sair)->Claudia-Fim-Sai]]
+[[3. (Usar o DE3000)->Claudia-Scan]]
+
+
+:: Claudia-Fim-Entra {"position":"4300,750","size":"100,100"}
+[Você abre. Claudia entra]
+[Você pode sentir um alivio vindo da voz dela]
+**Claudia:** Muito obrigada... faz muito tempo que eu não tenho um tento sobre a cabeça
+[Ela se senta no canto mais escuro e desaparece.]
+
+
+
+:: Claudia-Fim-Sai {"position":"4550,750","size":"100,100"}
+[Você manda ela sair.]
+**Claudia:** Tudo bem... eu entendo
+**Claudia:**Acho melhor eu... voltar para rua
+[Ela se arrasta para a escuridão quieta.]
+
+
+
+:: Claudia-Scan {"position":"4800,750","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Claudia entrar)->Claudia-Fim-Entra]]
+[[2. (Mandar Claudia sair)->Claudia-Fim-Sai]]
+
+
+:: Dia1-Inicio-Gameplay {"position":"500,200","size":"100,100"}
+[O único som é o zumbido baixo do seu gerador a gasolina.]
+[Ouve-se uma batida forte e apressada na porta.]
+[[Abrir o olho mágico->Irvin-Conversa1]]
+
+
+:: Dia2-Inicio-Gameplay {"position":"1100,275","size":"100,100"}
+[A manhã chega, mas a escuridão permanece.
+O gerador continua roncando.]
+[A casa está silenciosa. Irvin se foi.]
+[[Avançar para o Dia 2->Radio-Dia2]]
+
+
+
+:: Dia4-Inicio-Gameplay {"position":"5050,275","size":"100,100"}
+[O quarto dia.
+O gerador está visivelmente mais fraco. A luz pisca.]
+[Uma batida curta. Silêncio. Outra batida.]
+[[Abrir o olho mágico->Bernardo-Conversa1]]
+
+
+:: Dia5-Inicio-Gameplay {"position":"6950,600","size":"100,100"}
+[O gerador está falhando.
+O motor engasga. E o *barulho* do motor fica fraco.]
+[[Abrir o olho mágico->HomemPalido3-OlhoMagico]]
+
+
+:: Fabi-Conversa1 {"position":"6250,125","size":"100,100"}
+[Uma garota com uma camisa "Shawn Mendes Tour 2023".]
+**Fabi:** Você tem luz! Tem internet?
+**Fabi:**  Eu PRECISO de internet!
+
+[[1. "Como é que é?"->Fabi-Conversa2]]
+[[2. "Tem gente morrendo lá fora."->Fabi-Conversa2B]]
+
+
+:: Fabi-Conversa2 {"position":"6275,275","size":"100,100"}
+**Fabi:** O Shawn postou! Eu SEI que ele postou! Ele sempre posta às 19h!
+**Fabi:** E se ele está triste? ou pior tiver nesse breu que nem a gente!!!
+**Fabi:** Alguém precisa estar com ele!
+**Fabi:** Me deixa entrar! Preciso carregar meu celular!
+
+[[1. "E por que deixaria você entrar?."->Fabi-Conversa3A]]
+[[2. "Não tem internet"->Fabi-Conversa3B]]
+
+
+:: Fabi-Conversa2B {"position":"6625,150","size":"100,100"}
+**Fabi:** E daí?! Isso é mais importante! Você não entende!
+**Fabi:** E se... e se ele... estiver no escuro tambem? Ele pode estar sozinho! Com medo!
+**Fabi:** Ele precisa de apoio! Ele precisa... de mim!
+**Fabi:** Me deixa entrar! Por favor!
+
+[[1. "Você não parece estar muito bem"->Fabi-Conversa3C]]
+[[2. "A internet não funciona em lugar nenhum."->Fabi-Conversa3B]]
+
+
+:: Fabi-Conversa3 {"position":"6550,425","size":"100,100"}
+**Fabi:** Você acha que eu sou uma daquelas COISAS?!
+**Fabi:** Sei cantar todas as músicas dele. De cor.
+**Fabi:** Isso prova que sou humana! "Stitches... Mercy..."
+[Ela começa a cantar, chorando. O som é agudo, desesperado.]
+**Fabi:** ...Vê? Eu sou humana...
+
+[[...->Fabi-Fim-Dialogo]]
+
+
+:: Fabi-Conversa3A {"position":"6175,425","size":"100,100"}
+**Fabi:**Por que não é  minha vida que esta em risco!
+**Fabi:**É a do Shawn
+**Fabi:**Se eu não der like nas mensagens dele quem vai dar?
+**Fabi:**Deixa eu entrar por favor
+**Fabi:**Odeio deixar ele esperando
+
+[[...->Fabi-Fim-Dialogo]]
+
+
+:: Fabi-Conversa3B {"position":"6400,375","size":"100,100"}
+**Fabi:**Como não?
+**Fabi:**Pensava que aldeia era um fim de mundo mas não desse nivel!
+**Fabi:**Mas se tiver energia eu vou poder ao menos apreciar umas fotos dele
+**Fabi:**No meu celular... tenho uma galeria so dele
+**Fabi:**Me deixa entrar Por favor
+
+[[...->Fabi-Fim-Dialogo]]
+
+
+:: Fabi-Conversa3C {"position":"6725,300","size":"100,100"}
+**Fabi:**Não se preocupe comigo
+**Fabi:**O Shawn precisa de mim!
+**Fabi:**So quero carregar meu celular é rapidinho.
+
+[[1. "E o que me prova que você não é um visitante?."->Fabi-Conversa3]]
+[[1. "E o que você esta fazendo aqui em aldeia?."->Fabi-Conversa3D]]
+
+
+:: Fabi-Conversa3D {"position":"6725,500","size":"100,100"}
+**Fabi:**Eu pensava que ia ter um show do Shawn aqui
+**Fabi:**Mas era fake news
+**Fabi:**Ai acabei perdendo meu carro nesse breu
+**Fabi:**Mas isso não importa!!!
+**Fabi:**O Shawn precisa de mim! Abre logo!
+
+[[...->Fabi-Fim-Dialogo]]
+
+
+:: Fabi-Fim-Dialogo {"position":"6425,625","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Fabi entrar)->Fabi-Fim-Entra]]
+[[2. (Mandar Fabi sair)->Fabi-Fim-Sai]]
+[[3. (Usar o DE3000)->Fabi-Scan]]
+
+
+:: Fabi-Fim-Entra {"position":"6100,750","size":"100,100"}
+[Você abre. Ela entra e tenta carregar o celular no seu gerador] 
+**Fabi:** Não pega! Por quê não pega?!
+[Ela se senta no canto, balançando e cantarolando baixo, como um feitiço contra o silêncio.]
+**Fabi:** ...you watch me bleed until I can't breathe...
+[Ela desaparece na escuridão da casa.]
+
+
+
+:: Fabi-Fim-Sai {"position":"6525,750","size":"100,100"}
+[Você manda ela sair.]
+**Fabi:** Você vai se arrepender!
+**Fabi:** Quando o Shawn souber... ele... ele...
+[Ela se afasta, agora em silêncio.]
+
+
+
+
+:: Fabi-Scan {"position":"6325,750","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Fabi entrar)->Fabi-Fim-Entra]]
+[[2. (Mandar Fabi sair)->Fabi-Fim-Sai]]
+
+
+:: Fim-Dia1 {"position":"675,1725","size":"100,100"}
+[A noite continua. O gerador zumbe.
+Mas, por enquanto, a quietude reina.]
+[FIM DO DIA 1]
+[[Avançar para o Dia 2->Dia2-Inicio-Gameplay]]
+
+
+:: Fim-Dia2 {"position":"2025,2400","size":"100,100"}
+[O segundo dia termina com o som de pessoas discutindo ao longe.]
+[FIM DO DIA 2]
+
+
+
+:: Fim-Dia3 {"position":"4900,1350","size":"100,100"}
+[O terceiro dia termina. O silêncio lá fora parece... vigilante.]
+[FIM DO DIA 3]
+[[Avançar para o Dia 4->Radio-Dia4]]
+
+
+:: Fim-Dia4 {"position":"6350,900","size":"100,100"}
+[O quarto dia termina. O gerador falha por um segundo, e a luz morre... antes de voltar, mais fraca.]
+[FIM DO DIA 4]
+[[Avançar para o Dia 5->Radio-Dia5]]
+
+
+:: HomemPalido1-Conversa {"position":"325,1375","size":"100,100"}
+**Homem Pálido:** Eu sou... um observador.
+**Homem Pálido:** Gosto de assistir. Ver como vocês reagem. O medo é tão... interessante.
+**Homem Pálido:** Masss...
+**Homem Pálido:** Me diz... você está sozinho?
+
+[[1. "Sim." (Mentira, Irvin está aí)->HomemPalido1-RespostaB]]
+[[2. "Não." (Verdade)->HomemPalido1-Resposta]]
+
+
+:: HomemPalido1-OlhoMagico {"position":"200,1325","size":"100,100"}
+[Um homem muito alto está parado na sua porta.
+Sua pele é quase branca-acinzentada, como se estivesse doente.]
+[Ele está olhando diretamente para o olho mágico. Um sorriso leve no rosto.]
+**Homem Pálido:** Que... noite... bonita. Tão *quieta*. Tão... pura.
+**Homem Pálido:** Casa espaçosa essa sua!
+
+[[1. "Quem é você?"->HomemPalido1-Conversa]]
+[[2. (Ficar em silêncio)->HomemPalido1-Silencio]]
+
+
+:: HomemPalido1-Resposta {"position":"250,1600","size":"100,100"}
+**Homem Pálido:**Consigo escultar alguem cochichando ai dentro.
+**Homem Pálido:** O desespero dele tem um cheiro único. Doce.
+**Homem Pálido:** Seu gerador vai falhar. E quando falhar... ah, vai ser lindo.
+**Homem Pálido:** Nos vemos em breve.
+[Ele desaparece nas sombras.]
+
+
+
+
+:: HomemPalido1-RespostaB {"position":"425,1550","size":"100,100"}
+**Homem Pálido:** ...Mentiroso.
+**Homem Pálido:** Consigo escutar os sussurros através das paredes.
+**Homem Pálido:**Aquele cara que eu encontrei na mata esta com você não é?
+**Homem Pálido:**Amigos talvez?
+**Homem Pálido:**Vamos ver quanto tempo vocês vão conseguir se esconder atras dessas luzes.
+[Ele se afasta lentamente da porta e desaparece na escuridão.]
+
+
+
+
+:: HomemPalido1-Silencio {"position":"100,1725","size":"100,100"}
+**Homem Pálido:** Eu consigo escultar você ai dentro.
+**Homem Pálido:** Se escondendo atras dessa porta... dessa luz.
+**Homem Pálido:** Mas algo me diz que sua seguraça não vai durar muito tempo.
+**Homem Pálido:** Ninguem sabe o que pode acontecer nas proximas noites.
+[Ele se afasta lentamente da porta e desaparece na escuridão.]
+
+
+
+:: HomemPalido2-ConversaB {"position":"4600,1000","size":"100,100"}
+**Homem Pálido:**Você é tão ingenuo
+**Homem Pálido:**Não consegue ver que é especial?
+**Homem Pálido:**Você foi escolhido que nem seu amiguinho
+
+[[1. "Escolhido?"->HomemPalido2-ConversaC]]
+[[1. "Amiguinho?"->HomemPalido2-ConversaD]]
+
+
+:: HomemPalido2-ConversaC {"position":"4600,1175","size":"100,100"}
+**Homem Pálido:**Simmm, escolhido.
+**Homem Pálido:**Sabe... não sou eu quem faz as regras
+**Homem Pálido:**Por mim você ja estaria morto...
+**Homem Pálido:**Nos veremos novamente e lhe garanto que será a ultima vez.
+[O homem desaparece na escuridão]
+
+
+
+:: HomemPalido2-ConversaD {"position":"4750,1025","size":"100,100"}
+**Homem Pálido:**Simmm, aquele tal de Irvin...
+**Homem Pálido:**Ele mora aqui perto não é?
+**Homem Pálido:**Talvez eu dê uma passadinha na casa dele
+**Homem Pálido:**Pelo que eu me lembre o gerador dele não esta nas melhores
+**Homem Pálido:**Quem sabe o que pode acontecer
+[O homem abre um sorriso longo e macabro e desaparece na escuridão]
+
+
+
+:: HomemPalido2-OlhoMagico {"position":"4375,1000","size":"100,100"}
+[O mesmo homem palido macabro esta na porta.]
+**Homem Pálido:** Olá de novo. Dormindo bem?
+**Homem Pálido:** Eu aposto que não. Eu consigo ouvir você andando aí dentro. Tão... *inquieto*.
+**Homem Pálido:** E o seu gerador... está mais fraco.
+
+
+[[1. "Por que fica voltando aqui?"->HomemPalido2-ConversaB]]
+
+
+:: HomemPalido3-OlhoMagico {"position":"7050,275","size":"100,100"}
+[O homem palido esta novamente na sua porta.]
+**Homem Pálido:** Você vem aguentando bem...
+**Homem Pálido:**Mas algo me diz que sua sorte acabou
+
+[[1. "O que você quer dizer?"->HomemPalido3-Ultimato]]
+[[2. "Vá para o inferno."->HomemPalido3-UltimatoB]]
+
+
+:: HomemPalido3-Ultimato {"position":"7275,275","size":"100,100"}
+**Homem Pálido:**Posso ouvir seu gerador...
+**Homem Pálido:**Esta mais fraco...
+**Homem Pálido:**Algo me diz hoje será nossa ultima conversa
+[Ele some na escuridão atras dele.]
+
+
+
+:: HomemPalido3-UltimatoB {"position":"7275,125","size":"100,100"}
+**Homem Pálido:**Hahahahaha
+**Homem Pálido:** Nós ESTAMOS no inferno.
+**Homem Pálido:**Ou melhor você está
+**Homem Pálido:**O mundo não é mais o mesmo, tem novos mestres
+**Homem Pálido:**Medo, sofrimento e desconfiança
+**Homem Pálido:**Mas não vão se extender por muito tempo...
+**Homem Pálido:**Logo todos estaremos em paz.
+**Homem Pálido:**Mas eu ja falei de mais...
+
+[Ele se afasta e some na escuridão.]
+
+
+
+:: Irvin-Conversa1 {"position":"250,400","size":"100,100"}
+[Você olha pelo olho mágico. Um jovem está lá, pálido e ofegante. É Irvin, seu vizinho.]
+**Irvin:** Ei! Mizera, sou eu, Irvin! Abre, por favor!
+**Irvin:** Vim ver se 'tá tudo bem. Faz... faz quase um dia que tudo ficou um breu.
+
+[[1. "O que 'tá acontecendo aí fora?"->Irvin-Conversa2]]
+[[2. "Um dia? Como assim?"->Irvin-Conversa2B]]
+
+
+:: Irvin-Conversa2 {"position":"175,650","size":"100,100"}
+**Irvin:** 'Tudo louco, cara. Tudo.
+**Irvin:** Passei na casa do Marcos no caminho... o cara da TI, sabe?
+**Irvin:** Ele 'tava trancado no quarto, histérico. Disse que viu... gente.
+**Irvin:** Saindo da mata. De dentro das árvores. Chamou eles de "Visitantes".
+
+[[1. "Gente saindo das árvores? O Marcos pirou."->Irvin-Conversa3]]
+[[2. "Visitantes?"->Irvin-Conversa3B]]
+
+
+:: Irvin-Conversa2B {"position":"550,425","size":"100,100"}
+**Irvin:** Sim! O sol... não voltou. O eclipse... não acabou.
+**Irvin:** Mas escuta, passei na casa do Marcos, o vizinho da esquina.
+**Irvin:** Ele 'tava surtado. Dizendo que viu coisas saindo da mata.
+**Irvin:** Gente... mas não gente. Ele 'tava apavorado.
+
+[[1. "O Marcos sempre foi meio noiado."->Irvin-Conversa3]]
+[[2. "Que tipo de coisas?"->Irvin-Conversa3B]]
+
+
+:: Irvin-Conversa3 {"position":"375,525","size":"100,100"}
+**Irvin:** Bicho, eu sei, eu sei. Eu também penso isso...
+**Irvin:** ...mas tu não viu ele. Não era o "Marcos noiado" de sempre.
+**Irvin:** Ele 'tava... pálido. Apavorado de um jeito... diferente.
+**Irvin:** Ele me disse que eles... fingem. E que odeiam luz forte.
+**Irvin:** Antes de eu sair, ele me deu isso.
+[Irvin mostra um dispositivo pelo olho mágico. Parece um scanner portátil.]
+**Irvin:** Chamou de DE3000. Disse que era um... identificador biométrico da firma dele, que ele 'adaptou'.
+
+[[1. "Adaptou pra quê?"->Irvin-Conversa4]]
+
+
+:: Irvin-Conversa3B {"position":"575,675","size":"100,100"}
+**Irvin:** Visitantes! Foi o nome que ele deu! Disse que... pareciam gente. Perfeitos, até.
+**Irvin:** Mas ele 'tava gritando que tinha algo *errado* neles. Que... por *dentro*... eles 'tavam... *vazios*.
+**Irvin:** Ele 'tava repetindo "eles fingem, eles fingem".
+**Irvin:** Aí ele me deu isso aqui.
+[Irvin mostra um dispositivo pela câmera.]
+**Irvin:** Chamou de DE3000. Um identificador que ele 'adaptou'.
+
+[[1. "Pra que serve isso?"->Irvin-Conversa4]]
+
+
+:: Irvin-Conversa4 {"position":"375,775","size":"100,100"}
+**Irvin:** Ele disse... que é a única forma de *ter certeza*.
+**Irvin:** Ele 'tava em pânico, mas disse que... 'tem três modos'.
+**Irvin:** O primeiro é a *temperatura*. Ele disse que eles apresentam temperatura corporal anormalmente baixa.
+**Irvin:** O outro é a *retina*. Ele disse que o olho deles não...  apresentam micro-sacadas involuntárias constantes que nem a gente. ele tem um olhar fixo e "vazio".
+**Irvin:** E o último... é... neural. Ele disse que o aparelho detecta padrões de atividade cerebral. Nos Humanos temos picos característicos em certas frequências (ritmos alpha, beta). Impostores mostram distribuição uniforme.
+**Irvin:** Por fim ele disse que cada consulta gasta bateria. Mas que... "é o único jeito de saber se... se ainda é... humano."
+**Irvin:**Para ser sincero isso tudo parece uma loucura para mim.
+**Irvin:**Me pergunto como ele sabe disso tudo sobre os visitantes.
+
+[[1. "Mas por que eu precisaria deixar alguem entrar?"->IrvinConversa4.5]]
+
+
+:: Irvin-Fim-Dialogo {"position":"425,1125","size":"100,100"}
+[A conversa acaba. Irvin te olha através do olho mágico.]
+**Irvin:** Então? Me deixa entrar?
+**Irvin:** Pode... pode testar o DE3000 em mim, se quiser.
+
+[[1. (Deixar Irvin entrar)->Irvin-Fim-Entra]]
+[[2. (Usar o DE3000)->Irvin-Scan]]
+
+
+:: Irvin-Fim-Entra {"position":"500,1300","size":"100,100"}
+[Você abre a porta. Irvin entra rapidamente e a tranca.]
+**Irvin:** Valeu. Sério. Obrigado.
+**Irvin:** Não sei o que... o que 'tá lá fora, mas... é melhor ficar aqui dentro. Perto da... luz.
+[Ele se afasta do seu campo de visão, desaparecendo na escuridão da casa.]
+
+
+
+
+:: Irvin-Scan {"position":"625,1125","size":"100,100"}
+[Você aponta o DE3000. A máquina emite um bipe baixo e uma luz verde varre Irvin.]
+[O visor mostra "Analisando..."]
+**Irvin:** E aí? Funcionou?
+
+[[1. (Deixar Irvin entrar)->Irvin-Fim-Entra]]
+
+
+:: IrvinConversa4.5 {"position":"425,925","size":"100,100"}
+**Irvin:** Por causa da gasolina! Ninguém tem energia!
+**Irvin:** E não tem previsão de voltar! Você não vai querer ficar no escuro, vai?
+**Irvin:** Tem gente aí fora sem abrigo. Gente boa. Que pode ter suprimentos, gasolina...
+
+[[1. "Você 'tá ofegante. Aconteceu mais alguma coisa?"->IrvinConversa5]]
+
+
+:: IrvinConversa5 {"position":"600,975","size":"100,100"}
+**Irvin:** No caminho pra cá... eu ouvi um barulho estranho na mata.
+**Irvin:** Como se tivesse alguem me seguindo.
+**Irvin:** Quando olhei para tras tinha um cara muito palido e sem camisa...
+**Irvin:** Ele 'tava... só olhando. Sem piscar.
+**Irvin:** A pele dele parecia... que sei lá... como se ela fosse do tamanho errado para o corpo dele.
+**Irvin:** Eu quase me caguei todo, sai correndo na mesma hora.
+
+
+[[...->Irvin-Fim-Dialogo]]
+
+
+:: IrvinT-Decisao-Final {"position":"7475,1025","size":"100,100"}
+[O silêncio é pesado.
+A luz pisca violentamente. O gerador morre.]
+[Esta é a decisão final. Na *Escuridão*.]
+
+[[1. (Abrir a porta)->IrvinT-Fim-Abre]]
+[[2. (Recusar e pegar a arma)->IrvinT-Fim-Nega]]
+
+
+:: IrvinT-Dialogo {"position":"7475,325","size":"100,100"}
+**Irvin:** A luz acabou na minha casa... o gerador pifou de vez.
+**Irvin:** Queria saber se posso passar uns dias aqui. Pelo menos até amanhecer.
+
+[[1. "Amanhecer?"->IrvinT-Dialogo3]]
+[[2. "Ja tem 5 dias que não temos um amanhecer!"->IrvinT-Dialogo3]]
+
+
+:: IrvinT-Dialogo2 {"position":"7650,325","size":"100,100"}
+**Irvin:** Ah! Deve ser meu fisico de atleta...
+[Ele dá um sorriso curto. Os olhos dele não sorriem junto.]
+**Irvin:** Mas vê só... vim aqui por que a minha gasolina acabou. Queria saber se posso passar uns dias aqui. Pelo menos até amanhecer.
+
+[[1. "Amanhecer?"->IrvinT-Dialogo3]]
+[[2. "Ja tem 5 dias que não temos um amanhecer!"->IrvinT-Dialogo3]]
+
+
+:: IrvinT-Dialogo3 {"position":"7475,475","size":"100,100"}
+[Irvin  te ignora, como se fosse um ruído irrelevante.]
+
+**Irvin:** O importante é que eu estou aqui agora. E você tem luz.
+**Irvin:** Vizinhos têm que se ajudar nessas horas, né?
+**Irvin:** Você não vai querer ficar sozinho aí dentro quando esse gerador falhar... e ele vai falhar.
+**Irvin:** Abre a porta. Vamos esperar isso passar juntos.
+
+[[1. (Abrir a porta)->IrvinT-Fim-Abre]]
+[[2. (Recusar e pegar a arma)->IrvinT-Fim-Nega]]
+
+
+
+:: IrvinT-Fim-Abre {"position":"7300,1025","size":"100,100"}
+[Você destranca a porta.]
+[O gerador morre, mergulhando a casa no silêncio.]
+[Você consegue sentir a mão gelada de irvin no seu ombro]
+**Irvin** A luz sempre morre...
+[FIM]
+
+
+:: IrvinT-Fim-Nega {"position":"7650,1025","size":"100,100"}
+**Irvin:**Vai me deixar aqui fora?
+**Irvin:**Você escolhe a solidão?
+**Irvin:**A luz vai morrer e você escolhe morrer com ela?
+**Irvin:**Largar sua bensão?
+[O seu gerador quebra]
+[Irvin começa a tentar arrombar a porta.]
+[Você corre para pegar a arma]
+[TELA PRETA.]
+[Ouve-se o som da porta sendo estraçalhada.]
+[Passos pesados e desumanos correm na sua direção.]
+[Você aponta para o som.]
+.
+.
+.
+**BANG!**
+[Silêncio absoluto.]
+[FIM]
+
+
+:: IrvinT-OlhoMagico {"position":"7550,125","size":"100,100"}
+[É o seu vizinho Irvin. Ele está parado, olhando fixamente para a porta.]
+**Irvin:** Ei mizera, nunca corri tanto na minha vida.
+
+[[1. "O que aconteceu?"->IrvinT-Dialogo]]
+[[1. "Você nem esta suado..."->IrvinT-Dialogo2]]
+
+
+:: Jp-Conversa1 {"position":"1750,975","size":"100,100"}
+[Um homem alto e desorientado. Ele parece perdido.]
+**Jp:** Graças a Deus. Me diz uma coisa, onde é que eu 'tô?
+**Jp:** Isso aqui é Aldeia? Cadê a estrada pra Camaragibe? O carro quebrou... e... as ruas...
+
+[[1. "É Aldeia, mas tudo está parado."->Jp-Conversa2]]
+[[2. "Você está perdido?"->Jp-Conversa2B]]
+
+
+:: Jp-Conversa2 {"position":"1725,1150","size":"100,100"}
+**Jp:** Parado como? Lá em Orobó quando a luz cai nada para!
+**Jp:** Eu ouço seu gerador. Você deve ter comida aí. 'Tô com uma fome danada.
+
+[[1. "Não tenho comida sobrando."->Jp-Conversa3]]
+[[2. "Por que eu deixaria você entrar?"->Jp-Conversa3B]]
+
+
+:: Jp-Conversa2B {"position":"2050,1000","size":"100,100"}
+**Jp:** Perdido? Vixe. Conheço Aldeia como a palma da minha mão!
+**Jp:** Mas agora... esse breu ta dificultando as coisas.
+**Jp:** Escuta, ouço seu gerador. Você tem comida aí?
+
+[[1. "Mal tenho para mim."->Jp-Conversa3]]
+[[2. "E se eu disser que não?"->Jp-Conversa3C]]
+
+
+:: Jp-Conversa3 {"position":"1950,1175","size":"100,100"}
+**Jp:** Eu não preciso de muito! Só um prato, qualquer coisa!
+**Jp:** Eu sou gente de bem! De Orobó! Nunca peguei nada de ninguém!
+**Jp:** Me deixa entrar. Eu ajudo no que for preciso. Ou você prefere me deixar aqui fora... com... com aquelas coisas?
+
+[[...->Jp-Fim-Dialogo]]
+
+
+:: Jp-Conversa3B {"position":"1650,1325","size":"100,100"}
+**Jp:** Porque eu sou gente de bem, ué! Mas escuta... tem umas coisas andando por aí.
+**Jp:** Tem muita gente estranha nas ruas agora, ate rumores de uns tal de visitantes que fingem ser gente.
+**Jp:** Você vai querer ter gente de verdade do seu lado não?.
+
+[[...->Jp-Fim-Dialogo]]
+
+
+:: Jp-Conversa3C {"position":"2175,1225","size":"100,100"}
+**Jp:** Certo... tudo bem. Não é pela comida, então. É pelo abrigo.
+**Jp:** Tem muita gente nas ruas... e as pessoas estão perdendo a cabeça.
+**Jp:**Ouvi mais cedo no radio que tem umas coisas se passando por gente
+**Jp:**Não sei se é verdade.
+**Jp:** Por favor. Eu não quero... ficar aqui fora.
+
+[[...->Jp-Fim-Dialogo]]
+
+
+:: Jp-Fim-Dialogo {"position":"1900,1400","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Jp entrar)->Jp-Fim-Entra]]
+[[2. (Mandar Jp sair)->Jp-Fim-Sai]]
+[[3. (Usar o DE3000)->Jp-Scan]]
+
+
+:: Jp-Fim-Entra {"position":"1650,1550","size":"100,100"}
+[Você abre. Jp entra, aliviado.]
+**Jp:** Tem café? Não? Tudo bem.
+[Ele caminha para o fundo da casa e desaparece.]
+
+
+
+
+:: Jp-Fim-Sai {"position":"1900,1550","size":"100,100"}
+[Você manda ele sair.]
+**Jp:** Me deixar aqui fora? 'Tá tirando onda? Tudo bem... eu me viro.
+**Jp:** Mas se eu achar um facão, eu volto.
+[Ele se vira e desaparece na escuridão.]
+
+
+
+
+:: Jp-Scan {"position":"2125,1550","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Jp entrar)->Jp-Fim-Entra]]
+[[2. (Mandar Jp sair)->Jp-Fim-Sai]]
+
+
+:: JuliaM-Conversa1 {"position":"1875,1725","size":"100,100"}
+[Uma garota com boné juliete está na porta, batendo o pé.]
+**Julia M:** Fala, irmão! Sou a Juba, a maior MC de Aldeia! Abre essa porta!
+**Julia M:** Preciso carregar meu celular! Por que 'tá tudo apagado?
+
+[[1. "A energia caiu em todo lugar"->JuliaM-Conversa2]]
+[[2. "Carregar o celular? É sério?"->JuliaM-Conversa2B]]
+
+
+:: JuliaM-Conversa2 {"position":"2000,1900","size":"100,100"}
+**Julia M:** Caiu como? Eu 'tava voltando da festa do Jota, dormi no carro!
+**Julia M:** Quando acordei, 'tava esse breu!
+**Julia M:** Me deixa entrar rapidinho. Só usar uma tomada.
+
+[[1. "Só tem gerador aqui."->JuliaM-Conversa3]]
+[[2. "Não tenho carregador."->JuliaM-Conversa3B]]
+
+
+:: JuliaM-Conversa2B {"position":"2075,1700","size":"100,100"}
+**Julia M:** Sério? Por acaso não tem tomada nessa casa?
+**Julia M:** Meu celular morreu! Eu preciso avisar minha mãe! E postar um tiktok!
+**Julia M:** Meus fãs ja devem ta malucos!
+
+[[1. "A luz caiu em todo lugar.E ninguém tem sinal."->JuliaM-Conversa2]]
+[[2. "TikTok?"->JuliaM-Conversa3C]]
+
+
+:: JuliaM-Conversa3 {"position":"2175,1975","size":"100,100"}
+**Julia M:** E daí se é gerador? Eu preciso avisar minha mãe!
+**Julia M:** Abre aí, vai ser rapidinho. Eu juro!
+
+[[...->JuliaM-Fim-Dialogo]]
+
+
+:: JuliaM-Conversa3B {"position":"1750,2000","size":"100,100"}
+**Julia M:** Carregador eu tenho! Só quero energia!
+**Julia M:** Por favor, eu preciso falar com minha mãe! Ela deve 'tá preocupada!
+**Julia M:** Deixa eu entrar só um pouquinho!
+
+[[...->JuliaM-Fim-Dialogo]]
+
+
+:: JuliaM-Conversa3C {"position":"2250,1800","size":"100,100"}
+**Julia M:** Algum problema? É meu trampo!
+**Julia M:** Abre logo!
+
+[[1. "Só tem gerador aqui."->JuliaM-Conversa3]]
+
+
+:: JuliaM-Fim-Dialogo {"position":"2025,2100","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Julia M entrar)->JuliaM-Fim-Entra]]
+[[2. (Mandar Julia M sair)->JuliaM-Fim-Sai]]
+[[3. (Usar o DE3000)->JuliaM-Scan]]
+
+
+:: JuliaM-Fim-Entra {"position":"1775,2250","size":"100,100"}
+[Você abre a porta. Ela entra e já procura uma tomada.]
+**Julia M:** Valeu Mlk! Você é gente boa!
+[Ela desaparece na casa.]
+
+
+
+
+:: JuliaM-Fim-Sai {"position":"2300,2225","size":"100,100"}
+[Você manda ela sair.]
+**Julia M:** Sério? Vai se ferrar!
+**Julia M:** Espero que um bicho te pegue!
+[Ela se afasta, xingando.]
+
+
+
+
+:: JuliaM-Scan {"position":"2025,2275","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Julia M entrar)->JuliaM-Fim-Entra]]
+[[2. (Mandar Julia M sair)->JuliaM-Fim-Sai]]
+
+
+:: JuliaT-Conversa1 {"position":"3575,75","size":"100,100"}
+[Uma garota com roupas de grife sujas e um óculos escuros (mesmo no escuro) está na porta.]
+**Julia T:** Ei você tem que me ajudar, eu me perdi dos meus amigos não sei para onde ir.
+[[1. "Como você veio parar aqui?"->JuliaT-Conversa2]]
+[[2. "O que aconteceu com seus amigos?"->JuliaT-Conversa2B]]
+
+
+:: JuliaT-Conversa2 {"position":"3475,250","size":"100,100"}
+**Julia T:** Vim com uns amigos para a festa de um tal de Jota
+**Julia T:**A gente tava curtindo no backstage quando a festa foi interrompida por essa escuridão toda
+**Julia T:**Ai uma MC que tava la o nome era Juba ou algo do tipo falou que tinha um amigo com gerador em casa.
+**Julia T:**Disse que poderia dar carona para a gente
+**Julia T:**Mas no meio do caminho o motorista bateu o carro
+[[1. "Por que ele bateu o carro?"->JuliaT-Conversa3A]]
+[[2. "Por que você esta toda suja?"->JuliaT-Conversa3B]]
+
+
+:: JuliaT-Conversa2B {"position":"3725,250","size":"100,100"}
+**Julia T:** Não sei!
+**Julia T:**Ontem um mendigo veio me atacar e eu tive que chutar ele.
+**Julia T:**Meu sapato acabou voando e caindo no mato
+**Julia T:**Tentei procurar ele mas acabei me sujando toda
+**Julia T:**E para completar quando me virei não tinha mais ninguem
+**Julia T:**Eles devem ter corrido para algum lugar e se perderdido são um bando de covardes.
+**Julia T:**Parece que nunca viram um pobre!
+**Julia T:**Mas que tal você abrir essa porta para eu tomar um banho quente?
+[[1. "Não tenho água quente."->JuliaT-Conversa3C]]
+[[2. "Por que eu deveria?"->JuliaT-Conversa3D]]
+
+
+:: JuliaT-Conversa3A {"position":"3350,425","size":"100,100"}
+**Julia T:**Não faço ideia, talvez tenha sido o escuro ou uma pedra no caminho.
+**Julia T:**Mas quando eu acordei meus amigos tinham me arrastado para fora do carro.
+**Julia T:**Mas então vai me deixar entrar?
+**Julia T:**Ou vou ter que contar toda historia da minha vida para você?
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Dialogo]]
+
+
+:: JuliaT-Conversa3B {"position":"3500,425","size":"100,100"}
+**Julia T:**Alem do motorista bater o carro e eu ter sido arrastada pelos menus amigos por uma rua de barro
+**Julia T:**Um mendigo desgraçado chegou perto de mim.
+**Julia T:**Quando eu fui chutar ele meu sapato saiu voando e caiu no mato
+**Julia T:**Quando fui procurar acabei me sujando toda
+**Julia T:**Mas então que tal você me deixar entrar para eu tomar um banho quente?
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Dialogo]]
+
+
+:: JuliaT-Conversa3C {"position":"3625,425","size":"100,100"}
+**Julia T:**Como não tem? Você tem energia eu consigo ouvir seu gerador
+**Julia T:**Deixa de dar desculpa e deixa eu entrar LOGO!!!
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Dialogo]]
+
+
+:: JuliaT-Conversa3D {"position":"3775,475","size":"100,100"}
+**Julia T:**Você não teria coragem de deixar uma menina indefesa aqui fora ne?
+**Julia T:**Ainda mas com esses mendigos fedorentos andando por ai
+**Julia T:**Vamos abre logo se você me deixar entrar eu te faço um pix de R$100
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Dialogo]]
+
+
+:: JuliaT-Fim-Dialogo {"position":"3525,575","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Entra]]
+[[2. (Mandar Julia T sair)->JuliaT-Fim-Sai]]
+[[3. (Usar o DE3000)->JuliaT-Scan]]
+
+
+:: JuliaT-Fim-Entra {"position":"3300,675","size":"100,100"}
+[Você abre. Ela entra, torcendo o nariz.]
+**Julia T:** Nossa. Que espelunca.
+**Julia T:** Enfim. Cade o chuveiro?
+[Ela entra na casa e desaparece.]
+
+
+
+
+:: JuliaT-Fim-Sai {"position":"3500,750","size":"100,100"}
+[Você manda ela sair.]
+**Julia T:** Vai se ferrar! Tinha que ser um pobre!
+**Julia T:**Melhor voce aproveitar essa sua espelunca enquanto ela não desaba!
+
+
+
+
+
+:: JuliaT-Scan {"position":"3750,675","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Julia T entrar)->JuliaT-Fim-Entra]]
+[[2. (Mandar Julia T sair)->JuliaT-Fim-Sai]]
+
+
+:: Matheus-Conversa1 {"position":"5250,950","size":"100,100"}
+[Um rapaz de óculos, camiseta do "Superman".]
+**Matheus:** Bom dia... quer dizer boa noite!
+**Matheus:** Desculpe isso ainda é novo para mim
+**Matheus:**Sou um pesquisador dos tais visitantes!
+**Matheus:** O que você sabe sobre eles?
+[[1. "Sei que fingem ser gente"->Matheus-Conversa2]]
+[[1. "Não sei muito"->Matheus-Conversa2]]
+
+
+
+:: Matheus-Conversa2 {"position":"5450,950","size":"100,100"}
+**Matheus:** Eu tenho uma teoria!
+**Matheus:**Tenho 99% de certeza que são aliens
+**Matheus:**Que nem naquele livro Invasores de corpos!
+
+
+[[1. "Aliens?"->Matheus-Conversa3]]
+[[2. "Como você tem certeza?"->Matheus-Conversa3B]]
+
+
+:: Matheus-Conversa3 {"position":"5350,1125","size":"100,100"}
+**Matheus:** Isso mesmo, criaturas de outro mundo que vieram nos visitar!
+**Matheus:**É que nem no livro, ele encontram alguem e copiam seus corpos
+**Matheus:**Temos que encontrar onde estão mantendo os casulos!!!
+**Matheus:**Mas antes preciso descansar essa ultima pesquisa de campo me deixou exausto
+**Matheus:**Que tal me deixar entrar?
+[[...->Matheus-Fim-Dialogo]]
+
+
+:: Matheus-Conversa3B {"position":"5600,1125","size":"100,100"}
+**Matheus:** Não é obvio?
+**Matheus:**O jogo de imitação deles é quase perfeito
+**Matheus:**Alem do mais ja vi um visitante cara a cara
+**Matheus:**Não que tenha tido muito tempo para analisar
+**Matheus:**Por que sai correndo, mas eu confio no pouco que vi
+**Matheus:**Tenho que continuar minha pesquisa!
+**Matheus:**Mas antes preciso descansar, a minha ultima expedição me deixou exausto
+**Matheus:**Que tal você me deixar entrar?
+[[...->Matheus-Fim-Dialogo]]
+
+
+:: Matheus-Fim-Dialogo {"position":"5450,1275","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Matheus entrar)->Matheus-Fim-Entra]]
+[[2. (Mandar Matheus sair)->Matheus-Fim-Sai]]
+[[3. (Usar o DE3000)->Matheus-Scan]]
+
+
+:: Matheus-Fim-Entra {"position":"5200,1400","size":"100,100"}
+[Você abre. Ele entra.]
+**Matheus:** Valeu cara com um descanso vou poder seguir minha pesquisa!
+[Ele desaparece na casa.]
+
+
+
+:: Matheus-Fim-Sai {"position":"5450,1425","size":"100,100"}
+[Você manda ele sair.]
+**Matheus:** Você não pode fazer isso!
+**Matheus:** Está condenando a ciência! É como queimar Alexandria de novo!
+
+
+
+:: Matheus-Scan {"position":"5700,1400","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Matheus entrar)->Matheus-Fim-Entra]]
+[[2. (Mandar Matheus sair)->Matheus-Fim-Sai]]
+
+
+:: Radio-Dia1 {"position":"350,200","size":"100,100"}
+[O silêncio. Você liga um rádio de pilhas.]
+**Rádio:** ...shhhhh... *...defesa Civil informa...* ...shhhh... *...não é um apagão comum. Repito, não é um...* ...shhh... *...permaneçam em suas casas. Tranque...*
+[A transmissão morre, substituída por um zumbido baixo e estática.]
+
+[[O primeiro dia começa.->Dia1-Inicio-Gameplay]]
+
+
+:: Radio-Dia2 {"position":"1350,125","size":"100,100"}
+[A voz de Irvin, mas fraca, como um walkie-talkie.]
+**Irvin (Rádio):** ...ei... 'tá dando pra ouvir? Eu... eu 'tô em casa.
+**Irvin (Rádio):** Ainda 'tá... tudo um breu.
+**Irvin (Rádio):** As luzes da casa do Marcos 'tavam fracas...
+**Irvin (Rádio):** ...Amanhã... amanhã eu vou lá. Ver se ele 'tá bem.
+**Irvin (Rádio):** ...Espero que... est... tu.. b...
+[Silêncio. Um alto som de estática impede que você escute o resto.]
+
+[[Abrir o olho mágico->Amanda-Conversa1]]
+
+
+
+:: Radio-Dia3 {"position":"3375,75","size":"100,100"}
+[Você liga o rádio. A estática está alta, mas a voz de Irvin irrompe, ofegante e em pânico.]
+
+**Irvin (Rádio):** ...Alguém... alguém 'tá ouvindo?!
+**Irvin (Rádio):** Eu... eu vim na casa do Marcos. 'Tava... 'tava procurando gasolina...
+**Irvin (Rádio):** A porta... a porta 'tava aberta.
+**Irvin (Rádio):** Meu Deus... eu... eu achei ele.
+**Irvin (Rádio):** Ele... ele 'tá... não, não 'tá só morto. Ele 'tá... *dilacerado*.
+**Irvin (Rádio):** Tem... tem sangue...
+[A voz dele falha, ele está hiperventilando.]
+**Irvin (Rádio):** ...'pera...
+[Silêncio total por um segundo, quebrado apenas pela estática.]
+**Irvin (Rádio):** ...shhh... eu ouvi...
+**Irvin (Rádio):** ...tem alguma coisa... aqui dentro.
+**Irvin (Rádio):** ...passos... 'tá vindo...
+**Irvin (Rádio):** ...EU TENHO QUE...
+[A transmissão corta para estática pura.]
+
+
+
+
+:: Radio-Dia4 {"position":"4875,300","size":"100,100"}
+[Você liga o rádio. A estática é baixa. Você ouve a respiração fraca e trêmula de Irvin, como se ele estivesse escondido, falando colado ao microfone.]
+
+**Irvin (Rádio):** ...shhh... eu... eu consegui fugir.
+**Irvin (Rádio):** ...'tô em casa. 'Tô... 'tô trancado.
+**Irvin (Rádio):** Mas... ele...
+**Irvin (Rádio):** O Homem Pálido. Aquele que eu vi no primeiro dia. É ele.
+**Irvin (Rádio):** Ele... ele 'tá lá fora. Na minha porta.
+**Irvin (Rádio):** Ele não... ele não 'tá batendo. Ele... 'tá só... *parado*. Olhando.
+[Ouve-se o som de um motor de gerador engasgando e falhando.]
+**Irvin (Rádio):** ...Merda... Merda! A luz... o gerador...
+**Irvin (Rádio):** ...'tá acabando. A gasolina 'tá acabando.
+**Irvin (Rádio):** Ele 'tá esperando a luz apagar. Ele sabe.
+**Irvin (Rádio):** ...eu não posso ficar aqui. Se... se o gerador morrer...
+**Irvin (Rádio):** ...eu... eu vou tentar ir amanhã pra sua casa. É o único lugar com luz.
+
+
+[A transmissão corta.]
+
+[[...->Dia4-Inicio-Gameplay]]
+
+
+:: Radio-Dia5 {"position":"6875,900","size":"100,100"}
+[Apenas estática. Uma estática alta, pulsante, quase rítmica.
+Você mexe no dial. Nada.]
+
+[[...->Dia5-Inicio-Gameplay]]
+
+
+:: Vinicius-Conversa1 {"position":"3500,900","size":"100,100"}
+[É o repórter da TV. Terno amassado, sem gravata. Ele parece exausto.]
+**Vinicius:** Ah, ótimo! Tem alguem aqui!
+**Vinicius:** Estou fazendo reportagem de campo sobre essa crise.
+
+[[1. "Reportagem sobre o quê? A TV morreu."->Vinicius-Conversa2]]
+[[2. "Você 'tá sozinho? Cadê sua equipe?"->Vinicius-Conversa2B]]
+
+
+:: Vinicius-Conversa2 {"position":"3400,1050","size":"100,100"}
+**Vinicius:** Sobre como as pessoas estão lidando! Os relatos do povo de Aldeia!
+**Vinicius:** Você tem energia, ouço o *gerador*. O que você viu?
+**Vinicius:** Algo fora do comum?
+
+[[1. "Tem um homem muito pálido perambulando por aí."->Vinicius-Conversa3]]
+[[2. "Tem gente falando de 'visitantes' saindo da mata."->Vinicius-Conversa3C]]
+
+
+:: Vinicius-Conversa2B {"position":"3875,900","size":"100,100"}
+**Vinicius:** Sozinho agora. Minha equipe... bem...
+**Vinicius:**Eu prefiro não comentar... 
+**Vinicius:**digamos que os visitantes não são a unica coisa perigosa aqui fora.
+
+[[1. "Você sabe algo sobre os 'Visitantes'?"->Vinicius-Conversa3C]]
+[[2. "O que você sabe sobre o Homem Pálido?"->Vinicius-Conversa3]]
+
+
+:: Vinicius-Conversa3 {"position":"3625,1100","size":"100,100"}
+**Vinicius:** O Homem Pálido... Sim.
+**Vinicius:** Não é a primeira vez que ouço essa descrição. Antes do eclipse, haviam boatos...
+**Vinicius:** De que alguem alto e palido poderia ser visto caminhando pela mata.
+**Vinicius:**Conversei com um individuo na ultima casa que fiquei, ele me disse que conhecia esse homem palido, que era um carpinteiro que morava para o final da estrada de aldeia.
+**Vinicius:**Que ele começou a agir estranho depois que fechou um contrato com uma madeireira local uma tal de "RYB corp", para receber madeira diretamente das matas de aldeia.
+**Vinicius:**Mas é so isso que eu sei, nunca ouvi falar dessa empresa
+**Vinicius:** Com o tempo eu vou poder juntar mais informações sobre esse homem palido...
+**Vinicius:**Claro se você me deixar entrar ajudaria bastante!
+
+[[...->Vinicius-Fim-Dialogo]]
+
+
+:: Vinicius-Conversa3C {"position":"3825,1050","size":"100,100"}
+**Vinicius:**Visitantes...
+**Vinicius:** Dizem que eles fingem ser pessoas.
+**Vinicius:**Não se sabe o motivo exato do por que eles fazem isso.
+**Vinicius:**E nem de onde vieram.
+**Vinicius:**Ja ouvi diversos relatos deles em outras casas que me abrigaram
+[[...->Vinicius-Fim-Dialogo]]
+
+
+:: Vinicius-Fim-Dialogo {"position":"3650,1275","size":"100,100"}
+[A conversa acabou.]
+
+[[1. (Deixar Vinicius entrar)->Vinicius-Fim-Entra]]
+[[2. (Mandar Vinicius sair)->Vinicius-Fim-Sai]]
+[[3. (Usar o DE3000)->Vinicius-Scan]]
+
+
+:: Vinicius-Fim-Entra {"position":"3400,1450","size":"100,100"}
+[Você abre. Vinicius entra, ligando um gravador.]
+**Vinicius:**Perfeito você não sabe o quanto esta me ajudando
+[Ele desaparece na escuridão da casa.]
+
+
+
+:: Vinicius-Fim-Sai {"position":"3675,1500","size":"100,100"}
+[Você manda ele sair.]
+**Vinicius:** Certo. Entendo. Protegendo a fonte.
+**Vinicius:** Se mudar de ideia... eu estarei por aí. Procurando a verdade.
+[Ele se afasta, determinado.]
+
+
+
+:: Vinicius-Scan {"position":"3900,1400","size":"100,100"}
+[Você usa o DE3000. A máquina bipa.]
+[O visor mostra "Analisando..."]
+
+[[1. (Deixar Vinicius entrar)->Vinicius-Fim-Entra]]
+[[2. (Mandar Vinicius sair)->Vinicius-Fim-Sai]]

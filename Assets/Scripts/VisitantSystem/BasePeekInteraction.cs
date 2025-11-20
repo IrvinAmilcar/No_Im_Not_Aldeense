@@ -112,51 +112,54 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         isPeeking = false; 
         StartCoroutine(SwitchToPlayerCamera());
     }
-    
+
     IEnumerator SwitchToTargetCamera()
     {
         isTransitioning = true;
-        isPeeking = true; 
+        isPeeking = true; // Marca que estamos olhando
+
+        // Desativa controles do jogador
         if (playerController != null) playerController.enabled = false;
         if (cameraLookController != null) cameraLookController.enabled = false;
 
-        // Se esta interação deve trocar a música, chama o manager
+        // Lógica de Áudio (Mantendo a sua original)
         if (overrideMusicOnPeek && GameAudioManager.Instance != null)
         {
             GameAudioManager.Instance.StartSpecialPeekMusic();
         }
 
-        // 1. Fade out
+        // 1. Fade out (Escurece)
         yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
-        // 2. Troca a câmera
+
+        // 2. Troca a câmera (Mágica do 3D)
         playerCamera.enabled = false;
-        targetViewCamera.enabled = true; 
-        // 3. Fade in
+        targetViewCamera.enabled = true;
+
+        // 3. Fade in (Clareia)
         yield return StartCoroutine(CameraFader.Instance.Fade(0f, transitionSpeed));
 
         isTransitioning = false;
 
-        // 4. Espera o delay
+        // 4. Espera o delay dramático (opcional)
         yield return new WaitForSeconds(dialogueStartDelay);
 
-        // 5. Verifica se temos algum diálogo VÁLIDO
-        if (HasValidDialoguePages())
+        // --- AQUI ESTÁ A CORREÇÃO ---
+        // Em vez de lógica antiga, chamamos o Gerente do Dia para checar quem está na porta.
+        if (DayCycleManager.Instance != null)
         {
-            // 6. Chama o DialogManager e passa o "callback"
-            DialogManager.Instance.ShowPeekDialogue(dialoguePages, () => {
-                // 7. Callback: Quando o diálogo terminar, chame StopPeeking()
-                StopPeeking();
-            });
+            // Isso vai ligar o Canvas, mostrar o Sprite e o Texto
+            DayCycleManager.Instance.CheckDoorForVisitor();
         }
         else
         {
-            // 8. Comportamento antigo:
-            // Se NÃO HÁ diálogo VÁLIDO, apenas espere o Espaço para fechar.
-            yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+            Debug.LogError("ERRO: DayCycleManager não encontrado na cena! A UI não vai abrir.");
+            // Fallback para não travar o jogo se esquecer o Manager
+            yield return new WaitForSeconds(2f);
             StopPeeking();
         }
+        // -----------------------------
     }
-    
+
     IEnumerator SwitchToPlayerCamera()
     {
         isTransitioning = true; 
