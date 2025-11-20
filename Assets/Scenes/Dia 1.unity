@@ -30643,19 +30643,31 @@ MonoBehaviour:
     musicSetup: {fileID: 0}
     wakeUpMessage: 
   - dayName: Dia 2
-    visitorsForThisDay: []
+    visitorsForThisDay:
+    - {fileID: 11400000, guid: 566c9a4ea4da77b41b0ca72caa65ffb4, type: 2}
+    - {fileID: 11400000, guid: cbe2d4cbbf9a1ce418a2a2bf0e060538, type: 2}
+    - {fileID: 11400000, guid: 5f3e52c1bf49e2b46ab0f316b4544a63, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
   - dayName: Dia 3
-    visitorsForThisDay: []
+    visitorsForThisDay:
+    - {fileID: 11400000, guid: 012d6d7c7ba420149ab215b087e8ad58, type: 2}
+    - {fileID: 11400000, guid: ae11cca20056db341b95dfc9fb4e56ea, type: 2}
+    - {fileID: 11400000, guid: ab048a67282214444a774343dca92e28, type: 2}
+    - {fileID: 11400000, guid: 9a10c9369ac9b5c42abca902ace79557, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
   - dayName: Dia 4
-    visitorsForThisDay: []
+    visitorsForThisDay:
+    - {fileID: 11400000, guid: 11bde083202a76f45a4bc25493ff6b5c, type: 2}
+    - {fileID: 11400000, guid: aa7078e7817988346b05be08337a4044, type: 2}
+    - {fileID: 11400000, guid: 7154222a5ad671247a1129b4bd352963, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
   - dayName: Dia 5
-    visitorsForThisDay: []
+    visitorsForThisDay:
+    - {fileID: 11400000, guid: 4ba25446f3cebc746a121562ba327e7f, type: 2}
+    - {fileID: 11400000, guid: 4aa9a484f90eda04b83e701fa2c5f35a, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
   radioInteraction: {fileID: 1218564210}
