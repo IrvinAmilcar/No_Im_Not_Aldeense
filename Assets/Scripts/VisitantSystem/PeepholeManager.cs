@@ -2,22 +2,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro; // Suporte a TextMeshPro
+using TMPro;
 
 public class PeepholeManager : MonoBehaviour
 {
     public static PeepholeManager Instance { get; private set; }
 
     [Header("UI References")]
-    public GameObject peepholePanel;         // Painel Pai
-    public Image visitorImage;               // Sprite do Visitante
-    public TextMeshProUGUI dialogueText;     // Texto da fala
-    public Transform choiceButtonsContainer; // Container dos botões
-    public GameObject choiceButtonPrefab;    // Prefab do botão
+    public GameObject peepholePanel;
+    public Image visitorImage;
+    public TextMeshProUGUI dialogueText;
+    public Transform choiceButtonsContainer;
+    public GameObject choiceButtonPrefab;
 
     [Header("Integração DE3000")]
-    public GameObject dialogueUIContainer;   // Painel de texto/botões
-    public DE3000Manager de3000Manager;      // Script do Scanner
+    public GameObject dialogueUIContainer;
+    public DE3000Manager de3000Manager;
 
     // Estado Interno
     private VisitorProfile currentProfile;
@@ -34,28 +34,22 @@ public class PeepholeManager : MonoBehaviour
 
     public void StartEncounter(VisitorProfile profile)
     {
-        // 1. Destrava Mouse
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         currentProfile = profile;
         IsCurrentVisitorHuman = DetermineHumanity(profile);
 
-        // 2. Ativa UI e Reseta estados
         peepholePanel.SetActive(true);
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
-
-        // Garante que o DE3000 comece fechado
         if (de3000Manager) de3000Manager.DeactivateDevice();
 
-        // 3. Configura Imagem
         if (visitorImage)
         {
             visitorImage.sprite = profile.characterSprite;
             visitorImage.gameObject.SetActive(profile.characterSprite != null);
         }
 
-        // 4. Carrega nó inicial
         LoadNode(profile.startNodeID);
     }
 
@@ -71,27 +65,29 @@ public class PeepholeManager : MonoBehaviour
 
     public void LoadNode(string nodeID)
     {
-        // --- FINAIS ESPECÍFICOS (IRVIN) ---
-        if (nodeID == "IrvinT-Fim-Abre")
+        // 1. Carrega os dados do nó primeiro (IMPORTANTE: Isso corrige o bug dos botões)
+        DialogueNode newNode = TwineStoryParser.Instance.GetNode(nodeID);
+
+        if (newNode != null)
         {
-            if (EndingManager.Instance != null) EndingManager.Instance.TriggerBadEnding_OpenDoor();
-            return;
+            currentNode = newNode;
         }
-        if (nodeID == "IrvinT-Fim-Nega")
+        else
         {
-            FinishNarrativeEncounter(); // Fecha o olho mágico antes
-            if (EndingManager.Instance != null) EndingManager.Instance.UnlockGunInteraction();
-            if (DialogSystem.DialogManager.Instance != null) DialogSystem.DialogManager.Instance.ShowMessage("Pegue a arma! Rápido!", 3f);
+            Debug.LogError($"[PeepholeManager] Nó '{nodeID}' não encontrado no arquivo Twine.");
             return;
         }
 
-        // --- COMANDOS VIA NOME DO NÓ ---
+        // 2. Checa eventos especiais baseados no Nome do Nó
+
+        // Evento: SCAN (Abre o DE3000 e pausa o fluxo visual)
         if (nodeID.Contains("-Scan"))
         {
             OpenDE3000();
-            return;
+            return; // Para aqui. O texto do nó não será mostrado agora, apenas a UI do DE3000.
         }
-        // Visitantes comuns (Amanda, etc) que têm nó de decisão explícita
+
+        // Evento: FINAIS (Entrar/Sair)
         if (nodeID.Contains("-Fim-Entra"))
         {
             EndEncounter(true);
@@ -103,15 +99,21 @@ public class PeepholeManager : MonoBehaviour
             return;
         }
 
-        // --- CARREGAMENTO NORMAL ---
-        currentNode = TwineStoryParser.Instance.GetNode(nodeID);
-        if (currentNode == null)
+        // Evento: Finais Especiais (Irvin)
+        if (nodeID == "IrvinT-Fim-Abre")
         {
-            Debug.LogError($"[PeepholeManager] Nó '{nodeID}' não encontrado.");
+            if (EndingManager.Instance != null) EndingManager.Instance.TriggerBadEnding_OpenDoor();
+            return;
+        }
+        if (nodeID == "IrvinT-Fim-Nega")
+        {
+            FinishNarrativeEncounter();
+            if (EndingManager.Instance != null) EndingManager.Instance.UnlockGunInteraction();
+            if (DialogSystem.DialogManager.Instance != null) DialogSystem.DialogManager.Instance.ShowMessage("Pegue a arma! Rápido!", 3f);
             return;
         }
 
-        // Exibe o texto
+        // 3. Se não for evento especial, mostra o diálogo normal
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
         if (dialogueText) dialogueText.text = currentNode.text;
 
@@ -120,41 +122,34 @@ public class PeepholeManager : MonoBehaviour
 
     void GenerateButtons()
     {
-        if (choiceButtonsContainer == null) return;
+        if (choiceButtonsContainer == null || currentNode == null || choiceButtonPrefab == null) return;
 
         // Limpa botões antigos
         foreach (Transform child in choiceButtonsContainer) Destroy(child.gameObject);
 
-        if (currentNode == null || choiceButtonPrefab == null) return;
-
-        // --- LÓGICA RESTAURADA: Verifica se há links ---
+        // Lógica para nós com opções
         if (currentNode.links.Count > 0)
         {
-            // CASO 1: Diálogo Normal (Tem opções)
             foreach (var link in currentNode.links)
             {
                 CreateButton(link.label, () => LoadNode(link.targetNode));
             }
         }
+        // Lógica para nós puramente narrativos (Ex: Homem Pálido)
         else
         {
-            // CASO 2: Diálogo Narrativo / Sem Saída (Homem Pálido)
-            // Se não tem links, cria um botão de "Encerrar"
             CreateButton("Sair do Olho Mágico", () => FinishNarrativeEncounter());
         }
     }
 
-    // Método auxiliar para criar botões (evita repetição de código)
     void CreateButton(string label, UnityEngine.Events.UnityAction action)
     {
         GameObject btn = Instantiate(choiceButtonPrefab, choiceButtonsContainer);
 
-        // Tenta TMP
         var tmpText = btn.GetComponentInChildren<TextMeshProUGUI>();
         if (tmpText != null) tmpText.text = label;
         else
         {
-            // Tenta Legacy Text
             var legacyText = btn.GetComponentInChildren<Text>();
             if (legacyText != null) legacyText.text = label;
         }
@@ -164,81 +159,76 @@ public class PeepholeManager : MonoBehaviour
 
     public void OpenDE3000()
     {
+        // Esconde o diálogo
         if (dialogueUIContainer) dialogueUIContainer.SetActive(false);
 
+        // Abre o Scanner
         if (de3000Manager != null)
         {
             de3000Manager.ActivateDevice(currentProfile, IsCurrentVisitorHuman);
         }
         else
         {
-            // Tenta recuperar caso a referência tenha caído
+            // Fallback de segurança
             de3000Manager = FindObjectOfType<DE3000Manager>();
             if (de3000Manager) de3000Manager.ActivateDevice(currentProfile, IsCurrentVisitorHuman);
         }
     }
 
+    // Chamado quando você fecha o DE3000
     public void ReturnToDialogue()
     {
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
+
+        // Define um texto de feedback
         if (dialogueText) dialogueText.text = "Análise concluída. O que devo fazer?";
 
-        // Recarrega os botões do nó onde paramos
+        // Gera os botões do nó ATUAL (que agora é o Node-Scan, contendo apenas Entrar/Sair)
         GenerateButtons();
     }
 
     // --- ENCERRAMENTOS ---
 
-    // Caso 1: Decisão tomada (Entrou ou Saiu)
     private void EndEncounter(bool letIn)
     {
         ClosePeephole();
 
-        // Libera a porta física no jogo 3D
         var door = FindObjectOfType<DoorInteraction>();
         if (door != null) door.ExitInteraction();
 
-        // Lógica de Gameplay
         if (letIn)
         {
-            Debug.Log(IsCurrentVisitorHuman ? "HUMANO entrou (Ganhou Combustível)." : "IMPOSTOR entrou (Perdeu Combustível).");
-            // Adicione aqui: GeneratorManager.Instance.ModifyFuel(...);
+            Debug.Log(IsCurrentVisitorHuman ? "HUMANO entrou." : "IMPOSTOR entrou.");
+            // Adicione lógica de combustível aqui se tiver
         }
 
+        // Avança a fila do dia
         NotifyDayCycle();
     }
 
-    // Caso 2: Apenas conversa (Homem Pálido) - Restaurado do seu código antigo
     public void FinishNarrativeEncounter()
     {
-        Debug.Log("Encontro Narrativo Finalizado (Ninguém entrou nem saiu).");
-
         ClosePeephole();
-
         var door = FindObjectOfType<DoorInteraction>();
         if (door != null) door.ExitInteraction();
-
         NotifyDayCycle();
     }
 
-    // Método comum para avisar o DayCycleManager que acabou
     private void NotifyDayCycle()
     {
         if (DayCycleManager.Instance != null)
         {
-            DayCycleManager.Instance.RegisterVisitorProcessed(); // Avança a fila
+            DayCycleManager.Instance.RegisterVisitorProcessed();
         }
         else
         {
-            Debug.LogError("DayCycleManager não encontrado! O jogo vai travar no mesmo visitante.");
+            Debug.LogError("DayCycleManager não encontrado na cena!");
         }
     }
 
     public void ClosePeephole()
     {
         peepholePanel.SetActive(false);
-
-        // Trava mouse de volta para o jogo
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
