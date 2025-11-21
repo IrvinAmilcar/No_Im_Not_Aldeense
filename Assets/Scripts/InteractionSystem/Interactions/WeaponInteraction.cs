@@ -1,61 +1,47 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using DialogSystem; // Importante: Precisamos do namespace do nosso sistema!
+using DialogSystem;
 
 public class WeaponInteraction : MonoBehaviour, IInteractable
 {
-    [Header("Lógica do Dia Final")]
-    [Tooltip("O índice (Build Index) da cena que é considerada o 'Dia Final'")]
-    public int finalDaySceneIndex = 5;
+    [Header("Mensagens")]
+    [TextArea] public string lockedMessage = "Melhor não tocar nisso agora. Preciso focar.";
 
-    [Header("Mensagem (Antes do Dia Final)")]
-    [Tooltip("Mensagem a ser exibida se o jogador interagir ANTES do dia final.")]
-    [TextArea(3, 5)]
-    public string messageIfNotFinalDay = "Melhor não tocar nisso agora. Preciso focar.";
+    // Configuração Visual
+    private Renderer objRenderer;
+    private Color originalColor;
+    public Color highlightColor = Color.red; // Vermelho para perigo/importância
 
-    [Tooltip("Por quantos segundos a mensagem deve aparecer.")]
-    public float messageDuration = 2.5f;
-
-    // --- Implementação da Interface IInteractable ---
+    void Awake()
+    {
+        objRenderer = GetComponent<Renderer>();
+        if (objRenderer != null) originalColor = objRenderer.material.color;
+    }
 
     public void Interact()
     {
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-
-        if (currentSceneIndex == finalDaySceneIndex)
+        // Verifica se estamos no momento final do jogo
+        if (EndingManager.Instance != null && EndingManager.Instance.isGunUnlocked)
         {
-            // --- LÓGICA DO DIA FINAL ---
-            Debug.LogWarning("INTERAÇÃO DA ARMA NO DIA FINAL!");
-            // Ex: GameManager.Instance.PlayerHasWeapon = true;
-            // Ex: gameObject.SetActive(false);
+            // DISPARA O FINAL DA ARMA
+            EndingManager.Instance.TriggerGunEnding_Shoot();
         }
         else
         {
-            // --- LÓGICA ANTES DO DIA FINAL ---
-            // AQUI ESTÁ A MUDANÇA: Usamos o novo DialogManager
-            
-            // Verificamos se o Instance não é nulo antes de usá-lo
+            // Mensagem padrão (Ainda não é hora)
             if (DialogManager.Instance != null)
             {
-                DialogManager.Instance.ShowMessage(messageIfNotFinalDay, messageDuration);
-            }
-            else
-            {
-                Debug.LogError("DialogManager.Instance não foi encontrado na cena! " +
-                               "Certifique-se de adicionar o DialogManager a um objeto (ex: 'Managers').");
+                DialogManager.Instance.ShowMessage(lockedMessage, 2f);
             }
         }
     }
 
     public void OnFocus()
     {
-        // TODO: Adicionar feedback visual (ex: destacar o material da arma)
-        // Ex: outlineEffect.enabled = true;
+        if (objRenderer != null) objRenderer.material.color = highlightColor;
     }
 
     public void OnLoseFocus()
     {
-        // TODO: Remover o feedback visual
-        // Ex: outlineEffect.enabled = false;
+        if (objRenderer != null) objRenderer.material.color = originalColor;
     }
 }

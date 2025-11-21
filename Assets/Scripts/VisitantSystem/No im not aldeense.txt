@@ -26,7 +26,7 @@ Eu PRECISO saber o que aconteceu!
 :: Amanda-Conversa2 {"position":"1950,250","size":"100,100"}
 A corrida! O GP de Singapura!
 
-Eu estava assistindo quando a TV... *parou*. O Verstappen tinha rodado.
+Eu estava assistindo quando a TV... parou. O Verstappen tinha rodado.
 O Hamilton... ele... ele conseguiu?
 
 [[O mundo está acabando e você quer saber de F1?->Amanda-Conversa3-D]]
@@ -45,7 +45,7 @@ O Verstappen estava em segundo!
 
 
 :: Amanda-Conversa3-A {"position":"1750,475","size":"100,100"}
-NÃO É IMPORTANTE?! É a única coisa que *é*!
+NÃO É IMPORTANTE?! É a única coisa que é!
 
 O resto... o resto é só... esse... breu.
 Se eu souber o resultado... eu sei que ainda é real.
@@ -57,7 +57,7 @@ Se eu souber o resultado... eu sei que ainda é real.
 Que o tempo ainda 'tá passando.
 
 Me deixa entrar. Só preciso de notícias.
-Por favor... essa *quietude*... 'tá me enlouquecendo.
+Por favor... essa quietude... 'tá me enlouquecendo.
 
 [[...->Amanda-Fim-Dialogo]]
 
@@ -233,7 +233,7 @@ Deixa so a energia voltar eu vou vazar seu historico do celular!
 [A cena abre com o chiado de uma TV.]
 [A imagem falha, mas estabiliza em um estúdio de telejornal.]
 
-*Vinicius (Repórter):* ...e essa foi a cobertura das chuvas no Agreste.
+Vinicius (Repórter): ...e essa foi a cobertura das chuvas no Agreste.
 Agora, uma notícia de última hora.
 
 [[...->Cinematica-Abertura_Seq2]]
@@ -242,7 +242,7 @@ Agora, uma notícia de última hora.
 :: Cinematica-Abertura_Seq2 {"position":"150,325","size":"100,100"}
 [A câmera corta para um gráfico do Nordeste com um ícone de eclipse.]
 
-*Vinicius (Repórter):* Cientistas da USP confirmaram que haverá um eclipse total atípico que afetará toda região nordeste hoje, a partir das 17:00.
+Vinicius (Repórter): Cientistas da USP confirmaram que haverá um eclipse total atípico que afetará toda região nordeste hoje, a partir das 17:00.
 A natureza do evento... parece ser desconhecida. Autoridades pedem que todos permaneçam em locais...
 
 [[...->Cinematica-Abertura_Seq3]]
@@ -390,7 +390,7 @@ Acho melhor eu... voltar para rua
 :: Dia5-Inicio-Gameplay {"position":"6950,600","size":"100,100"}
 [O gerador está falhando.]
 [O motor engasga.]
-[E o *barulho* do motor fica fraco.]
+[E o barulho do motor fica fraco.]
 
 [[Abrir o olho mágico->HomemPalido3-OlhoMagico]]
 
@@ -500,7 +500,7 @@ Eu sou humana...
 
 
 :: Fabi-Fim-Entra {"position":"6100,750","size":"100,100"}
-[Você abre. Ela entra e tenta carregar o celular no seu gerador] 
+[Você abre. Ela entra e tenta carregar o celular no seu gerador]
 
 Não pega!
 Por quê não pega?!
@@ -577,7 +577,7 @@ Me diz... você está sozinho?
 [[Não. (Verdade)->HomemPalido1-Resposta]]
 
 
-:: HomemPalido1-OlhoMagico {"position":"200,1325","size":"100,100"}
+:: HomemPalido1-OlhoMagico {"position":"150,1300","size":"100,100"}
 [Um homem muito alto está parado na sua porta.]
 [Sua pele é quase branca-acinzentada, como se estivesse doente.]
 [Ele está olhando diretamente para o olho mágico.]
@@ -586,8 +586,8 @@ Me diz... você está sozinho?
 [[...->HomemPalido1-OlhoMagico_Seq2]]
 
 
-:: HomemPalido1-OlhoMagico_Seq2 {"position":"175,1450","size":"100,100"}
-Que... noite... bonita. Tão *quieta*. Tão... pura.
+:: HomemPalido1-OlhoMagico_Seq2 {"position":"175,1425","size":"100,100"}
+Que... noite... bonita. Tão quieta. Tão... pura.
 Casa espaçosa essa sua!
 
 [[Quem é você?->HomemPalido1-Conversa]]
@@ -672,7 +672,7 @@ Quem sabe o que pode acontecer
 Olá de novo.
 Dormindo bem?
 
-Eu aposto que não. Eu consigo ouvir você andando aí dentro. Tão... *inquieto*.
+Eu aposto que não. Eu consigo ouvir você andando aí dentro. Tão... inquieto.
 E o seu gerador... está mais fraco.
 
 [[Por que fica voltando aqui?->HomemPalido2-ConversaB]]
@@ -688,7 +688,7 @@ Mas algo me diz que sua sorte acabou
 [[Vá para o inferno.->HomemPalido3-UltimatoB]]
 
 
-:: HomemPalido3-Ultimato {"position":"7275,275","size":"100,100"}
+:: HomemPalido3-Ultimato {"position":"7275,400","size":"100,100"}
 Posso ouvir seu gerador...
 Esta mais fraco...
 Algo me diz hoje será nossa ultima conversa
@@ -707,7 +707,7 @@ Medo, sofrimento e desconfiança
 [[...->HomemPalido3-UltimatoB_Seq2]]
 
 
-:: HomemPalido3-UltimatoB_Seq2 {"position":"7275,250","size":"100,100"}
+:: HomemPalido3-UltimatoB_Seq2 {"position":"7275,275","size":"100,100"}
 Mas não vão se extender por muito tempo...
 Logo todos estaremos em paz.
 
@@ -809,10 +809,10 @@ Ele me explicou que existem três modos.
 
 
 :: Irvin-Conversa4_Seq2 {"position":"275,900","size":"100,100"}
-O primeiro é a **temperatura**.
-Falou que esses bichos são gelados, sem abaixo da temperatura corporal humana.
+O primeiro é a temperatura.
+Falou que esses bichos são gelados, tem uma temperatura corporal mais baixa que a humana.
 
-O outro é a **retina**.
+O outro é a retina.
 Disse que o olho da gente nunca para quieto, fica tremendo de leve. O deles não... é fixo.
 Aquele olhar de peixe morto, "vazio".
 
@@ -820,7 +820,7 @@ Aquele olhar de peixe morto, "vazio".
 
 
 :: Irvin-Conversa4_Seq3 {"position":"200,1025","size":"100,100"}
-E tem o **neural**.
+E tem o neural.
 O Marcos falou uns nomes técnicos lá, 'ritmo alfa', sei lá.
 Resumindo: humano tem picos de atividade, os impostores dão uma linha reta.
 
@@ -900,7 +900,7 @@ Eu quase me caguei todo, sai correndo na mesma hora.
 :: IrvinT-Decisao-Final {"position":"7475,1025","size":"100,100"}
 [O silêncio é pesado.]
 [A luz pisca violentamente. O gerador morre.]
-[Esta é a decisão final. Na *Escuridão*.]
+[Esta é a decisão final. Na Escuridão.]
 
 [[Abrir a porta->IrvinT-Fim-Abre]]
 [[Recusar e pegar a arma->IrvinT-Fim-Nega]]
@@ -944,17 +944,11 @@ Você não vai querer ficar sozinho aí dentro quando esse gerador falhar... e e
 Abre a porta. Vamos esperar isso passar juntos.
 
 [[Abrir a porta->IrvinT-Fim-Abre]]
-[[Recusar e pegar a arma->IrvinT-Fim-Nega]]
+[[Não abrir a porta->IrvinT-Fim-Nega]]
 
 
 :: IrvinT-Fim-Abre {"position":"7300,1025","size":"100,100"}
-[Você destranca a porta.]
-[O gerador morre, mergulhando a casa no silêncio.]
-[Você consegue sentir a mão gelada de irvin no seu ombro]
-
-A luz sempre morre...
-
-[FIM]
+(Final do jogo controlado pelo EndingManager)
 
 
 :: IrvinT-Fim-Nega {"position":"7650,1025","size":"100,100"}
@@ -963,33 +957,15 @@ Você escolhe a solidão?
 A luz vai morrer e você escolhe morrer com ela?
 Largar sua bensão?
 
-[[...->IrvinT-Fim-Nega_Seq2]]
+(O jogador deve sair e usar a arma)
 
 
 :: IrvinT-Fim-Nega_Seq2 {"position":"7650,1150","size":"100,100"}
-[O seu gerador quebra]
-[Irvin começa a tentar arrombar a porta.]
-[Você corre para pegar a arma]
-
-[TELA PRETA.]
-
-[Ouve-se o som da porta sendo estraçalhada.]
-[Passos pesados e desumanos correm na sua direção.]
-[Você aponta para o som.]
-
-[[...->IrvinT-Fim-Nega_Seq3]]
+(Final B - Sequência Texto via Code)
 
 
 :: IrvinT-Fim-Nega_Seq3 {"position":"7650,1275","size":"100,100"}
-.
-.
-.
-
-**BANG!**
-
-[Silêncio absoluto.]
-
-[FIM]
+(Final B - Sequência Texto via Code)
 
 
 :: IrvinT-OlhoMagico {"position":"7550,125","size":"100,100"}
@@ -1000,8 +976,6 @@ Ei mizera, nunca corri tanto na minha vida.
 
 [[O que aconteceu?->IrvinT-Dialogo]]
 [[Você nem esta suado...->IrvinT-Dialogo2]]
-
-/* --- JP --- */
 
 
 :: Jp-Conversa1 {"position":"1750,975","size":"100,100"}
@@ -1414,8 +1388,8 @@ Você está condenando a ciência!
 :: Radio-Dia1 {"position":"350,200","size":"100,100"}
 [O silêncio. Você liga um rádio de pilhas.]
 
-*Rádio:* ...shhhhh... *...defesa Civil informa...* ...shhhh... *...não é um apagão comum.
-Repito, não é um...* ...shhh... *...permaneçam em suas casas. Tranque...*
+Rádio: ...shhhhh... ...defesa Civil informa... ...shhhh... ...não é um apagão comum.
+Repito, não é um... ...shhh... ...permaneçam em suas casas. Tranque...
 
 [A transmissão morre, substituída por um zumbido baixo e estática.]
 
@@ -1425,20 +1399,20 @@ Repito, não é um...* ...shhh... *...permaneçam em suas casas. Tranque...*
 :: Radio-Dia2 {"position":"1350,125","size":"100,100"}
 [A voz de Irvin, mas fraca, como um walkie-talkie.]
 
-*Irvin (Rádio):* ...ei... 'tá dando pra ouvir?
+Irvin (Rádio): ...ei... 'tá dando pra ouvir?
 Eu... eu 'tô em casa.
 
-*Irvin (Rádio):* Ainda 'tá... tudo um breu.
-*Irvin (Rádio):* As luzes da casa do Marcos 'tavam fracas...
+Irvin (Rádio): Ainda 'tá... tudo um breu.
+Irvin (Rádio): As luzes da casa do Marcos 'tavam fracas...
 
 [[...->Radio-Dia2_Seq2]]
 
 
 :: Radio-Dia2_Seq2 {"position":"1350,250","size":"100,100"}
-*Irvin (Rádio):* ...Amanhã... amanhã eu vou lá.
+Irvin (Rádio): ...Amanhã... amanhã eu vou lá.
 Ver se ele 'tá bem.
 
-*Irvin (Rádio):* ...Espero que... est... tu.. b...
+Irvin (Rádio): ...Espero que... est... tu.. b...
 
 [Silêncio.]
 [Um alto som de estática impede que você escute o resto.]
@@ -1450,19 +1424,19 @@ Ver se ele 'tá bem.
 [Você liga o rádio.]
 [A estática está alta, mas a voz de Irvin irrompe, ofegante e em pânico.]
 
-*Irvin (Rádio):* ...Alguém... alguém 'tá ouvindo?!
-*Irvin (Rádio):* Eu... eu vim na casa do Marcos. 'Tava... 'tava procurando gasolina...
+Irvin (Rádio): ...Alguém... alguém 'tá ouvindo?!
+Irvin (Rádio): Eu... eu vim na casa do Marcos. 'Tava... 'tava procurando gasolina...
 
 [[...->Radio-Dia3_Seq2]]
 
 
 :: Radio-Dia3_Seq2 {"position":"3200,100","size":"100,100"}
-*Irvin (Rádio):* A porta... a porta 'tava aberta.
-*Irvin (Rádio):* Meu Deus... eu... eu achei ele.
-*Irvin (Rádio):* Ele... ele 'tá... não, não 'tá só morto.
-Ele 'tá... *dilacerado*.
+Irvin (Rádio): A porta... a porta 'tava aberta.
+Irvin (Rádio): Meu Deus... eu... eu achei ele.
+Irvin (Rádio): Ele... ele 'tá... não, não 'tá só morto.
+Ele 'tá... dilacerado.
 
-*Irvin (Rádio):* Tem... tem sangue...
+Irvin (Rádio): Tem... tem sangue...
 
 [[...->Radio-Dia3_Seq3]]
 
@@ -1470,14 +1444,14 @@ Ele 'tá... *dilacerado*.
 :: Radio-Dia3_Seq3 {"position":"3325,175","size":"100,100"}
 [A voz dele falha, ele está hiperventilando.]
 
-*Irvin (Rádio):* ...'pera...
+Irvin (Rádio): ...'pera...
 
 [Silêncio total por um segundo, quebrado apenas pela estática.]
 
-*Irvin (Rádio):* ...shhh... eu ouvi...
-*Irvin (Rádio):* ...tem alguma coisa... aqui dentro.
-*Irvin (Rádio):* ...passos... 'tá vindo...
-*Irvin (Rádio):* ...EU TENHO QUE...
+Irvin (Rádio): ...shhh... eu ouvi...
+Irvin (Rádio): ...tem alguma coisa... aqui dentro.
+Irvin (Rádio): ...passos... 'tá vindo...
+Irvin (Rádio): ...EU TENHO QUE...
 
 [A transmissão corta para estática pura.]
 
@@ -1486,34 +1460,34 @@ Ele 'tá... *dilacerado*.
 [Você liga o rádio.]
 [A estática é baixa. Você ouve a respiração fraca e trêmula de Irvin, como se ele estivesse escondido, falando colado ao microfone.]
 
-*Irvin (Rádio):* ...shhh... eu... eu consegui fugir.
-*Irvin (Rádio):* ...'tô em casa. 'Tô... 'tô trancado.
-*Irvin (Rádio):* Mas... ele...
-*Irvin (Rádio):* O Homem Pálido.
+Irvin (Rádio): ...shhh... eu... eu consegui fugir.
+Irvin (Rádio): ...'tô em casa. 'Tô... 'tô trancado.
+Irvin (Rádio): Mas... ele...
+Irvin (Rádio): O Homem Pálido.
 Aquele que eu vi no primeiro dia. É ele.
 
 [[...->Radio-Dia4_Seq2]]
 
 
 :: Radio-Dia4_Seq2 {"position":"4875,425","size":"100,100"}
-*Irvin (Rádio):* Ele... ele 'tá lá fora. Na minha porta.
-*Irvin (Rádio):* Ele não... ele não 'tá batendo. Ele... 'tá só... *parado*. Olhando.
+Irvin (Rádio): Ele... ele 'tá lá fora. Na minha porta.
+Irvin (Rádio): Ele não... ele não 'tá batendo. Ele... 'tá só... parado. Olhando.
 
 [Ouve-se o som de um motor de gerador engasgando e falhando.]
 
-*Irvin (Rádio):* ...Merda... Merda!
+Irvin (Rádio): ...Merda... Merda!
 A luz... o gerador...
 
 [[...->Radio-Dia4_Seq3]]
 
 
 :: Radio-Dia4_Seq3 {"position":"4875,550","size":"100,100"}
-*Irvin (Rádio):* ...'tá acabando. A gasolina 'tá acabando.
-*Irvin (Rádio):* Ele 'tá esperando a luz apagar.
+Irvin (Rádio): ...'tá acabando. A gasolina 'tá acabando.
+Irvin (Rádio): Ele 'tá esperando a luz apagar.
 Ele sabe.
 
-*Irvin (Rádio):* ...eu não posso ficar aqui. Se... se o gerador morrer...
-*Irvin (Rádio):* ...eu... eu vou tentar ir amanhã pra sua casa.
+Irvin (Rádio): ...eu não posso ficar aqui. Se... se o gerador morrer...
+Irvin (Rádio): ...eu... eu vou tentar ir amanhã pra sua casa.
 É o único lugar com luz.
 
 [A transmissão corta.]
@@ -1544,7 +1518,7 @@ Estou fazendo reportagem de campo sobre essa crise.
 
 :: Vinicius-Conversa2 {"position":"3400,1050","size":"100,100"}
 Sobre como as pessoas estão lidando! Os relatos do povo de Aldeia!
-Você tem energia, ouço o *gerador*. O que você viu?
+Você tem energia, ouço o gerador. O que você viu?
 Algo fora do comum?
 
 [[Tem um homem muito pálido perambulando por aí.->Vinicius-Conversa3]]
@@ -1554,7 +1528,7 @@ Algo fora do comum?
 :: Vinicius-Conversa2B {"position":"3875,900","size":"100,100"}
 Sozinho agora.
 Minha equipe... bem...
-Eu prefiro não comentar... 
+Eu prefiro não comentar...
 digamos que os visitantes não são a unica coisa perigosa aqui fora.
 
 [[Você sabe algo sobre os 'Visitantes'?->Vinicius-Conversa3C]]

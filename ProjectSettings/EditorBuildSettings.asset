@@ -14,4 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Dia 1.unity
     guid: 467ee5bf595f6dc4191a11483e3cdb87
+  - enabled: 1
+    path: Assets/Scenes/CreditsScene.unity
+    guid: 885025de13511c8438bfde4080166028
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
