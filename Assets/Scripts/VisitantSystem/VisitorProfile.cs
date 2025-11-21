@@ -1,6 +1,5 @@
 using UnityEngine;
 
-// Define os tipos de comportamento para a humanidade
 public enum HumanityType
 {
     Random,         // 50/50 ou baseado na dificuldade do dia
@@ -13,8 +12,6 @@ public class VisitorProfile : ScriptableObject
 {
     [Header("Identidade")]
     public string characterName;   // Ex: "Irvin"
-
-    [Header("Visual")]
     public Sprite characterSprite; // A imagem 2D que aparece no olho mágico
 
     [Header("Cérebro (Twine)")]
@@ -22,15 +19,20 @@ public class VisitorProfile : ScriptableObject
     public string startNodeID;
 
     [Header("Lógica de Jogo")]
-    [Tooltip("Define se este visitante é fixo ou aleatório.")]
     public HumanityType humanityType = HumanityType.Random;
-
-    [Tooltip("Se falso, o DE3000 não consegue ler este visitante (Ex: Homem Pálido).")]
     public bool isScannable = true;
 
-    // --- Dados Estatísticos Base (Para o DE3000 usar depois) ---
-    // Estes são os valores "Ideais" se for humano. O sistema do DE3000 vai distorcer isso se for impostor.
-    [Header("Stats Base (Se Humano)")]
-    public float baseTemperature = 36.5f;
-    public float baseRetinalAccuracy = 0.8f;
+    [Header("Estatísticas Base (DE3000)")]
+    // Nomes corrigidos para bater com o DE3000Manager
+    [Tooltip("Temperatura Média (Humanos ~36.5)")]
+    public float meanTemp = 36.5f;
+
+    [Tooltip("Variação da Temperatura (Humanos ~0.5)")]
+    public float tempStdDev = 0.5f;
+
+    [Tooltip("Probabilidade de Sucesso no Teste de Retina (0.0 a 1.0)")]
+    public float retinalProbability = 0.8f;
+
+    [Tooltip("Padrão Neural Base (Array de 5 floats)")]
+    public float[] neuralPattern = { 0.2f, 0.8f, 0.3f, 0.7f, 0.2f };
 }
