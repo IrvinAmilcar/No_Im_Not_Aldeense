@@ -167,7 +167,10 @@ public class PeepholeManager : MonoBehaviour
     {
         pendingEntryDecision = null;
 
-        if (nodeID.Contains("-Scan")) TryActivateScanner();
+        if (nodeID.Contains("-Scan"))
+        {
+            OpenDE3000();
+        }
         else if (nodeID.Contains("-Fim-Entra")) pendingEntryDecision = true;
         else if (nodeID.Contains("-Fim-Sai")) pendingEntryDecision = false;
     }
@@ -209,5 +212,23 @@ public class PeepholeManager : MonoBehaviour
         {
             door.ExitInteraction();
         }
+    }
+    public void OpenDE3000()
+    {
+        // Esconde a UI do diálogo
+        canvasRoot.SetActive(false);
+
+        // Abre o DE3000
+        if (DE3000Manager.Instance != null)
+        {
+            DE3000Manager.Instance.OpenDevice(currentProfile);
+        }
+    }
+
+    public void ReturnToDialogue()
+    {
+        // Fecha DE3000 (já feito no CloseDevice dele, mas garante)
+        // Liga a UI do diálogo de volta
+        canvasRoot.SetActive(true);
     }
 }
