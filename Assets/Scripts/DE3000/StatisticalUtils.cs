@@ -7,8 +7,13 @@ public static class StatisticalUtils
     public static float NormalPDF(float x, float mean, float stdDev)
     {
         float variance = stdDev * stdDev;
+        // Z-Score ao quadrado e negativo: -0.5 * ((x - mean)/stdDev)^2
         float exponent = -0.5f * Mathf.Pow(x - mean, 2) / variance;
+
+        // Constante de Normalização: 1 / (sigma * sqrt(2 * PI))
+        // Na sua imagem: 1 / (0.5 * 2.506...) = 1 / 1.253 = 0.798
         float coefficient = 1f / (stdDev * Mathf.Sqrt(2 * Mathf.PI));
+
         return coefficient * Mathf.Exp(exponent);
     }
 

@@ -282,33 +282,53 @@ public class DE3000Manager : MonoBehaviour
     {
         float reading;
 
+        // Lógica de geração de temperatura (Humano vs Impostor)
         if (activeIsHuman)
         {
             reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
         }
         else
         {
-            // IMPOSTOR EVOLUTIVO
-            // Dia 1: Base 32.0ºC (Frio, fácil de ver)
-            // Dia 5: Base 36.0ºC (Quase humano, sobrepõe com 'frio/doente')
-            float baseTemp = Mathf.Lerp(32.0f, 36.0f, mimicFactor);
-
-            // Adiciona ruído para não ficar um número fixo
+            // Impostor camuflado: Tenta imitar (34.5 a 36.0)
+            float baseTemp = Mathf.Lerp(32.0f, 36.0f, mimicFactor); // mimicFactor vem do ActivateDevice
             reading = baseTemp + Random.Range(-0.3f, 0.5f);
         }
 
-        // (Visualização Gráfica - Mantenha o código anterior aqui...)
+        // --- DESENHO DO GRÁFICO CORRIGIDO ---
         if (thermalChart != null)
         {
             thermalChart.RemoveAllSerie();
+
+            // Série 0: A Curva (Linha Azul)
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
-            lineSerie.symbol.show = false; lineSerie.lineStyle.width = 2f;
+            lineSerie.symbol.show = false;
+            lineSerie.lineStyle.width = 2f;
+
+            // Série 1: O Ponto (Bolinha Vermelha)
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
-            pointSerie.symbol.size = 20f; pointSerie.itemStyle.color = Color.red;
+
+            // CORREÇÃO DE TAMANHO: Reduzido de 20 para 8 para ficar proporcional
+            pointSerie.symbol.size = 8f;
+            pointSerie.symbol.type = SymbolType.Circle;
+            pointSerie.itemStyle.color = Color.red;
+
             thermalChart.ClearData();
-            for (float i = 32f; i <= 41f; i += 0.1f) thermalChart.AddData(0, i, StatisticalUtils.NormalPDF(i, 36.5f, 0.5f));
+
+            // Desenha a curva de referência (32 a 41 graus)
+            for (float i = 32f; i <= 41f; i += 0.1f)
+            {
+                // Fórmula PDF pura para a linha
+                float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
+                thermalChart.AddData(0, i, y);
+            }
+
+            // Calcula a altura exata da bolinha na curva
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
-            if (readingY < 0.01f) readingY = 0.01f;
+
+            // CORREÇÃO DE CÁLCULO: Removemos o clamp artificial.
+            // Agora, se o cálculo der 0.108 (como na sua imagem), a bolinha vai para Y=0.108.
+            // Se der muito baixo (ex: 0.0004), ela vai colar no chão, o que é matematicamente correto.
+
             thermalChart.AddData(1, reading, readingY);
         }
 
@@ -354,9 +374,9 @@ public class DE3000Manager : MonoBehaviour
         bool flatline = false;
         bool isHumanPattern = false;
 
+        // --- Lógica de Geração (Mantida igual) ---
         if (activeIsHuman)
         {
-            // Padrão Humano: Picos em 10Hz e 25Hz
             pattern[0] = Random.Range(0.1f, 0.3f);
             pattern[1] = Random.Range(0.7f, 0.9f);
             pattern[2] = Random.Range(0.5f, 0.7f);
@@ -366,40 +386,62 @@ public class DE3000Manager : MonoBehaviour
         }
         else
         {
-            // IMPOSTOR EVOLUTIVO
-            if (mimicFactor < 0.3f) // Dia 1-2 (Fácil)
+            if (mimicFactor < 0.3f)
             {
-                // Flatline ou Ruído Baixo
                 float noise = Random.Range(0.1f, 0.2f);
                 for (int i = 0; i < 5; i++) pattern[i] = noise;
                 flatline = true;
             }
             else
             {
-                // Dia 3-5 (Difícil)
-                // Tenta imitar os picos humanos, mas com "falhas"
                 pattern[0] = Random.Range(0.1f, 0.4f);
-
-                // Tenta imitar o pico de 10Hz (Alpha), mas varia conforme a camuflagem
-                // Quanto maior o mimicFactor, mais perto de 0.8 ele chega
                 pattern[1] = Mathf.Lerp(0.3f, 0.8f, mimicFactor) + Random.Range(-0.1f, 0.1f);
-
                 pattern[2] = Random.Range(0.4f, 0.6f);
                 pattern[3] = Random.Range(0.2f, 0.5f);
-
-                // Tenta imitar pico de 25Hz
                 pattern[4] = Mathf.Lerp(0.3f, 0.7f, mimicFactor) + Random.Range(-0.1f, 0.1f);
             }
         }
 
-        // (Visualização Gráfica igual...)
+        // --- CONFIGURAÇÃO VISUAL BLINDADA ---
         if (neuralChart != null)
         {
             neuralChart.RemoveAllSerie();
+            neuralChart.ClearData(); // Limpa dados antigos do gráfico
+
+            // 1. FORÇAR A CONFIGURAÇÃO DO EIXO X
+            // Não confiamos no Inspector, configuramos na hora para garantir.
+            var xAxis = neuralChart.EnsureChartComponent<XAxis>();
+            if (xAxis != null)
+            {
+                xAxis.type = Axis.AxisType.Category;
+
+                // Recria a lista de nomes
+                xAxis.data.Clear();
+                xAxis.data.Add("5Hz");
+                xAxis.data.Add("10Hz");
+                xAxis.data.Add("15Hz");
+                xAxis.data.Add("20Hz");
+                xAxis.data.Add("25Hz");
+
+                // FORÇA A VISIBILIDADE
+                xAxis.axisLabel.show = true;
+                xAxis.axisLabel.interval = 0; // 0 = MOSTRAR TODOS (Obrigatório)
+                xAxis.axisLabel.textStyle.color = Color.white; // Força BRANCO (evita preto invisível)
+                xAxis.axisLabel.textStyle.fontSize = 14; // Tamanho legível
+            }
+
+            // 2. Cria a série de barras
             var barSerie = neuralChart.AddSerie<Bar>("Frequencias");
-            barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f);
-            neuralChart.ClearData();
-            for (int i = 0; i < 5; i++) neuralChart.AddData(0, i, pattern[i]);
+            barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f); // Roxo
+
+            // 3. Adiciona os dados
+            for (int i = 0; i < 5; i++)
+            {
+                neuralChart.AddData(0, i, pattern[i]);
+            }
+
+            // Atualiza tudo
+            neuralChart.RefreshChart();
         }
 
         return StatisticalUtils.CalculateNeuralDelta(flatline, isHumanPattern);
