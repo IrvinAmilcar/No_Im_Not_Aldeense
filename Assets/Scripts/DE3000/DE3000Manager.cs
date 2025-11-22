@@ -215,29 +215,37 @@ public class DE3000Manager : MonoBehaviour
 
         if (thermalChart != null)
         {
-            // --- CORREÇÃO CRÍTICA: Recria as séries ---
-            thermalChart.RemoveAllSerie(); // Limpa configurações antigas
+            thermalChart.RemoveAllSerie();
 
-            // Série 0: Linha da Curva
+            // Série 0: A Curva (Referência)
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
-            lineSerie.symbol.show = false; // Esconde bolinhas da linha
+            lineSerie.symbol.show = false; // Sem bolinhas na linha
             lineSerie.lineStyle.width = 2f;
+            lineSerie.lineStyle.type = LineStyle.Type.Solid; // Linha sólida suave
 
-            // Série 1: Ponto da Leitura
+            // Série 1: O Ponto (Resultado)
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
             pointSerie.symbol.size = 20f;
+            pointSerie.symbol.type = SymbolType.Circle;
             pointSerie.itemStyle.color = Color.red;
 
-            // Popula os dados
             thermalChart.ClearData();
-            for (float i = 32f; i <= 41f; i += 0.5f)
+
+            // Desenha a curva (de 32 a 41 graus)
+            for (float i = 32f; i <= 41f; i += 0.1f) // 0.1f para ficar mais suave
             {
                 float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
-                thermalChart.AddData(0, i, y); // Adiciona na Linha
+                thermalChart.AddData(0, i, y);
             }
 
+            // Desenha o ponto exato
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
-            thermalChart.AddData(1, reading, readingY); // Adiciona no Ponto
+
+            // Se a leitura for muito longe (impostor frio), o Y é quase zero, 
+            // mas garantimos que ele apareça no gráfico
+            if (readingY < 0.01f) readingY = 0.01f;
+
+            thermalChart.AddData(1, reading, readingY);
         }
 
         return StatisticalUtils.CalculateThermalDelta(reading);
@@ -251,14 +259,20 @@ public class DE3000Manager : MonoBehaviour
 
         if (retinalChart != null)
         {
-            // --- CORREÇÃO CRÍTICA ---
             retinalChart.RemoveAllSerie();
+            // Cria a série de barras
             var barSerie = retinalChart.AddSerie<Bar>("Acertos");
-            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f); // Verde Matrix
+            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f); // Verde
+            // Configura a largura da barra para ficar bonita
+            barSerie.barWidth = 40f;
 
             retinalChart.ClearData();
-            // Adiciona UMA barra representando o total de acertos
-            retinalChart.AddData(0, successes);
+
+            // --- CORREÇÃO: Adiciona explicitamente na Categoria 0 com Valor 'successes' ---
+            // O primeiro '0' é o índice da série. 
+            // O segundo '0' é a posição X (primeira barra).
+            // O terceiro é o valor Y (altura).
+            retinalChart.AddData(0, 0, successes);
         }
 
         return StatisticalUtils.CalculateRetinalDelta(successes);
