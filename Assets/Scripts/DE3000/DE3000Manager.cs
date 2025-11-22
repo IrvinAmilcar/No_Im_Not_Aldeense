@@ -73,22 +73,39 @@ public class DE3000Manager : MonoBehaviour
 
     // --- ATIVAÇÃO ---
 
+    // --- Variáveis de Dificuldade ---
+    private int currentDayIndex = 0;
+    private float mimicFactor = 0f; // 0 = Fácil (Óbvio), 1 = Pesadelo (Indistinguível)
+
     public void ActivateDevice(VisitorProfile profile, bool isHuman)
     {
         activeProfile = profile;
         activeIsHuman = isHuman;
 
+        // 1. Pega o dia atual do Gerente
+        if (DayCycleManager.Instance != null)
+        {
+            currentDayIndex = DayCycleManager.Instance.GetCurrentDayIndex();
+        }
+        else
+        {
+            currentDayIndex = 0; // Fallback para Dia 1
+        }
+
+        // 2. Calcula o Fator de Camuflagem (Mimic Factor)
+        // Dia 1 (Index 0) -> 0.0
+        // Dia 3 (Index 2) -> 0.5
+        // Dia 5 (Index 4) -> 1.0
+        // Dividimos por 4f pois são 5 dias (0 a 4). Ajuste se tiver mais dias.
+        mimicFactor = Mathf.Clamp01(currentDayIndex / 4f);
+
+        Debug.Log($"[DE3000] Dia {currentDayIndex + 1}. Nível de Camuflagem: {mimicFactor * 100}%");
+
+        // (Resto do código de inicialização igual...)
         pGlobal = 50f;
         deltaThermal = 0; deltaRetinal = 0; deltaNeural = 0;
-
-        CleanChart(thermalChart);
-        CleanChart(retinalChart);
-        CleanChart(neuralChart);
-        CleanChart(historyChart);
-
-        UpdateBatteryUI();
-        UpdateGlobalProbUI();
-        SwitchMode(ScanMode.Idle);
+        CleanChart(thermalChart); CleanChart(retinalChart); CleanChart(neuralChart); CleanChart(historyChart);
+        UpdateBatteryUI(); UpdateGlobalProbUI(); SwitchMode(ScanMode.Idle);
 
         if (de3000Background) de3000Background.SetActive(true);
         if (de3000Panel) de3000Panel.SetActive(true);
@@ -264,35 +281,44 @@ public class DE3000Manager : MonoBehaviour
     private float PerformThermalScan()
     {
         float reading;
-        if (activeIsHuman) reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
-        else reading = Random.Range(34.5f, 36.0f) + Random.Range(-0.2f, 0.2f);
 
+        if (activeIsHuman)
+        {
+            reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
+        }
+        else
+        {
+            // IMPOSTOR EVOLUTIVO
+            // Dia 1: Base 32.0ºC (Frio, fácil de ver)
+            // Dia 5: Base 36.0ºC (Quase humano, sobrepõe com 'frio/doente')
+            float baseTemp = Mathf.Lerp(32.0f, 36.0f, mimicFactor);
+
+            // Adiciona ruído para não ficar um número fixo
+            reading = baseTemp + Random.Range(-0.3f, 0.5f);
+        }
+
+        // (Visualização Gráfica - Mantenha o código anterior aqui...)
         if (thermalChart != null)
         {
             thermalChart.RemoveAllSerie();
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
-            lineSerie.symbol.show = false;
-            lineSerie.lineStyle.width = 2f;
+            lineSerie.symbol.show = false; lineSerie.lineStyle.width = 2f;
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
-            pointSerie.symbol.size = 20f;
-            pointSerie.itemStyle.color = Color.red;
-
+            pointSerie.symbol.size = 20f; pointSerie.itemStyle.color = Color.red;
             thermalChart.ClearData();
-            for (float i = 32f; i <= 41f; i += 0.1f)
-            {
-                float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
-                thermalChart.AddData(0, i, y);
-            }
+            for (float i = 32f; i <= 41f; i += 0.1f) thermalChart.AddData(0, i, StatisticalUtils.NormalPDF(i, 36.5f, 0.5f));
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
             if (readingY < 0.01f) readingY = 0.01f;
             thermalChart.AddData(1, reading, readingY);
         }
+
         return StatisticalUtils.CalculateThermalDelta(reading);
     }
 
     private float PerformRetinalScan()
     {
         int successes = 0;
+
         if (activeIsHuman)
         {
             float p = activeProfile.retinalProbability;
@@ -300,10 +326,15 @@ public class DE3000Manager : MonoBehaviour
         }
         else
         {
-            float pImpostor = Random.Range(0.35f, 0.55f);
+            // IMPOSTOR EVOLUTIVO
+            // Dia 1: Probabilidade baixa (0.2) -> Gera ~2 sucessos (Óbvio)
+            // Dia 5: Probabilidade alta (0.7) -> Gera ~7 sucessos (Confunde com humano cansado)
+            float pImpostor = Mathf.Lerp(0.2f, 0.7f, mimicFactor);
+
             for (int i = 0; i < 10; i++) if (Random.value < pImpostor) successes++;
         }
 
+        // (Visualização Gráfica igual...)
         if (retinalChart != null)
         {
             retinalChart.RemoveAllSerie();
@@ -313,6 +344,7 @@ public class DE3000Manager : MonoBehaviour
             retinalChart.ClearData();
             retinalChart.AddData(0, 0, successes);
         }
+
         return StatisticalUtils.CalculateRetinalDelta(successes);
     }
 
@@ -324,6 +356,7 @@ public class DE3000Manager : MonoBehaviour
 
         if (activeIsHuman)
         {
+            // Padrão Humano: Picos em 10Hz e 25Hz
             pattern[0] = Random.Range(0.1f, 0.3f);
             pattern[1] = Random.Range(0.7f, 0.9f);
             pattern[2] = Random.Range(0.5f, 0.7f);
@@ -333,11 +366,33 @@ public class DE3000Manager : MonoBehaviour
         }
         else
         {
-            float noiseLevel = Random.Range(0.3f, 0.5f);
-            for (int i = 0; i < 5; i++) pattern[i] = noiseLevel + Random.Range(-0.1f, 0.1f);
-            flatline = (noiseLevel < 0.1f);
+            // IMPOSTOR EVOLUTIVO
+            if (mimicFactor < 0.3f) // Dia 1-2 (Fácil)
+            {
+                // Flatline ou Ruído Baixo
+                float noise = Random.Range(0.1f, 0.2f);
+                for (int i = 0; i < 5; i++) pattern[i] = noise;
+                flatline = true;
+            }
+            else
+            {
+                // Dia 3-5 (Difícil)
+                // Tenta imitar os picos humanos, mas com "falhas"
+                pattern[0] = Random.Range(0.1f, 0.4f);
+
+                // Tenta imitar o pico de 10Hz (Alpha), mas varia conforme a camuflagem
+                // Quanto maior o mimicFactor, mais perto de 0.8 ele chega
+                pattern[1] = Mathf.Lerp(0.3f, 0.8f, mimicFactor) + Random.Range(-0.1f, 0.1f);
+
+                pattern[2] = Random.Range(0.4f, 0.6f);
+                pattern[3] = Random.Range(0.2f, 0.5f);
+
+                // Tenta imitar pico de 25Hz
+                pattern[4] = Mathf.Lerp(0.3f, 0.7f, mimicFactor) + Random.Range(-0.1f, 0.1f);
+            }
         }
 
+        // (Visualização Gráfica igual...)
         if (neuralChart != null)
         {
             neuralChart.RemoveAllSerie();
@@ -346,6 +401,7 @@ public class DE3000Manager : MonoBehaviour
             neuralChart.ClearData();
             for (int i = 0; i < 5; i++) neuralChart.AddData(0, i, pattern[i]);
         }
+
         return StatisticalUtils.CalculateNeuralDelta(flatline, isHumanPattern);
     }
 

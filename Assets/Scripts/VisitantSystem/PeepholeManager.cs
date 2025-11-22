@@ -57,49 +57,18 @@ public class PeepholeManager : MonoBehaviour
 
     private bool DetermineHumanity(VisitorProfile profile)
     {
-        // 1. Casos Fixos (Narrativos - Prioridade Máxima)
-        // Se o perfil diz que é SEMPRE Humano ou SEMPRE Impostor, respeitamos isso.
+        // 1. Casos Fixos (Narrativos)
         if (profile.humanityType == HumanityType.AlwaysHuman) return true;
         if (profile.humanityType == HumanityType.AlwaysImpostor) return false;
 
-        // 2. Cálculo baseado no Dia (Dificuldade Progressiva)
-        int currentDay = 1; // Valor padrão (Dia 1) se não encontrar o manager
+        // 2. Chance Fixa (Balanceamento)
+        // Como a dificuldade agora está na ANÁLISE, não precisamos entupir o jogador de monstros.
+        // Uma chance de 40% a 50% de ser impostor mantém o suspense constante.
+        float impostorChance = 0.45f; // 45% de chance de ser impostor todos os dias.
 
-        if (DayCycleManager.Instance != null)
-        {
-            // O índice começa em 0 (Dia 1 = index 0), então somamos 1 para o cálculo matemático
-            currentDay = DayCycleManager.Instance.GetCurrentDayIndex() + 1;
-        }
-
-        // Chance base de ser IMPOSTOR no Dia 1
-        float impostorChance = 0.1f; // 10%
-
-        // Aumenta a chance conforme os dias passam
-        // Fórmula: Chance = Base + (Dia * 0.15)
-        // Dia 1: 0.10 + 0.15 = 0.25 (25%)
-        // Dia 2: 0.10 + 0.30 = 0.40 (40%)
-        // Dia 3: 0.10 + 0.45 = 0.55 (55%)
-        // Dia 4: 0.10 + 0.60 = 0.70 (70%)
-        // Dia 5: 0.10 + 0.75 = 0.85 (85%)
-        impostorChance += (currentDay * 0.15f);
-
-        // Trava no máximo em 90% para sempre ter uma chance de esperança
-        impostorChance = Mathf.Clamp(impostorChance, 0.1f, 0.9f);
-
-        Debug.Log($"[Sistema] Dia {currentDay}. Chance de Impostor: {impostorChance * 100:F0}%");
-
-        // 3. Rolagem de Dados
-        // Random.value retorna um float entre 0.0 e 1.0
-        // Se o valor sorteado for MENOR que a chance de ser impostor, ele É um impostor.
-        // Ex: Chance 0.4 (40%). Sorteou 0.3 -> É Impostor. Sorteou 0.8 -> É Humano.
-
-        // Lógica Invertida: Se o valor for MAIOR que a chance de impostor, é Humano.
-        // Ex: Chance Impostor 40%. Sobra 60% para Humano.
-        // Se Random > 0.4, cai na faixa dos 60% (Humano).
-
+        // Debug para você saber o que o jogo decidiu
         bool isHuman = Random.value > impostorChance;
-
-        Debug.Log($"[Sistema] Visitante gerado. É Humano? {isHuman}");
+        Debug.Log($"[Sistema] Visitante Aleatório gerado. É Humano? {isHuman}");
 
         return isHuman;
     }
