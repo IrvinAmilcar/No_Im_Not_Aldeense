@@ -8,14 +8,13 @@ public class DE3000Manager : MonoBehaviour
 {
     public static DE3000Manager Instance { get; private set; }
 
-    // Adicionei "Idle" para o estado inicial vazio
     public enum ScanMode { Idle, Thermal, Retinal, Neural, History }
 
     [Header("Hierarquia Principal")]
     public GameObject de3000Panel;
     public GameObject de3000Background;
 
-    [Header("Visualização XCharts (Arraste os objetos)")]
+    [Header("Visualização XCharts")]
     public LineChart thermalChart;
     public BarChart retinalChart;
     public BarChart neuralChart;
@@ -36,7 +35,7 @@ public class DE3000Manager : MonoBehaviour
     private const float MULT_RETINAL = 1.0f;
     private const float MULT_NEURAL = 1.5f;
 
-    private ScanMode currentMode = ScanMode.Idle; // Começa Ocioso
+    private ScanMode currentMode = ScanMode.Idle;
     private bool isScanning = false;
     private VisitorProfile activeProfile;
     private bool activeIsHuman;
@@ -61,8 +60,16 @@ public class DE3000Manager : MonoBehaviour
         activeProfile = profile;
         activeIsHuman = isHuman;
 
+        // --- CORREÇÃO: Reseta variáveis de histórico ---
         pGlobal = 50f;
         deltaThermal = 0; deltaRetinal = 0; deltaNeural = 0;
+
+        // --- CORREÇÃO: Limpa TODOS os gráficos visualmente ao iniciar ---
+        // Isso impede que o gráfico do personagem anterior "pisque" na tela
+        CleanChart(thermalChart);
+        CleanChart(retinalChart);
+        CleanChart(neuralChart);
+        CleanChart(historyChart);
 
         if (de3000Background) de3000Background.SetActive(true);
         if (de3000Panel) de3000Panel.SetActive(true);
@@ -70,8 +77,17 @@ public class DE3000Manager : MonoBehaviour
         UpdateBatteryUI();
         UpdateGlobalProbUI();
 
-        // --- CORREÇÃO 1: Começa no modo IDLE (Sem gráficos) ---
         SwitchMode(ScanMode.Idle);
+    }
+
+    // Método auxiliar para limpar gráficos com segurança
+    private void CleanChart(BaseChart chart)
+    {
+        if (chart != null)
+        {
+            chart.RemoveAllSerie();
+            chart.ClearData();
+        }
     }
 
     public void DeactivateDevice()
@@ -117,7 +133,7 @@ public class DE3000Manager : MonoBehaviour
     {
         currentMode = mode;
 
-        // Esconde tudo primeiro
+        // Esconde tudo
         if (thermalChart) thermalChart.gameObject.SetActive(false);
         if (retinalChart) retinalChart.gameObject.SetActive(false);
         if (neuralChart) neuralChart.gameObject.SetActive(false);
@@ -125,7 +141,6 @@ public class DE3000Manager : MonoBehaviour
 
         if (statusText) statusText.text = "PRONTO";
 
-        // Configura o modo
         switch (mode)
         {
             case ScanMode.Idle:
@@ -205,7 +220,7 @@ public class DE3000Manager : MonoBehaviour
         isScanning = false;
     }
 
-    // --- IMPLEMENTAÇÃO DOS GRÁFICOS (CORRIGIDA) ---
+    // --- IMPLEMENTAÇÃO DOS GRÁFICOS ---
 
     private float PerformThermalScan()
     {
@@ -217,34 +232,23 @@ public class DE3000Manager : MonoBehaviour
         {
             thermalChart.RemoveAllSerie();
 
-            // Série 0: A Curva (Referência)
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
-            lineSerie.symbol.show = false; // Sem bolinhas na linha
+            lineSerie.symbol.show = false;
             lineSerie.lineStyle.width = 2f;
-            lineSerie.lineStyle.type = LineStyle.Type.Solid; // Linha sólida suave
 
-            // Série 1: O Ponto (Resultado)
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
             pointSerie.symbol.size = 20f;
-            pointSerie.symbol.type = SymbolType.Circle;
             pointSerie.itemStyle.color = Color.red;
 
             thermalChart.ClearData();
-
-            // Desenha a curva (de 32 a 41 graus)
-            for (float i = 32f; i <= 41f; i += 0.1f) // 0.1f para ficar mais suave
+            for (float i = 32f; i <= 41f; i += 0.1f)
             {
                 float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
                 thermalChart.AddData(0, i, y);
             }
 
-            // Desenha o ponto exato
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
-
-            // Se a leitura for muito longe (impostor frio), o Y é quase zero, 
-            // mas garantimos que ele apareça no gráfico
             if (readingY < 0.01f) readingY = 0.01f;
-
             thermalChart.AddData(1, reading, readingY);
         }
 
@@ -260,18 +264,11 @@ public class DE3000Manager : MonoBehaviour
         if (retinalChart != null)
         {
             retinalChart.RemoveAllSerie();
-            // Cria a série de barras
             var barSerie = retinalChart.AddSerie<Bar>("Acertos");
-            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f); // Verde
-            // Configura a largura da barra para ficar bonita
+            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f);
             barSerie.barWidth = 40f;
 
             retinalChart.ClearData();
-
-            // --- CORREÇÃO: Adiciona explicitamente na Categoria 0 com Valor 'successes' ---
-            // O primeiro '0' é o índice da série. 
-            // O segundo '0' é a posição X (primeira barra).
-            // O terceiro é o valor Y (altura).
             retinalChart.AddData(0, 0, successes);
         }
 
@@ -298,15 +295,13 @@ public class DE3000Manager : MonoBehaviour
 
         if (neuralChart != null)
         {
-            // --- CORREÇÃO CRÍTICA ---
             neuralChart.RemoveAllSerie();
             var barSerie = neuralChart.AddSerie<Bar>("Frequencias");
-            barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f); // Roxo/Azul
+            barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f);
 
             neuralChart.ClearData();
             for (int i = 0; i < 5; i++)
             {
-                // No XCharts 3, para categorias, usamos o index X e o valor Y
                 neuralChart.AddData(0, i, pattern[i]);
             }
         }
@@ -314,21 +309,67 @@ public class DE3000Manager : MonoBehaviour
         return StatisticalUtils.CalculateNeuralDelta(flatline, activeIsHuman);
     }
 
+    // --- CORREÇÃO DO NULL REFERENCE (HistoryChart) ---
+    // --- CORREÇÃO: Método Blindado contra NullReference ---
     private void UpdateHistoryChart()
     {
-        if (historyChart != null)
+        // 1. Segurança básica
+        if (historyChart == null) return;
+
+        // 2. Limpeza Total
+        historyChart.RemoveAllSerie();
+        historyChart.ClearData();
+
+        // 3. Garantir que os Eixos existem (Cria se não existirem)
+        var xAxis = historyChart.EnsureChartComponent<XAxis>();
+        var yAxis = historyChart.EnsureChartComponent<YAxis>();
+
+        if (xAxis == null || yAxis == null)
         {
-            historyChart.RemoveAllSerie();
-            var barSerie = historyChart.AddSerie<Bar>("Historico");
-            barSerie.label.show = true; // Mostra o número na barra
-            barSerie.label.position = LabelStyle.Position.Top;
+            Debug.LogError("Erro: Não foi possível criar os eixos do HistoryChart.");
+            return;
+        }
 
-            historyChart.ClearData();
+        // 4. Configurar Eixo X (Categorias) com segurança
+        xAxis.type = Axis.AxisType.Category;
+        if (xAxis.data != null)
+        {
+            xAxis.data.Clear();
+            xAxis.data.Add("Térmica");
+            xAxis.data.Add("Retina");
+            xAxis.data.Add("Neural");
+        }
 
-            // Adiciona dados (Index X 0, 1, 2 correspondem às categorias)
-            historyChart.AddData(0, 0, deltaThermal);
-            historyChart.AddData(0, 1, deltaRetinal);
-            historyChart.AddData(0, 2, deltaNeural);
+        // 5. Configurar Eixo Y (Valores)
+        yAxis.type = Axis.AxisType.Value;
+
+        // 6. Adicionar a Série e verificar se foi criada
+        var barSerie = historyChart.AddSerie<Bar>("Historico");
+
+        if (barSerie != null)
+        {
+            // Configura visual da barra
+            barSerie.itemStyle.color = new Color(1f, 0.8f, 0f, 0.8f); // Amarelo/Laranja
+
+            // Verificação extra para o Label (causa comum do erro)
+            if (barSerie.label != null)
+            {
+                barSerie.label.show = true;
+                barSerie.label.position = LabelStyle.Position.Top;
+            }
+
+            // 7. Adicionar os Dados (Sequencialmente: 0=Térmica, 1=Retina, 2=Neural)
+            // AddData(SerieIndex, Valor) -> O XCharts distribui nas categorias automaticamente
+            historyChart.AddData(0, deltaThermal);
+            historyChart.AddData(0, deltaRetinal);
+            historyChart.AddData(0, deltaNeural);
+
+            // Força atualização visual
+            historyChart.RefreshChart();
+        }
+        else
+        {
+            Debug.LogError("Erro: Falha ao criar a série 'Bar' no HistoryChart.");
         }
     }
 
@@ -347,7 +388,9 @@ public class DE3000Manager : MonoBehaviour
     {
         if (globalProbText)
         {
-            globalProbText.text = $"{pGlobal:F0}%";
+            // --- CORREÇÃO: Texto mais explicativo ---
+            globalProbText.text = $"P(Humano): {pGlobal:F0}%";
+
             if (pGlobal > 80) globalProbText.color = Color.green;
             else if (pGlobal < 40) globalProbText.color = Color.red;
             else globalProbText.color = Color.yellow;
