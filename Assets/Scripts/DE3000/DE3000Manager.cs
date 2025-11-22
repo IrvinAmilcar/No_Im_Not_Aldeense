@@ -2,213 +2,341 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using XCharts.Runtime; // XCharts 3.x
 
 public class DE3000Manager : MonoBehaviour
 {
     public static DE3000Manager Instance { get; private set; }
 
-    public enum ScanMode { Thermal, Retinal, Neural }
+    // Adicionei "Idle" para o estado inicial vazio
+    public enum ScanMode { Idle, Thermal, Retinal, Neural, History }
 
-    [Header("UI References")]
-    public GameObject de3000Panel;      // O objeto que tem este script
-    public GameObject de3000Background; // O PAI deste objeto (Fundo escuro)
+    [Header("Hierarquia Principal")]
+    public GameObject de3000Panel;
+    public GameObject de3000Background;
 
-    public RectTransform graphContainer;
+    [Header("Visualização XCharts (Arraste os objetos)")]
+    public LineChart thermalChart;
+    public BarChart retinalChart;
+    public BarChart neuralChart;
+    public BarChart historyChart;
 
+    [Header("UI de Texto")]
     public TextMeshProUGUI modeText;
-    public TextMeshProUGUI valueText;
-    public TextMeshProUGUI probabilityText;
+    public TextMeshProUGUI globalProbText;
     public TextMeshProUGUI batteryText;
-
-    [Header("Prefabs Visuais")]
-    public GameObject lineRendererPrefab;
-    public GameObject barPrefab;
-    public GameObject pointPrefab;
+    public TextMeshProUGUI statusText;
 
     [Header("Configurações")]
+    public float pGlobal = 50f;
     public float batteryLevel = 100f;
-    public float costPerScan = 10f;
 
-    private ScanMode currentMode = ScanMode.Thermal;
+    private const float BASE_COST = 10f;
+    private const float MULT_THERMAL = 0.5f;
+    private const float MULT_RETINAL = 1.0f;
+    private const float MULT_NEURAL = 1.5f;
+
+    private ScanMode currentMode = ScanMode.Idle; // Começa Ocioso
     private bool isScanning = false;
     private VisitorProfile activeProfile;
     private bool activeIsHuman;
 
-    void Awake()
-    {
-        Instance = this;
-        // Não alteramos SetActive aqui para evitar conflitos de inicialização
-    }
+    // Histórico
+    private float deltaThermal = 0;
+    private float deltaRetinal = 0;
+    private float deltaNeural = 0;
+
+    void Awake() { Instance = this; }
 
     void Start()
     {
-        // Garante que comece desligado no início do jogo
         if (de3000Background) de3000Background.SetActive(false);
-        // Se o painel for filho, ele desliga junto automaticamente
+        batteryLevel = 100f;
     }
+
+    // --- INICIALIZAÇÃO ---
 
     public void ActivateDevice(VisitorProfile profile, bool isHuman)
     {
         activeProfile = profile;
         activeIsHuman = isHuman;
 
-        // 1. Ligar o PAI primeiro (Obrigatório na Unity)
-        if (de3000Background) de3000Background.SetActive(true);
+        pGlobal = 50f;
+        deltaThermal = 0; deltaRetinal = 0; deltaNeural = 0;
 
-        // 2. Ligar o Painel (caso esteja desligado individualmente)
+        if (de3000Background) de3000Background.SetActive(true);
         if (de3000Panel) de3000Panel.SetActive(true);
 
-        SwitchMode(ScanMode.Thermal);
         UpdateBatteryUI();
+        UpdateGlobalProbUI();
+
+        // --- CORREÇÃO 1: Começa no modo IDLE (Sem gráficos) ---
+        SwitchMode(ScanMode.Idle);
     }
 
     public void DeactivateDevice()
     {
-        // Desligar o PAI desliga tudo
         if (de3000Background) de3000Background.SetActive(false);
-
-        // Avisa o Peephole para voltar
-        if (PeepholeManager.Instance != null)
-            PeepholeManager.Instance.ReturnToDialogue();
+        if (PeepholeManager.Instance != null) PeepholeManager.Instance.ReturnToDialogue();
     }
 
     // --- BOTÕES ---
 
-    public void OnClick_Thermal() { if (!isScanning) SwitchMode(ScanMode.Thermal); }
-    public void OnClick_Retinal() { if (!isScanning) SwitchMode(ScanMode.Retinal); }
-    public void OnClick_Neural() { if (!isScanning) SwitchMode(ScanMode.Neural); }
+    public void OnClick_ModeThermal() { if (!isScanning) SwitchMode(ScanMode.Thermal); }
+    public void OnClick_ModeRetinal() { if (!isScanning) SwitchMode(ScanMode.Retinal); }
+    public void OnClick_ModeNeural() { if (!isScanning) SwitchMode(ScanMode.Neural); }
 
-    public void OnClick_SCAN()
+    public void OnClick_GraphHistory()
     {
-        if (isScanning) return;
-
-        if (batteryLevel < costPerScan)
+        if (!isScanning)
         {
-            if (valueText) valueText.text = "SEM BATERIA";
+            SwitchMode(ScanMode.History);
+            UpdateHistoryChart();
+        }
+    }
+
+    public void OnClick_Scan()
+    {
+        if (isScanning || currentMode == ScanMode.History || currentMode == ScanMode.Idle) return;
+
+        float cost = GetScanCost();
+        if (batteryLevel < cost)
+        {
+            if (statusText) statusText.text = "BATERIA INSUFICIENTE";
             return;
         }
 
         StartCoroutine(ScanRoutine());
     }
 
-    public void OnClick_Back()
-    {
-        DeactivateDevice();
-    }
+    public void OnClick_Back() { DeactivateDevice(); }
 
-    public void OnClick_Reset()
-    {
-        SwitchMode(currentMode);
-    }
-
-    // --- LÓGICA INTERNA ---
+    // --- LÓGICA CORE ---
 
     private void SwitchMode(ScanMode mode)
     {
         currentMode = mode;
-        ClearGraph();
-        if (valueText) valueText.text = "---";
-        if (probabilityText) probabilityText.text = "PRONTO";
 
-        if (modeText)
+        // Esconde tudo primeiro
+        if (thermalChart) thermalChart.gameObject.SetActive(false);
+        if (retinalChart) retinalChart.gameObject.SetActive(false);
+        if (neuralChart) neuralChart.gameObject.SetActive(false);
+        if (historyChart) historyChart.gameObject.SetActive(false);
+
+        if (statusText) statusText.text = "PRONTO";
+
+        // Configura o modo
+        switch (mode)
         {
-            switch (mode)
-            {
-                case ScanMode.Thermal: modeText.text = "TÉRMICA"; break;
-                case ScanMode.Retinal: modeText.text = "RETINA"; break;
-                case ScanMode.Neural: modeText.text = "NEURAL"; break;
-            }
+            case ScanMode.Idle:
+                if (modeText) modeText.text = "DE-3000";
+                if (statusText) statusText.text = "SELECIONE UM MODO";
+                break;
+
+            case ScanMode.Thermal:
+                if (thermalChart) thermalChart.gameObject.SetActive(true);
+                if (modeText) modeText.text = "TÉRMICA";
+                break;
+
+            case ScanMode.Retinal:
+                if (retinalChart) retinalChart.gameObject.SetActive(true);
+                if (modeText) modeText.text = "RETINA";
+                break;
+
+            case ScanMode.Neural:
+                if (neuralChart) neuralChart.gameObject.SetActive(true);
+                if (modeText) modeText.text = "NEURAL";
+                break;
+
+            case ScanMode.History:
+                if (historyChart) historyChart.gameObject.SetActive(true);
+                if (modeText) modeText.text = "HISTÓRICO";
+                break;
         }
     }
 
-    private void UpdateBatteryUI()
+    private float GetScanCost()
     {
-        if (batteryText)
+        switch (currentMode)
         {
-            batteryText.text = $"{batteryLevel:F0}%";
-            if (batteryLevel < 20) batteryText.color = Color.red;
-            else batteryText.color = Color.green;
+            case ScanMode.Thermal: return BASE_COST * MULT_THERMAL;
+            case ScanMode.Retinal: return BASE_COST * MULT_RETINAL;
+            case ScanMode.Neural: return BASE_COST * MULT_NEURAL;
+            default: return 0;
         }
     }
 
     private IEnumerator ScanRoutine()
     {
         isScanning = true;
-        if (valueText) valueText.text = "LENDO...";
 
-        batteryLevel -= costPerScan;
+        batteryLevel -= GetScanCost();
         if (batteryLevel < 0) batteryLevel = 0;
         UpdateBatteryUI();
 
-        yield return new WaitForSeconds(1.5f);
+        if (statusText) statusText.text = "ANALISANDO...";
+        yield return new WaitForSeconds(0.5f);
+        if (statusText) statusText.text = "";
+        yield return new WaitForSeconds(1.0f);
 
-        if (activeProfile != null && activeProfile.characterName == "Irvin" && !activeProfile.isScannable)
-        {
-            if (valueText) valueText.text = "ERRO";
-            if (probabilityText) probabilityText.text = "DADOS CORROMPIDOS";
-            isScanning = false;
-            yield break;
-        }
+        float delta = 0;
 
         switch (currentMode)
         {
-            case ScanMode.Thermal: GenerateThermalResult(); break;
-            case ScanMode.Retinal: GenerateRetinalResult(); break;
-            case ScanMode.Neural: GenerateNeuralResult(); break;
+            case ScanMode.Thermal:
+                delta = PerformThermalScan();
+                deltaThermal += delta;
+                break;
+            case ScanMode.Retinal:
+                delta = PerformRetinalScan();
+                deltaRetinal += delta;
+                break;
+            case ScanMode.Neural:
+                delta = PerformNeuralScan();
+                deltaNeural += delta;
+                break;
         }
+
+        pGlobal = Mathf.Clamp(pGlobal + delta, 0f, 100f);
+        UpdateGlobalProbUI();
+
+        if (statusText) statusText.text = $"DELTA: {(delta >= 0 ? "+" : "")}{delta:F0}%";
 
         isScanning = false;
     }
 
-    // (MÉTODOS DE GRÁFICO MANTIDOS IDÊNTICOS - Copie se necessário ou mantenha os existentes)
-    // Certifique-se de que StatisticalUtils está no projeto
+    // --- IMPLEMENTAÇÃO DOS GRÁFICOS (CORRIGIDA) ---
 
-    void GenerateThermalResult()
+    private float PerformThermalScan()
     {
-        float reading = activeIsHuman ? StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev) : Random.Range(30.0f, 33.0f);
-        valueText.text = $"{reading:F1}°C";
-        float percent = Mathf.Clamp01(StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f) / 0.8f) * 100f;
-        SetProbabilityLabel(percent);
-        float t = Mathf.InverseLerp(32f, 41f, reading);
-        SpawnPointOnGraph(t, percent / 100f);
+        float reading = activeIsHuman
+            ? StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev)
+            : Random.Range(30.0f, 33.0f);
+
+        if (thermalChart != null)
+        {
+            // --- CORREÇÃO CRÍTICA: Recria as séries ---
+            thermalChart.RemoveAllSerie(); // Limpa configurações antigas
+
+            // Série 0: Linha da Curva
+            var lineSerie = thermalChart.AddSerie<Line>("Referencia");
+            lineSerie.symbol.show = false; // Esconde bolinhas da linha
+            lineSerie.lineStyle.width = 2f;
+
+            // Série 1: Ponto da Leitura
+            var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
+            pointSerie.symbol.size = 20f;
+            pointSerie.itemStyle.color = Color.red;
+
+            // Popula os dados
+            thermalChart.ClearData();
+            for (float i = 32f; i <= 41f; i += 0.5f)
+            {
+                float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
+                thermalChart.AddData(0, i, y); // Adiciona na Linha
+            }
+
+            float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
+            thermalChart.AddData(1, reading, readingY); // Adiciona no Ponto
+        }
+
+        return StatisticalUtils.CalculateThermalDelta(reading);
     }
 
-    void GenerateRetinalResult()
+    private float PerformRetinalScan()
     {
         int successes = 0;
         float p = activeIsHuman ? activeProfile.retinalProbability : 0.2f;
         for (int i = 0; i < 10; i++) if (Random.value < p) successes++;
-        valueText.text = $"{successes}/10 SUCESSOS";
-        float percent = Mathf.Clamp01(StatisticalUtils.BinomialProbability(successes, 10, activeProfile.retinalProbability) / 0.3f) * 100f;
-        SetProbabilityLabel(percent);
+
+        if (retinalChart != null)
+        {
+            // --- CORREÇÃO CRÍTICA ---
+            retinalChart.RemoveAllSerie();
+            var barSerie = retinalChart.AddSerie<Bar>("Acertos");
+            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f); // Verde Matrix
+
+            retinalChart.ClearData();
+            // Adiciona UMA barra representando o total de acertos
+            retinalChart.AddData(0, successes);
+        }
+
+        return StatisticalUtils.CalculateRetinalDelta(successes);
     }
 
-    void GenerateNeuralResult()
+    private float PerformNeuralScan()
     {
-        float[] basePattern = activeIsHuman ? activeProfile.neuralPattern : new float[] { 0.2f, 0.8f, 0.3f, 0.7f, 0.2f };
-        float[] current = new float[5];
-        for (int i = 0; i < 5; i++) current[i] = activeIsHuman ? Mathf.Clamp01(basePattern[i] + Random.Range(-0.15f, 0.15f)) : Random.Range(0.3f, 0.4f);
-        float similarity = StatisticalUtils.CalculateSimilarity(current, basePattern);
-        valueText.text = "PADRÃO CAPTURADO";
-        SetProbabilityLabel(similarity * 100f);
+        float[] pattern = new float[5];
+        bool flatline = !activeIsHuman;
+
+        if (activeIsHuman)
+        {
+            pattern[0] = Random.Range(0.1f, 0.3f);
+            pattern[1] = Random.Range(0.7f, 0.9f);
+            pattern[2] = Random.Range(0.6f, 0.8f);
+            pattern[3] = Random.Range(0.2f, 0.4f);
+            pattern[4] = Random.Range(0.5f, 0.7f);
+        }
+        else
+        {
+            for (int i = 0; i < 5; i++) pattern[i] = Random.Range(0.2f, 0.3f);
+        }
+
+        if (neuralChart != null)
+        {
+            // --- CORREÇÃO CRÍTICA ---
+            neuralChart.RemoveAllSerie();
+            var barSerie = neuralChart.AddSerie<Bar>("Frequencias");
+            barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f); // Roxo/Azul
+
+            neuralChart.ClearData();
+            for (int i = 0; i < 5; i++)
+            {
+                // No XCharts 3, para categorias, usamos o index X e o valor Y
+                neuralChart.AddData(0, i, pattern[i]);
+            }
+        }
+
+        return StatisticalUtils.CalculateNeuralDelta(flatline, activeIsHuman);
     }
 
-    void SetProbabilityLabel(float percent)
+    private void UpdateHistoryChart()
     {
-        probabilityText.text = $"P(Humano): {percent:F1}%";
-        if (percent > 60) probabilityText.color = Color.green;
-        else if (percent > 30) probabilityText.color = Color.yellow;
-        else probabilityText.color = Color.red;
+        if (historyChart != null)
+        {
+            historyChart.RemoveAllSerie();
+            var barSerie = historyChart.AddSerie<Bar>("Historico");
+            barSerie.label.show = true; // Mostra o número na barra
+            barSerie.label.position = LabelStyle.Position.Top;
+
+            historyChart.ClearData();
+
+            // Adiciona dados (Index X 0, 1, 2 correspondem às categorias)
+            historyChart.AddData(0, 0, deltaThermal);
+            historyChart.AddData(0, 1, deltaRetinal);
+            historyChart.AddData(0, 2, deltaNeural);
+        }
     }
 
-    void ClearGraph() { if (graphContainer) foreach (Transform child in graphContainer) Destroy(child.gameObject); }
+    // --- UI ---
 
-    void SpawnPointOnGraph(float x, float y)
+    private void UpdateBatteryUI()
     {
-        if (!pointPrefab || !graphContainer) return;
-        GameObject p = Instantiate(pointPrefab, graphContainer);
-        RectTransform rt = p.GetComponent<RectTransform>();
-        rt.anchorMin = rt.anchorMax = new Vector2(x, y);
-        rt.anchoredPosition = Vector2.zero;
+        if (batteryText)
+        {
+            batteryText.text = $"{batteryLevel:F0}%";
+            batteryText.color = batteryLevel < 20 ? Color.red : Color.green;
+        }
+    }
+
+    private void UpdateGlobalProbUI()
+    {
+        if (globalProbText)
+        {
+            globalProbText.text = $"{pGlobal:F0}%";
+            if (pGlobal > 80) globalProbText.color = Color.green;
+            else if (pGlobal < 40) globalProbText.color = Color.red;
+            else globalProbText.color = Color.yellow;
+        }
     }
 }
