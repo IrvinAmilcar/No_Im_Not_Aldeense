@@ -3,6 +3,7 @@ using UnityEngine;
 public static class StatisticalUtils
 {
     // --- DISTRIBUIÇÃO NORMAL (Térmica) ---
+
     public static float NormalPDF(float x, float mean, float stdDev)
     {
         float variance = stdDev * stdDev;
@@ -11,6 +12,7 @@ public static class StatisticalUtils
         return coefficient * Mathf.Exp(exponent);
     }
 
+    // Gera temperatura com "ruído" para dificultar
     public static float RandomNormal(float mean, float stdDev)
     {
         float u1 = 1.0f - Random.value;
@@ -20,6 +22,7 @@ public static class StatisticalUtils
     }
 
     // --- DISTRIBUIÇÃO BINOMIAL (Retina) ---
+
     public static float BinomialProbability(int k, int n, float p)
     {
         if (k < 0 || k > n) return 0;
@@ -36,27 +39,54 @@ public static class StatisticalUtils
         return res;
     }
 
-    // --- CÁLCULO DE DELTA (O quanto a probabilidade muda) ---
-    // Baseado nas regras da página 3 do PDF
+    // --- SISTEMA DE DELTAS (BALANCEAMENTO DE GAMEPLAY) ---
+    // Aqui está o segredo da dificuldade. Valores menores e áreas cinzas.
+
     public static float CalculateThermalDelta(float temp)
     {
-        if (temp >= 35.5f && temp <= 37.5f) return Random.Range(10f, 20f); // Humano ideal
-        if (temp > 37.5f && temp <= 39.0f) return Random.Range(0f, 5f);    // Febre
-        if (temp < 34.0f) return Random.Range(-30f, -20f);                 // Muito frio (Impostor)
-        return -5f; // Indeterminado
+        // Humano Ideal (36.2 a 36.8)
+        if (temp >= 36.2f && temp <= 36.8f) return Random.Range(8f, 12f);
+
+        // Zona Cinza (Pode ser Humano com frio/febre OU Impostor bem disfarçado)
+        // 35.5 a 36.2 (Hipotermia leve) ou 36.8 a 37.5 (Estado febril)
+        if ((temp >= 35.5f && temp < 36.2f) || (temp > 36.8f && temp <= 37.5f))
+            return Random.Range(-3f, 5f); // Gera DÚVIDA (pode subir ou descer pouco)
+
+        // Febre Alta (Provavelmente humano doente, mas arriscado)
+        if (temp > 37.5f) return Random.Range(2f, 6f);
+
+        // Frio Anormal (Provável Impostor, mas não garantido)
+        if (temp < 35.5f && temp > 34.0f) return Random.Range(-10f, -5f);
+
+        // Morto/Impostor Óbvio (< 34.0)
+        return Random.Range(-20f, -15f);
     }
 
     public static float CalculateRetinalDelta(int successes)
     {
-        if (successes >= 7) return Random.Range(10f, 20f); // Humano (7-9)
-        if (successes >= 5) return Random.Range(0f, 10f);  // Duvidoso (5-6)
-        return Random.Range(-30f, -20f);                   // Impostor (0-3)
+        // Humano Saudável (8-10) - Olhos vivos
+        if (successes >= 8) return Random.Range(8f, 12f);
+
+        // Zona de Tensão (6-7) - Humano cansado ou Impostor aprendendo?
+        if (successes >= 6) return Random.Range(0f, 5f);
+
+        // Zona de Perigo (4-5) - Muito suspeito
+        if (successes >= 4) return Random.Range(-8f, -2f);
+
+        // Olhar de Peixe Morto (0-3)
+        return Random.Range(-20f, -15f);
     }
 
     public static float CalculateNeuralDelta(bool isFlatline, bool isHumanPattern)
     {
-        if (isFlatline) return Random.Range(-30f, -20f);
-        if (isHumanPattern) return Random.Range(10f, 20f);
-        return Random.Range(-5f, 5f); // Stress
+        // Padrão Humano Claro
+        if (isHumanPattern) return Random.Range(10f, 15f);
+
+        // Flatline (Morte Cerebral ou Impostor)
+        if (isFlatline) return Random.Range(-25f, -15f);
+
+        // Padrão Caótico (Stress ou Interferência)
+        // Nem sobe muito, nem desce muito. Deixa o jogador na mão.
+        return Random.Range(-5f, 5f);
     }
 }

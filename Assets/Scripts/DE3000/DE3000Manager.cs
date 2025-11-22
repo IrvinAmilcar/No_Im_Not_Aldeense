@@ -215,7 +215,7 @@ public class DE3000Manager : MonoBehaviour
                 break;
         }
 
-        pGlobal = Mathf.Clamp(pGlobal + delta, 0f, 100f);
+        pGlobal = Mathf.Clamp(pGlobal + delta, 5f, 95f);
         UpdateGlobalProbUI();
 
         if (statusText) statusText.text = $"DELTA: {(delta >= 0 ? "+" : "")}{delta:F0}%";
@@ -225,20 +225,32 @@ public class DE3000Manager : MonoBehaviour
 
     // --- IMPLEMENTAÇÃO DOS GRÁFICOS ---
 
+    // --- NOVO MATH DE LEITURA (Mais difícil) ---
+
     private float PerformThermalScan()
     {
-        float reading = activeIsHuman
-            ? StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev)
-            : Random.Range(30.0f, 33.0f);
+        float reading;
 
+        if (activeIsHuman)
+        {
+            // Humano: Média 36.5, variação pequena
+            reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
+        }
+        else
+        {
+            // IMPOSTOR ESPERTO: Tenta imitar humanos (34.5 a 36.0)
+            // Isso cria uma sobreposição com humanos que estão com frio
+            float impostorBase = Random.Range(34.5f, 36.0f);
+            reading = impostorBase + Random.Range(-0.2f, 0.2f);
+        }
+
+        // (Visualização do Gráfico igual ao anterior...)
         if (thermalChart != null)
         {
             thermalChart.RemoveAllSerie();
-
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
             lineSerie.symbol.show = false;
             lineSerie.lineStyle.width = 2f;
-
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
             pointSerie.symbol.size = 20f;
             pointSerie.itemStyle.color = Color.red;
@@ -261,8 +273,20 @@ public class DE3000Manager : MonoBehaviour
     private float PerformRetinalScan()
     {
         int successes = 0;
-        float p = activeIsHuman ? activeProfile.retinalProbability : 0.2f;
-        for (int i = 0; i < 10; i++) if (Random.value < p) successes++;
+
+        if (activeIsHuman)
+        {
+            // Humano: Alta chance de sucesso (p=0.8)
+            float p = activeProfile.retinalProbability;
+            for (int i = 0; i < 10; i++) if (Random.value < p) successes++;
+        }
+        else
+        {
+            // IMPOSTOR: Tem micro-movimentos, mas erráticos (p=0.4 a 0.5)
+            // Vai gerar resultados entre 3 e 6, confundindo com humano cansado
+            float pImpostor = Random.Range(0.35f, 0.55f);
+            for (int i = 0; i < 10; i++) if (Random.value < pImpostor) successes++;
+        }
 
         if (retinalChart != null)
         {
@@ -270,7 +294,6 @@ public class DE3000Manager : MonoBehaviour
             var barSerie = retinalChart.AddSerie<Bar>("Acertos");
             barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f);
             barSerie.barWidth = 40f;
-
             retinalChart.ClearData();
             retinalChart.AddData(0, 0, successes);
         }
@@ -281,19 +304,29 @@ public class DE3000Manager : MonoBehaviour
     private float PerformNeuralScan()
     {
         float[] pattern = new float[5];
-        bool flatline = !activeIsHuman;
+        bool flatline = false;
+        bool isHumanPattern = false;
 
         if (activeIsHuman)
         {
+            // Padrão Humano (Picos em Alpha/Beta)
             pattern[0] = Random.Range(0.1f, 0.3f);
-            pattern[1] = Random.Range(0.7f, 0.9f);
-            pattern[2] = Random.Range(0.6f, 0.8f);
+            pattern[1] = Random.Range(0.7f, 0.9f); // Pico
+            pattern[2] = Random.Range(0.5f, 0.7f);
             pattern[3] = Random.Range(0.2f, 0.4f);
-            pattern[4] = Random.Range(0.5f, 0.7f);
+            pattern[4] = Random.Range(0.6f, 0.8f); // Pico
+            isHumanPattern = true;
         }
         else
         {
-            for (int i = 0; i < 5; i++) pattern[i] = Random.Range(0.2f, 0.3f);
+            // IMPOSTOR: Tenta emular ruído cerebral
+            // Não é mais só flatline. É um padrão "estranho" e uniforme.
+            float noiseLevel = Random.Range(0.3f, 0.5f);
+            for (int i = 0; i < 5; i++)
+            {
+                pattern[i] = noiseLevel + Random.Range(-0.1f, 0.1f);
+            }
+            flatline = (noiseLevel < 0.1f); // Só é flatline se for muito baixo
         }
 
         if (neuralChart != null)
@@ -301,15 +334,11 @@ public class DE3000Manager : MonoBehaviour
             neuralChart.RemoveAllSerie();
             var barSerie = neuralChart.AddSerie<Bar>("Frequencias");
             barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f);
-
             neuralChart.ClearData();
-            for (int i = 0; i < 5; i++)
-            {
-                neuralChart.AddData(0, i, pattern[i]);
-            }
+            for (int i = 0; i < 5; i++) neuralChart.AddData(0, i, pattern[i]);
         }
 
-        return StatisticalUtils.CalculateNeuralDelta(flatline, activeIsHuman);
+        return StatisticalUtils.CalculateNeuralDelta(flatline, isHumanPattern);
     }
 
     // --- CORREÇÃO DO NULL REFERENCE (HistoryChart) ---

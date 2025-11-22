@@ -158,4 +158,10 @@ public class DayCycleManager : MonoBehaviour
             }
         }
     }
+
+    // permitir acesso externo ao dia atual
+    public int GetCurrentDayIndex()
+    {
+        return currentDayIndex;
+    }
 }
