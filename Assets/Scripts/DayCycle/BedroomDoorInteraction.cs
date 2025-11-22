@@ -1,12 +1,12 @@
 using UnityEngine;
-using DialogSystem; // Necessário para mostrar mensagens na tela
+using DialogSystem;
 
 public class BedroomDoorInteraction : MonoBehaviour, IInteractable
 {
     [Header("Mensagens")]
     [TextArea] public string cantSleepMessage = "Ainda não posso dormir. Sinto que alguém ainda vai bater na porta...";
+    [TextArea] public string gameOverMessage = "Não adianta se esconder... ele sabe que estou aqui.";
 
-    // Configuração visual padrão
     private Renderer objRenderer;
     private Color originalColor;
     public Color highlightColor = Color.yellow;
@@ -19,30 +19,26 @@ public class BedroomDoorInteraction : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // Verifica se o DayCycleManager existe antes de tentar usar
-        if (DayCycleManager.Instance == null)
+        if (DayCycleManager.Instance == null) return;
+
+        // --- NOVA VERIFICAÇÃO: GAME OVER ---
+        if (DayCycleManager.Instance.IsGameOver)
         {
-            Debug.LogError("DayCycleManager não encontrado na cena!");
+            // Jogador tenta fugir para o quarto, mas não consegue
+            if (DialogManager.Instance != null)
+                DialogManager.Instance.ShowMessage(gameOverMessage, 4f);
             return;
         }
 
-        // Verifica se pode dormir (fila vazia)
+        // Verificação Normal
         if (DayCycleManager.Instance.CanAdvanceDay())
         {
-            // Inicia a sequência de dormir (Corrotina)
             StartCoroutine(DayCycleManager.Instance.AdvanceToNextDaySequence());
         }
         else
         {
-            // Feedback que ainda tem gente para atender
             if (DialogManager.Instance != null)
-            {
                 DialogManager.Instance.ShowMessage(cantSleepMessage, 3f);
-            }
-            else
-            {
-                Debug.Log(cantSleepMessage); // Fallback se não tiver DialogManager
-            }
         }
     }
 

@@ -7,16 +7,10 @@ using System.Linq;
 public class DayCycleManager : MonoBehaviour
 {
     public static DayCycleManager Instance { get; private set; }
-
     public static event System.Action<int> OnDayStarted;
 
-    [System.Serializable]
-    public struct WindowDayConfig
-    {
-        public string windowID;
-        [TextArea(3, 5)] public string[] dialogue;
-    }
-
+    // Estruturas de Dados (Mantidas iguais)
+    [System.Serializable] public struct WindowDayConfig { public string windowID; [TextArea(3, 5)] public string[] dialogue; }
     [System.Serializable]
     public struct DayConfig
     {
@@ -32,7 +26,7 @@ public class DayCycleManager : MonoBehaviour
     public DayConfig[] allDays;
 
     [Header("Configuração de Visitantes")]
-    public AudioClip defaultKnockingSound; // Renomeado para deixar claro que é o padrão
+    public AudioClip knockingSound;
     public float minArrivalDelay = 2f;
     public float maxArrivalDelay = 5f;
 
@@ -40,11 +34,15 @@ public class DayCycleManager : MonoBehaviour
     public RadioInteraction radioInteraction;
     public BasePeekInteraction[] allPeekInteractions;
 
+    // Estado Interno
     private int currentDayIndex = 0;
     private Queue<VisitorProfile> dailyQueue = new Queue<VisitorProfile>();
     private int visitorsProcessedToday = 0;
 
     public bool IsVisitorWaiting { get; private set; } = false;
+
+    // --- NOVO: Estado de Game Over (Trava a porta do quarto) ---
+    public bool IsGameOver { get; private set; } = false;
 
     void Awake()
     {
@@ -56,10 +54,14 @@ public class DayCycleManager : MonoBehaviour
 
     private void StartDay(int dayIndex)
     {
+        // Se o gerador já quebrou durante a noite, para tudo.
+        if (GeneratorManager.Instance != null && GeneratorManager.Instance.IsBroken) return;
+
         currentDayIndex = dayIndex;
         visitorsProcessedToday = 0;
         dailyQueue.Clear();
         IsVisitorWaiting = false;
+        IsGameOver = false;
 
         if (dayIndex >= allDays.Length) { Debug.Log("Fim de Jogo!"); return; }
 
@@ -87,9 +89,7 @@ public class DayCycleManager : MonoBehaviour
             foreach (BasePeekInteraction peekInteraction in allPeekInteractions)
             {
                 if (peekInteraction is DoorInteraction) continue;
-
                 WindowDayConfig? dialogueConfig = config.windowDialogues.FirstOrDefault(d => d.windowID == peekInteraction.windowID);
-
                 if (dialogueConfig.HasValue && dialogueConfig.Value.dialogue != null && dialogueConfig.Value.dialogue.Length > 0)
                     peekInteraction.SetDailyDialogue(dialogueConfig.Value.dialogue);
                 else
@@ -98,8 +98,6 @@ public class DayCycleManager : MonoBehaviour
         }
 
         OnDayStarted?.Invoke(currentDayIndex);
-        Debug.Log($"Iniciando {config.dayName}. Visitantes: {dailyQueue.Count}");
-
         StartCoroutine(ScheduleNextVisitor());
     }
 
@@ -114,19 +112,16 @@ public class DayCycleManager : MonoBehaviour
         float delay = Random.Range(minArrivalDelay, maxArrivalDelay);
         yield return new WaitForSeconds(delay);
 
+        // Verificação extra: Se deu Game Over durante o delay, cancela
+        if (IsGameOver) yield break;
+
         IsVisitorWaiting = true;
 
-        // --- LÓGICA DE SOM PERSONALIZADO ---
         if (GameAudioManager.Instance != null)
         {
-            // Espia quem é o próximo sem remover da fila
             VisitorProfile nextVisitor = dailyQueue.Peek();
-
-            // Decide qual som usar: o do perfil ou o padrão
-            AudioClip soundToPlay = nextVisitor.specificKnockSound != null ? nextVisitor.specificKnockSound : defaultKnockingSound;
-
-            if (soundToPlay != null)
-                GameAudioManager.Instance.PlayKnocking(soundToPlay);
+            AudioClip sound = nextVisitor.specificKnockSound != null ? nextVisitor.specificKnockSound : knockingSound;
+            GameAudioManager.Instance.PlayKnocking(sound);
         }
     }
 
@@ -143,6 +138,9 @@ public class DayCycleManager : MonoBehaviour
 
     public void RegisterVisitorProcessed()
     {
+        // Se estiver em Game Over, não processa mais nada normal
+        if (IsGameOver) return;
+
         if (dailyQueue.Count > 0) dailyQueue.Dequeue();
 
         visitorsProcessedToday++;
@@ -150,7 +148,6 @@ public class DayCycleManager : MonoBehaviour
 
         if (dailyQueue.Count == 0)
         {
-            Debug.Log("Todos atendidos.");
             if (DialogManager.Instance != null)
                 DialogManager.Instance.ShowMessage("O silêncio voltou... Acho que posso dormir agora.", 3f);
         }
@@ -160,7 +157,31 @@ public class DayCycleManager : MonoBehaviour
         }
     }
 
-    public bool CanAdvanceDay() { return dailyQueue.Count == 0; }
+    // --- MÉTODO DE GAME OVER (Chamado pelo GeneratorManager) ---
+    public void TriggerGameOverEvent(VisitorProfile paleMan)
+    {
+        Debug.Log("DAYCYCLE: Modo Game Over Ativado.");
+
+        // 1. Para tudo que estava acontecendo
+        StopAllCoroutines();
+
+        // 2. Limpa a fila e injeta o Homem Pálido
+        dailyQueue.Clear();
+        dailyQueue.Enqueue(paleMan);
+
+        // 3. Define estados
+        IsGameOver = true; // Bloqueia quarto
+        IsVisitorWaiting = true; // Libera porta da frente
+
+        // 4. Toca som de batida (Lento/Ameaçador se tiver no perfil)
+        if (GameAudioManager.Instance != null)
+        {
+            AudioClip sound = paleMan.specificKnockSound != null ? paleMan.specificKnockSound : knockingSound;
+            GameAudioManager.Instance.PlayKnocking(sound);
+        }
+    }
+
+    public bool CanAdvanceDay() { return dailyQueue.Count == 0 && !IsGameOver; }
 
     public IEnumerator AdvanceToNextDaySequence()
     {
@@ -172,11 +193,13 @@ public class DayCycleManager : MonoBehaviour
 
         if (GeneratorManager.Instance != null) GeneratorManager.Instance.TransitionToNextDay();
 
+        // Se o gerador quebrar na transição, o GeneratorManager vai iniciar a sequencia
+        // e o StartDay vai ser abortado pelo check "if (IsBroken)".
         StartDay(currentDayIndex);
 
         if (CameraFader.Instance != null) yield return StartCoroutine(CameraFader.Instance.Fade(0f, 2f));
 
-        if (currentDayIndex < allDays.Length)
+        if (currentDayIndex < allDays.Length && !IsGameOver)
         {
             string msg = allDays[currentDayIndex].wakeUpMessage;
             if (!string.IsNullOrEmpty(msg) && DialogManager.Instance != null)

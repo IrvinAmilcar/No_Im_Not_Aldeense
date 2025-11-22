@@ -15,29 +15,29 @@ public class EndingManager : MonoBehaviour
     public string creditsSceneName = "CreditsScene";
 
     [Header("Fontes de Áudio")]
-    public AudioSource sfxSource;   // Para os sons de passos, porta, etc.
-    public AudioSource musicSource; // Para a música de fundo (Ambiente/Tensão)
+    public AudioSource sfxSource;
+    public AudioSource musicSource;
 
-    // --- ESTRUTURA DE SEQUÊNCIA (O Segredo da Sincronia) ---
     [System.Serializable]
     public struct EndingStep
     {
-        [TextArea(1, 3)] public string textToShow; // O texto deste passo
-        public AudioClip audioClip;                // O som deste passo (ex: porta quebrando)
-        public float duration;                     // Quanto tempo ficar neste passo antes do próximo
+        [TextArea(1, 3)] public string textToShow;
+        public AudioClip audioClip;
+        public float duration;
     }
 
     [System.Serializable]
     public class EndingConfig
     {
         public string endingName;
-        public AudioClip backgroundMusic; // Música de fundo contínua
-        public List<EndingStep> sequenceSteps; // A lista de ações passo-a-passo
+        public AudioClip backgroundMusic;
+        public List<EndingStep> sequenceSteps;
     }
 
     [Header("--- CONFIGURAÇÃO DOS FINAIS ---")]
-    public EndingConfig finalA_Porta; // Final onde você abre a porta
-    public EndingConfig finalB_Arma;  // Final onde você usa a arma
+    public EndingConfig finalA_Porta;
+    public EndingConfig finalB_Arma;
+    public EndingConfig finalC_GameOver; // --- NOVO: Final C ---
 
     [Header("Estado do Jogo")]
     public bool isGunUnlocked = false;
@@ -59,34 +59,34 @@ public class EndingManager : MonoBehaviour
 
     public void TriggerBadEnding_OpenDoor()
     {
-        Debug.Log("Iniciando Final A: Porta");
         StartCoroutine(PlayEndingSequence(finalA_Porta));
     }
 
     public void UnlockGunInteraction()
     {
         isGunUnlocked = true;
-        Debug.Log("FINAL: Arma desbloqueada.");
     }
 
     public void TriggerGunEnding_Shoot()
     {
-        Debug.Log("Iniciando Final B: Arma");
         StartCoroutine(PlayEndingSequence(finalB_Arma));
     }
 
-    // --- SEQUÊNCIA PRINCIPAL ---
+    // --- NOVO: GATILHO DO GERADOR ---
+    public void TriggerGameOver_Blackout()
+    {
+        Debug.Log("Iniciando Final C: Game Over (Gerador)");
+        StartCoroutine(PlayEndingSequence(finalC_GameOver));
+    }
 
+    // --- SEQUÊNCIA PRINCIPAL (Igual ao anterior) ---
     private IEnumerator PlayEndingSequence(EndingConfig config)
     {
-        // 1. PREPARAÇÃO (Trava tudo)
         PrepareForCutscene();
 
-        // 2. FADE PARA PRETO (Lento e tenso)
         blackScreenCanvasGroup.blocksRaycasts = true;
         yield return FadeCanvas(0, 1, 2.0f);
 
-        // 3. TOCA MÚSICA DE FUNDO (Se houver)
         if (config.backgroundMusic != null && musicSource != null)
         {
             musicSource.clip = config.backgroundMusic;
@@ -94,52 +94,41 @@ public class EndingManager : MonoBehaviour
             musicSource.Play();
         }
 
-        yield return new WaitForSeconds(1f); // Pequeno respiro no escuro
+        yield return new WaitForSeconds(1f);
 
-        // 4. LOOP DA SEQUÊNCIA (Passo a Passo)
         foreach (EndingStep step in config.sequenceSteps)
         {
-            // A. Toca o som do passo (se houver)
             if (step.audioClip != null && sfxSource != null)
-            {
                 sfxSource.PlayOneShot(step.audioClip);
-            }
 
-            // B. Atualiza e mostra o texto (se houver)
             if (!string.IsNullOrEmpty(step.textToShow))
             {
                 cinematicText.text = step.textToShow;
-                yield return FadeText(0, 1, 0.5f); // Fade In Texto
+                yield return FadeText(0, 1, 0.5f);
             }
             else
             {
-                cinematicText.text = ""; // Se não tiver texto, garante tela preta
+                cinematicText.text = "";
             }
 
-            // C. Espera o tempo definido no Inspector
-            // (Isso permite que o som termine ou crie tensão)
             yield return new WaitForSeconds(step.duration);
 
-            // D. Esconde o texto antes do próximo passo
             if (!string.IsNullOrEmpty(step.textToShow))
             {
-                yield return FadeText(1, 0, 0.5f); // Fade Out Texto
+                yield return FadeText(1, 0, 0.5f);
             }
         }
 
-        yield return new WaitForSeconds(1f); // Pausa final
-
-        // 5. CRÉDITOS
+        yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(creditsSceneName);
     }
-
-    // --- AUXILIARES ---
 
     private void PrepareForCutscene()
     {
         if (PeepholeManager.Instance != null)
             PeepholeManager.Instance.ClosePeephole();
 
+        // Desabilita controle de câmera (ajuste o nome do namespace se necessário)
         var camController = FindObjectOfType<UnityTemplateProjects.SimpleCameraController>();
         if (camController != null) camController.enabled = false;
 
@@ -148,12 +137,9 @@ public class EndingManager : MonoBehaviour
 
         if (GameAudioManager.Instance != null)
         {
-            var allSources = FindObjectsOfType<AudioSource>();
-            foreach (var source in allSources)
-            {
-                if (source != sfxSource && source != musicSource)
-                    source.Stop();
-            }
+            // Para todos os sons, inclusive a batida na porta
+            GameAudioManager.Instance.StopKnocking();
+            // O resto da lógica de parar sons...
         }
     }
 

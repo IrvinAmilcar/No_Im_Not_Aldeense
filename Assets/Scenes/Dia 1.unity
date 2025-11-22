@@ -38765,6 +38765,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ee9ca65ad8288341bf539b90324a451, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GeneratorManager
+  generatorAudioSource: {fileID: 511783937}
+  generatorBreakSound: {fileID: 8300000, guid: 33f9623f2ee23224a9a65730651f1be1, type: 3}
+  paleManProfile: {fileID: 11400000, guid: 64aa63e1175857b4c897436fcb63ab76, type: 2}
+  gameOverNodeID: HomemPalido-GameOver
 --- !u!114 &335978924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38847,8 +38851,7 @@ MonoBehaviour:
     wakeUpMessage: 
     radioDialogue: []
     windowDialogues: []
-  defaultKnockingSound: {fileID: 8300000, guid: ed35dbc991bfe75468c3dccb49d954a0,
-    type: 3}
+  knockingSound: {fileID: 0}
   minArrivalDelay: 2
   maxArrivalDelay: 5
   radioInteraction: {fileID: 1218564210}
@@ -53920,6 +53923,135 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 510268451}
   m_CullTransparentMesh: 1
+--- !u!1 &511783936
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 511783938}
+  - component: {fileID: 511783937}
+  m_Layer: 0
+  m_Name: Generator_Sound
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &511783937
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511783936}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &511783938
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511783936}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -392.38, y: 0.884, z: -148.971}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &512828337 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 135290758833282409, guid: 75871b1ec73d90e489e9693eca989b78,
@@ -58240,6 +58372,8 @@ MonoBehaviour:
     type: 3}
   dialogueUIContainer: {fileID: 1211657205}
   de3000Manager: {fileID: 251286240}
+  energyReward: 15
+  energyPenalty: 50
 --- !u!1001 &558124963
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -185897,6 +186031,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BedroomDoorInteraction
   cantSleepMessage: "Ainda n\xE3o posso dormir. Sinto que algu\xE9m ainda vai bater
     na porta..."
+  gameOverMessage: "N\xE3o adianta se esconder... ele sabe que estou aqui."
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!64 &2041123719
 MeshCollider:
@@ -196198,6 +196333,32 @@ MonoBehaviour:
     - textToShow: '[BANG]'
       audioClip: {fileID: 8300000, guid: 1870c48f491e95a4082ec6702a7d4722, type: 3}
       duration: 2
+  finalC_GameOver:
+    endingName: F
+    backgroundMusic: {fileID: 8300000, guid: 9dc5a76c863ca234e8e41b839c2eb043, type: 3}
+    sequenceSteps:
+    - textToShow: "[Voc\xEA pode escutar fortes batidas na porta]"
+      audioClip: {fileID: 8300000, guid: 6f7e230a02ff8bc4982a86dad9773a03, type: 3}
+      duration: 2
+    - textToShow: ...
+      audioClip: {fileID: 8300000, guid: 40a299016d54edf4aa89e73679832750, type: 3}
+      duration: 2
+    - textToShow: '[A porta quebra e uma figura alta e palida entra com um sorriso
+        perturbardor]'
+      audioClip: {fileID: 8300000, guid: 63b1442dc3b570d429747367902182d6, type: 3}
+      duration: 2
+    - textToShow: "[Ele anda lentamente ate voc\xEA]"
+      audioClip: {fileID: 8300000, guid: 547514e18e53d1e40a444e966be809cf, type: 3}
+      duration: 2
+    - textToShow: ...
+      audioClip: {fileID: 8300000, guid: 5c5ec5a610465de428ff7951b28cc058, type: 3}
+      duration: 2
+    - textToShow: "[Voc\xEA pode sentir suas m\xE3os geladas em seu pesco\xE7o]"
+      audioClip: {fileID: 8300000, guid: eb249e53b88d3a54f9a2fafdace763dd, type: 3}
+      duration: 1
+    - textToShow: ...
+      audioClip: {fileID: 8300000, guid: bf5767ca13027d249b6a9a18908cabdb, type: 3}
+      duration: 2
   isGunUnlocked: 0
 --- !u!82 &4133139345805853758
 AudioSource:
@@ -197273,3 +197434,4 @@ SceneRoots:
   - {fileID: 705381295}
   - {fileID: 4133139345805853754}
   - {fileID: 1725533041}
+  - {fileID: 511783938}

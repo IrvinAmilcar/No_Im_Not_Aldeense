@@ -1,105 +1,128 @@
-/*
- * Arquivo: GeneratorManager.cs
- * Descrição: Singleton que gerencia o estado da energia do gerador
- * e persiste entre as cenas (dias).
- */
-
 using UnityEngine;
+using System.Collections;
+using DialogSystem;
 
 public class GeneratorManager : MonoBehaviour
 {
     public static GeneratorManager Instance { get; private set; }
 
-    // Propriedade pública para ler a energia, mas privada para definir
     public int CurrentEnergy { get; private set; }
-
     private int currentDay = 1;
+
+    [Header("Configuração de Falha")]
+    public AudioSource generatorAudioSource; // O AudioSource DO GERADOR (3D sound)
+    public AudioClip generatorBreakSound;    // Som de "TEC... PFFFF" (desligando)
+
+    [Header("Configuração do Game Over")]
+    [Tooltip("O Perfil do Visitante (Homem Pálido) que aparecerá no Game Over.")]
+    public VisitorProfile paleManProfile;
+
+    [Tooltip("O ID do nó no Twine que contém o texto 'Parece que sua sorte acabou...'")]
+    public string gameOverNodeID = "HomemPalido-GameOver";
+
+    // Estado de controle
+    public bool IsBroken { get; private set; } = false;
 
     void Awake()
     {
-        // Configuração padrão do Singleton
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-
-        // Garante que o gerenciador não seja destruído ao trocar de cena (dia)
         DontDestroyOnLoad(gameObject);
 
-        // Define o estado inicial do gerador
         InitializeGenerator();
     }
 
     private void InitializeGenerator()
     {
-        // Começa com 100% no primeiro dia
         CurrentEnergy = 100;
         currentDay = 1;
-        Debug.Log("GeneratorManager Iniciado. Dia 1. Energia: 100%");
+        IsBroken = false;
     }
 
-    /// <summary>
-    /// Chamado por qualquer script de transição de nível/dia.
-    /// Reduz a energia do gerador.
-    /// </summary>
+    // Chamado ao dormir
     public void TransitionToNextDay()
     {
+        if (IsBroken) return;
+
         currentDay++;
-        
-        // Regra principal: perde 50% por dia
-        // Usando o método RemoveEnergy para manter a lógica centralizada
-        RemoveEnergy(50); 
-        
+        RemoveEnergy(50);
+
         Debug.Log($"Transição para o Dia {currentDay}. Energia restante: {CurrentEnergy}%");
-
-        // TODO: Aqui você pode carregar a próxima cena
-        // Ex: SceneManager.LoadScene($"Day{currentDay}");
     }
 
-    // --- Métodos de Extensão (Base para "Acidentes") ---
-
-    /// <summary>
-    /// Adiciona uma quantidade de energia ao gerador, com limite de 100.
-    /// (Base para eventos futuros)
-    /// </summary>
-    /// <param name="amountToAdd">Energia para adicionar</param>
-    public void AddEnergy(int amountToAdd)
+    public void AddEnergy(int amount)
     {
-        CurrentEnergy += amountToAdd;
-        if (CurrentEnergy > 100)
-        {
-            CurrentEnergy = 100;
-        }
-        Debug.Log($"Energia ADICIONADA: {amountToAdd}%. Nova energia: {CurrentEnergy}%");
-        
-        // Futuramente, pode mostrar uma UI de feedback positivo
-        // DialogManager.Instance.ShowMessage($"Energia recuperada: +{amountToAdd}%", 2f);
+        if (IsBroken) return;
+        CurrentEnergy = Mathf.Clamp(CurrentEnergy + amount, 0, 100);
     }
 
-    /// <summary>
-    /// Remove uma quantidade de energia do gerador, com limite de 0.
-    /// (Base para eventos futuros e transição de dia)
-    /// </summary>
-    /// <param name="amountToRemove">Energia para remover</param>
-    public void RemoveEnergy(int amountToRemove)
+    public void RemoveEnergy(int amount)
     {
-        CurrentEnergy -= amountToRemove;
-        if (CurrentEnergy < 0)
+        if (IsBroken) return;
+
+        CurrentEnergy -= amount;
+
+        // --- PONTO CRÍTICO: VERIFICAÇÃO DE FALHA ---
+        if (CurrentEnergy <= 0)
         {
             CurrentEnergy = 0;
+            StartCoroutine(TriggerFailureSequence());
         }
-        Debug.Log($"Energia REMOVIDA: {amountToRemove}%. Nova energia: {CurrentEnergy}%");
-
-        // Futuramente, pode mostrar uma UI de feedback negativo
-        // DialogManager.Instance.ShowMessage($"Alerta: Perda de energia: -{amountToRemove}%", 2f);
     }
 
-    /// <summary>
-    /// Método público simples para qualquer script verificar a energia.
-    /// </summary>
-    /// <returns>A porcentagem atual de energia (0-100)</returns>
+    private IEnumerator TriggerFailureSequence()
+    {
+        IsBroken = true;
+        Debug.Log("GERADOR FALHOU! INICIANDO SEQUÊNCIA DE GAME OVER.");
+
+        // 1. Som de Quebrar (Efeito 3D do objeto)
+        if (generatorAudioSource != null && generatorBreakSound != null)
+        {
+            generatorAudioSource.Stop();
+            generatorAudioSource.PlayOneShot(generatorBreakSound);
+        }
+
+        // 2. PARA A MÚSICA AMBIENTE (O CORAÇÃO DA CORREÇÃO)
+        if (GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.StopMainMusic();
+        }
+
+        // 3. Apagão Visual
+        if (LightGlobalControl.Instance != null)
+        {
+            LightGlobalControl.Instance.TriggerBlackout();
+        }
+
+        // 4. Feedback na Tela
+        if (DialogManager.Instance != null)
+            DialogManager.Instance.ShowMessage("O gerador... morreu.", 3f);
+
+        // 5. Suspense (4 segundos no escuro total e silêncio)
+        yield return new WaitForSeconds(4f);
+
+        // 6. Injeta o Homem Pálido na porta
+        ForcePaleManArrival();
+    }
+
+    private void ForcePaleManArrival()
+    {
+        if (DayCycleManager.Instance != null && paleManProfile != null)
+        {
+            // Cria uma cópia do perfil para garantir que o diálogo comece no nó certo
+            VisitorProfile gameOverProfile = Instantiate(paleManProfile);
+            gameOverProfile.startNodeID = gameOverNodeID;
+            gameOverProfile.isScannable = false; // Sem scan, é o fim.
+
+            // Manda o DayCycleManager limpar tudo e colocar ele na porta
+            DayCycleManager.Instance.TriggerGameOverEvent(gameOverProfile);
+        }
+        else
+        {
+            Debug.LogError("[GeneratorManager] Erro: Faltando DayCycleManager ou Perfil do Homem Pálido!");
+        }
+    }
+
     public int GetCurrentEnergy()
     {
         return CurrentEnergy;

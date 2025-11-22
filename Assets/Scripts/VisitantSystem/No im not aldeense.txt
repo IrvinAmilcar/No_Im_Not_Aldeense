@@ -1609,3 +1609,11 @@ Se mudar de ideia... eu estarei por aí. Procurando a verdade.
 
 [[Deixar entrar->Vinicius-Fim-Entra]]
 [[Mandar sair->Vinicius-Fim-Sai]]
+
+
+:: HomemPalido-GameOver
+[O Homem Pálido está na porta. Ele sorri, mas não há humor em seus olhos.]
+
+Parece que sua sorte acabou... é uma pena.
+
+[[...->HomemPalido-GameOver-Final]]

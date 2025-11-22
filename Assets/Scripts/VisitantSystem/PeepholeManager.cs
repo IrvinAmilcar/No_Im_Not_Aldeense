@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using DialogSystem; // Necessário para mostrar mensagens na tela
 
 public class PeepholeManager : MonoBehaviour
 {
@@ -18,6 +19,12 @@ public class PeepholeManager : MonoBehaviour
     [Header("Integração DE3000")]
     public GameObject dialogueUIContainer;
     public DE3000Manager de3000Manager;
+
+    [Header("Configuração de Gameplay (Combustível)")]
+    [Tooltip("Quanto de energia ganha ao deixar um Humano entrar.")]
+    public int energyReward = 15;
+    [Tooltip("Quanto de energia PERDE ao deixar um Impostor entrar.")]
+    public int energyPenalty = 30;
 
     // Estado Interno
     private VisitorProfile currentProfile;
@@ -43,8 +50,8 @@ public class PeepholeManager : MonoBehaviour
         peepholePanel.SetActive(true);
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
 
-        // --- CORREÇÃO: Usa ForceClose para evitar callbacks indesejados ---
-        if (de3000Manager) de3000Manager.ForceClose();
+        // Garante que o DE3000 esteja fechado visualmente
+        if (de3000Manager) de3000Manager.ForceHide();
 
         if (visitorImage)
         {
@@ -57,16 +64,12 @@ public class PeepholeManager : MonoBehaviour
 
     private bool DetermineHumanity(VisitorProfile profile)
     {
-        // 1. Casos Fixos (Narrativos)
+        // 1. Casos Fixos
         if (profile.humanityType == HumanityType.AlwaysHuman) return true;
         if (profile.humanityType == HumanityType.AlwaysImpostor) return false;
 
-        // 2. Chance Fixa (Balanceamento)
-        // Como a dificuldade agora está na ANÁLISE, não precisamos entupir o jogador de monstros.
-        // Uma chance de 40% a 50% de ser impostor mantém o suspense constante.
-        float impostorChance = 0.45f; // 45% de chance de ser impostor todos os dias.
-
-        // Debug para você saber o que o jogo decidiu
+        // 2. Chance Fixa (45% Impostor)
+        float impostorChance = 0.45f;
         bool isHuman = Random.value > impostorChance;
         Debug.Log($"[Sistema] Visitante Aleatório gerado. É Humano? {isHuman}");
 
@@ -75,41 +78,15 @@ public class PeepholeManager : MonoBehaviour
 
     public void LoadNode(string nodeID)
     {
-        // 1. Carrega os dados do nó primeiro (IMPORTANTE: Isso corrige o bug dos botões)
-        DialogueNode newNode = TwineStoryParser.Instance.GetNode(nodeID);
-
-        if (newNode != null)
+        // 1. Gatilhos de Fim de Jogo (Prioridade)
+        if (nodeID == "HomemPalido-GameOver-Final")
         {
-            currentNode = newNode;
-        }
-        else
-        {
-            Debug.LogError($"[PeepholeManager] Nó '{nodeID}' não encontrado no arquivo Twine.");
+            ClosePeephole();
+            if (EndingManager.Instance != null)
+                EndingManager.Instance.TriggerGameOver_Blackout();
             return;
         }
 
-        // 2. Checa eventos especiais baseados no Nome do Nó
-
-        // Evento: SCAN (Abre o DE3000 e pausa o fluxo visual)
-        if (nodeID.Contains("-Scan"))
-        {
-            OpenDE3000();
-            return; // Para aqui. O texto do nó não será mostrado agora, apenas a UI do DE3000.
-        }
-
-        // Evento: FINAIS (Entrar/Sair)
-        if (nodeID.Contains("-Fim-Entra"))
-        {
-            EndEncounter(true);
-            return;
-        }
-        if (nodeID.Contains("-Fim-Sai"))
-        {
-            EndEncounter(false);
-            return;
-        }
-
-        // Evento: Finais Especiais (Irvin)
         if (nodeID == "IrvinT-Fim-Abre")
         {
             if (EndingManager.Instance != null) EndingManager.Instance.TriggerBadEnding_OpenDoor();
@@ -123,7 +100,36 @@ public class PeepholeManager : MonoBehaviour
             return;
         }
 
-        // 3. Se não for evento especial, mostra o diálogo normal
+        // 2. Gatilhos de Ação (-Scan, -Entra, -Sai)
+        if (nodeID.Contains("-Scan"))
+        {
+            OpenDE3000();
+            return;
+        }
+        if (nodeID.Contains("-Fim-Entra"))
+        {
+            EndEncounter(true);
+            return;
+        }
+        if (nodeID.Contains("-Fim-Sai"))
+        {
+            EndEncounter(false);
+            return;
+        }
+
+        // 3. Carregamento Normal de Texto
+        DialogueNode newNode = TwineStoryParser.Instance.GetNode(nodeID);
+
+        if (newNode != null)
+        {
+            currentNode = newNode;
+        }
+        else
+        {
+            Debug.LogError($"[PeepholeManager] Nó '{nodeID}' não encontrado no arquivo Twine.");
+            return;
+        }
+
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
         if (dialogueText) dialogueText.text = currentNode.text;
 
@@ -134,10 +140,8 @@ public class PeepholeManager : MonoBehaviour
     {
         if (choiceButtonsContainer == null || currentNode == null || choiceButtonPrefab == null) return;
 
-        // Limpa botões antigos
         foreach (Transform child in choiceButtonsContainer) Destroy(child.gameObject);
 
-        // Lógica para nós com opções
         if (currentNode.links.Count > 0)
         {
             foreach (var link in currentNode.links)
@@ -145,7 +149,6 @@ public class PeepholeManager : MonoBehaviour
                 CreateButton(link.label, () => LoadNode(link.targetNode));
             }
         }
-        // Lógica para nós puramente narrativos (Ex: Homem Pálido)
         else
         {
             CreateButton("Sair do Olho Mágico", () => FinishNarrativeEncounter());
@@ -155,7 +158,6 @@ public class PeepholeManager : MonoBehaviour
     void CreateButton(string label, UnityEngine.Events.UnityAction action)
     {
         GameObject btn = Instantiate(choiceButtonPrefab, choiceButtonsContainer);
-
         var tmpText = btn.GetComponentInChildren<TextMeshProUGUI>();
         if (tmpText != null) tmpText.text = label;
         else
@@ -163,42 +165,32 @@ public class PeepholeManager : MonoBehaviour
             var legacyText = btn.GetComponentInChildren<Text>();
             if (legacyText != null) legacyText.text = label;
         }
-
         btn.GetComponent<Button>().onClick.AddListener(action);
     }
 
     public void OpenDE3000()
     {
-        // Esconde o diálogo
         if (dialogueUIContainer) dialogueUIContainer.SetActive(false);
 
-        // Abre o Scanner
         if (de3000Manager != null)
         {
             de3000Manager.ActivateDevice(currentProfile, IsCurrentVisitorHuman);
         }
         else
         {
-            // Fallback de segurança
             de3000Manager = FindObjectOfType<DE3000Manager>();
             if (de3000Manager) de3000Manager.ActivateDevice(currentProfile, IsCurrentVisitorHuman);
         }
     }
 
-    // Chamado quando você fecha o DE3000
     public void ReturnToDialogue()
     {
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
-
-        // Define um texto de feedback
         if (dialogueText) dialogueText.text = "Análise concluída. O que devo fazer?";
-
-        // Gera os botões do nó ATUAL (que agora é o Node-Scan, contendo apenas Entrar/Sair)
         GenerateButtons();
     }
 
-    // --- ENCERRAMENTOS ---
-
+    // --- AQUI ESTÁ A LÓGICA DE COMBUSTÍVEL ---
     private void EndEncounter(bool letIn)
     {
         ClosePeephole();
@@ -208,11 +200,34 @@ public class PeepholeManager : MonoBehaviour
 
         if (letIn)
         {
-            Debug.Log(IsCurrentVisitorHuman ? "HUMANO entrou." : "IMPOSTOR entrou.");
-            // Adicione lógica de combustível aqui se tiver
+            // Se o jogador deixou entrar, aplicamos as consequências
+            if (GeneratorManager.Instance != null)
+            {
+                if (IsCurrentVisitorHuman)
+                {
+                    Debug.Log("HUMANO entrou. Recompensa de energia.");
+                    GeneratorManager.Instance.AddEnergy(energyReward);
+
+                    if (DialogManager.Instance != null)
+                        DialogManager.Instance.ShowMessage($"Você aceitou um humano.\nGerador +{energyReward}%", 3f);
+                }
+                else
+                {
+                    Debug.Log("IMPOSTOR entrou. Penalidade de energia.");
+                    GeneratorManager.Instance.RemoveEnergy(energyPenalty);
+
+                    if (DialogManager.Instance != null)
+                        DialogManager.Instance.ShowMessage($"IMPOSTOR DETECTADO!\nEle sabotou o gerador: -{energyPenalty}%", 4f);
+                }
+            }
+        }
+        else
+        {
+            // Se mandou embora, não acontece nada com o gerador
+            if (DialogManager.Instance != null)
+                DialogManager.Instance.ShowMessage("Você recusou a entrada.", 2f);
         }
 
-        // Avança a fila do dia
         NotifyDayCycle();
     }
 
@@ -229,10 +244,6 @@ public class PeepholeManager : MonoBehaviour
         if (DayCycleManager.Instance != null)
         {
             DayCycleManager.Instance.RegisterVisitorProcessed();
-        }
-        else
-        {
-            Debug.LogError("DayCycleManager não encontrado na cena!");
         }
     }
 

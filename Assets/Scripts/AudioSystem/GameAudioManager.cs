@@ -13,8 +13,8 @@ public class GameAudioManager : MonoBehaviour
     [SerializeField] private AudioSource knockingSource;
 
     [Header("Configuração de Intervalo de Batidas")]
-    [SerializeField] private float minKnockInterval = 2.0f; // Tempo mínimo de silêncio entre batidas
-    [SerializeField] private float maxKnockInterval = 4.0f; // Tempo máximo de silêncio entre batidas
+    [SerializeField] private float minKnockInterval = 2.0f;
+    [SerializeField] private float maxKnockInterval = 4.0f;
 
     [Header("Configuração de Ducking (Rádio)")]
     [SerializeField] private float duckedVolume = 0.3f;
@@ -24,7 +24,6 @@ public class GameAudioManager : MonoBehaviour
     private float originalMainVolume;
     private Coroutine volumeFadeCoroutine;
 
-    // Variável para controlar a corrotina de batidas
     private Coroutine knockingCoroutine;
 
     private void Awake()
@@ -56,57 +55,55 @@ public class GameAudioManager : MonoBehaviour
         }
     }
 
-    // --- MÉTODOS DE CONTROLE DE BATIDA (ATUALIZADO) ---
+    // --- NOVO MÉTODO: PARAR MÚSICA (Para o Game Over) ---
+    public void StopMainMusic()
+    {
+        if (mainTrackSource != null)
+        {
+            mainTrackSource.Stop();
+        }
+    }
+
+    // --- MÉTODOS DE CONTROLE DE BATIDA ---
 
     public void PlayKnocking(AudioClip clip)
     {
-        // Garante que paramos qualquer batida anterior antes de começar uma nova
         StopKnocking();
 
         if (knockingSource != null && clip != null)
         {
             knockingSource.clip = clip;
-            knockingSource.loop = false; // IMPORTANTE: Desligamos o loop nativo para controlar o intervalo
-
-            // Inicia a sequência de batidas com intervalo
+            knockingSource.loop = false;
             knockingCoroutine = StartCoroutine(KnockingSequence(clip));
         }
     }
 
     public void StopKnocking()
     {
-        // Para a corrotina se ela estiver rodando
         if (knockingCoroutine != null)
         {
             StopCoroutine(knockingCoroutine);
             knockingCoroutine = null;
         }
 
-        // Para o som imediatamente
         if (knockingSource != null)
         {
             knockingSource.Stop();
         }
     }
 
-    // Corrotina para criar o intervalo entre batidas
     private IEnumerator KnockingSequence(AudioClip clip)
     {
         while (true)
         {
-            // 1. Toca o som
             knockingSource.Play();
-
-            // 2. Espera o som terminar de tocar (comprimento do clipe)
             yield return new WaitForSeconds(clip.length);
-
-            // 3. Espera um intervalo de silêncio aleatório antes de bater de novo
             float interval = Random.Range(minKnockInterval, maxKnockInterval);
             yield return new WaitForSeconds(interval);
         }
     }
 
-    // --- MÉTODOS DE PEEK E DUCKING (MANTIDOS) ---
+    // --- MÉTODOS DE PEEK E DUCKING ---
     public void StartSpecialPeekMusic()
     {
         if (peekTrackSource == null || peekTrackSource.clip == null) return;
