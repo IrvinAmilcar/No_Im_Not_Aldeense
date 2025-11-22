@@ -49,7 +49,10 @@ public class DE3000Manager : MonoBehaviour
 
     void Start()
     {
-        if (de3000Background) de3000Background.SetActive(false);
+        // --- CORREÇÃO: REMOVA A LINHA ABAIXO ---
+        // if (de3000Background) de3000Background.SetActive(false); <--- APAGUE ISSO
+
+        // Mantenha apenas a inicialização de variáveis
         batteryLevel = 100f;
     }
 
