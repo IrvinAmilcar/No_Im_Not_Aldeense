@@ -48558,6 +48558,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8751415913550083563, guid: 365f1ceb594617c4e9a4197a9778235e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -120885,7 +120890,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 620801461}
   m_HandleRect: {fileID: 620801460}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

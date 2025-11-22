@@ -2,11 +2,14 @@ using UnityEngine;
 using System.Collections; 
 using System.Collections.Generic;
 using DialogSystem; 
-using System.Linq; // NECESSÁRIO para o .FirstOrDefault()
+using System.Linq; 
 
 public class DayCycleManager : MonoBehaviour
 {
     public static DayCycleManager Instance { get; private set; }
+
+    // NOVO: Evento estático para notificar outros scripts sobre a mudança de dia
+    public static event System.Action<int> OnDayStarted; 
 
     // --- Estrutura para configurar o diálogo de CADA janela por dia ---
     [System.Serializable]
@@ -139,6 +142,9 @@ public class DayCycleManager : MonoBehaviour
             }
         }
         // ----------------------------------------
+        
+        // NOVO: Notifica todos os assinantes que o dia começou
+        OnDayStarted?.Invoke(currentDayIndex); 
 
         Debug.Log($"Iniciando {config.dayName}. Visitantes na fila: {dailyQueue.Count}");
     }
@@ -211,7 +217,8 @@ public class DayCycleManager : MonoBehaviour
         }
 
         // 5. Inicia o novo dia (Lógica interna)
-        StartDay(currentDayIndex);
+        // O StartDay chamará o evento OnDayStarted, que notificará todos os objetos.
+        StartDay(currentDayIndex); 
 
         // 6. Fade In (Clareia a tela)
         if (CameraFader.Instance != null)
