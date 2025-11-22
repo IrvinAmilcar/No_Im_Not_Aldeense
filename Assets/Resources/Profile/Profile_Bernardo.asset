@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Bernardo
   characterSprite: {fileID: 21300000, guid: 7cc00b68cc5bd51439069e834b353089, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: a45b6f9241fad6d4698a386ac3f174fd, type: 3}
   startNodeID: Bernardo-Conversa1
   humanityType: 0
   isScannable: 1

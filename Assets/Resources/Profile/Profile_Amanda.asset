@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Amanda
   characterSprite: {fileID: 21300000, guid: 2b55b437cc812654ab5068475132117e, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: ed35dbc991bfe75468c3dccb49d954a0, type: 3}
   startNodeID: Amanda-Conversa1
   humanityType: 0
   isScannable: 1

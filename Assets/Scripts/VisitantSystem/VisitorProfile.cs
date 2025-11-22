@@ -2,20 +2,24 @@ using UnityEngine;
 
 public enum HumanityType
 {
-    Random,         // 50/50 ou baseado na dificuldade do dia
-    AlwaysHuman,    // Ex: Claudia, Irvin Dia 1
-    AlwaysImpostor  // Ex: Irvin Dia 5
+    Random,
+    AlwaysHuman,
+    AlwaysImpostor
 }
 
 [CreateAssetMenu(fileName = "NovoVisitante", menuName = "Game/Visitor Profile")]
 public class VisitorProfile : ScriptableObject
 {
     [Header("Identidade")]
-    public string characterName;   // Ex: "Irvin"
-    public Sprite characterSprite; // A imagem 2D que aparece no olho mágico
+    public string characterName;
+    public Sprite characterSprite;
+
+    [Header("Áudio Personalizado")]
+    [Tooltip("Se deixado vazio, usará o som padrão de batida do DayCycleManager.")]
+    public AudioClip specificKnockSound; // --- NOVO CAMPO ---
 
     [Header("Cérebro (Twine)")]
-    [Tooltip("O nome EXATO da passagem inicial no arquivo .twee (ex: 'Irvin-Conversa1')")]
+    [Tooltip("O nome EXATO da passagem inicial no arquivo .twee")]
     public string startNodeID;
 
     [Header("Lógica de Jogo")]
@@ -23,7 +27,6 @@ public class VisitorProfile : ScriptableObject
     public bool isScannable = true;
 
     [Header("Estatísticas Base (DE3000)")]
-    // Nomes corrigidos para bater com o DE3000Manager
     [Tooltip("Temperatura Média (Humanos ~36.5)")]
     public float meanTemp = 36.5f;
 

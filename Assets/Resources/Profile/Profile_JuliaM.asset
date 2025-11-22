@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: JuliaM
   characterSprite: {fileID: 21300000, guid: 38b26f6a04323d54e86a7ba7b1f86759, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: 4fd3a4aef7b2b3448a0a1dd63ea6cbe8, type: 3}
   startNodeID: JuliaM-Conversa1
   humanityType: 0
   isScannable: 1

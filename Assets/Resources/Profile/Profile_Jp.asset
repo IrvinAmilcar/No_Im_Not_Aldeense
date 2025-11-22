@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Jp
   characterSprite: {fileID: 21300000, guid: a68baa04bac6331409f8fd23f192ad94, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: 3f76ea388877c464c9ad1671cb1cfc23, type: 3}
   startNodeID: Jp-Conversa1
   humanityType: 0
   isScannable: 1

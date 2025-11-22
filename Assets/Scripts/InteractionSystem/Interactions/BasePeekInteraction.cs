@@ -16,19 +16,17 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     public float transitionSpeed = 2f;
     public Color highlightColor = Color.yellow;
 
-    // --- NOVO: Campo de Identificação ---
     [Header("Configuração de Diálogo (Peek)")]
     [Tooltip("ID único para este objeto, usado pelo DayCycleManager.")]
-    public string windowID = "default_window_id"; 
-    // --- NOVO: Armazenamento do Diálogo ---
+    public string windowID = "default_window_id";
+
     [SerializeField]
     protected string[] dialoguePages = new string[] { "Eu não vejo nada de novo por aqui." };
-    // ------------------------------------
 
     protected Renderer objRenderer;
     protected Color originalColor;
     protected bool isPeeking = false;
-    protected bool dialogueActive = false; // Novo: Estado para controle de diálogo na janela
+    protected bool dialogueActive = false;
 
     protected virtual void Start()
     {
@@ -38,7 +36,8 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         if (targetViewCamera != null) targetViewCamera.enabled = false;
     }
 
-    public void Interact()
+    // --- MUDANÇA AQUI: Adicionado 'virtual' para permitir override ---
+    public virtual void Interact()
     {
         if (!isPeeking) StartPeeking();
     }
@@ -69,11 +68,9 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 
     private IEnumerator ChangeCameraSequence(bool entering)
     {
-        // 1. Fade Out
         if (CameraFader.Instance != null)
             yield return StartCoroutine(CameraFader.Instance.Fade(1f, transitionSpeed));
 
-        // 2. Troca Câmeras e Inputs
         if (entering)
         {
             playerCamera.enabled = false;
@@ -87,11 +84,9 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
             TogglePlayerControls(true);
         }
 
-        // 3. Fade In
         if (CameraFader.Instance != null)
             yield return StartCoroutine(CameraFader.Instance.Fade(0f, transitionSpeed));
 
-        // 4. Avisa os filhos
         if (entering)
             OnPeekReady();
         else
@@ -110,15 +105,8 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
         if (cameraLookController != null) cameraLookController.enabled = state;
     }
 
-    // --- NOVO MÉTODO PÚBLICO: SetDailyDialogue ---
-    /// <summary>
-    /// Define o diálogo para a próxima interação do peek.
-    /// Chamado pelo DayCycleManager no início do dia.
-    /// </summary>
-    /// <param name="newPages">O novo array de strings do diálogo.</param>
     public void SetDailyDialogue(string[] newPages)
     {
         this.dialoguePages = newPages;
     }
-    // ----------------------------------------------
 }

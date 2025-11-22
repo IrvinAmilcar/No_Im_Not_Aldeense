@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Fabi
   characterSprite: {fileID: 21300000, guid: ec7302c908157d74b87624f21014205b, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: 95ec9b823fe60ed45b603dc378ec163b, type: 3}
   startNodeID: Fabi-Conversa1
   humanityType: 0
   isScannable: 1

@@ -1,34 +1,40 @@
-/*
- * Arquivo: Scripts/InteractionSystem/Interactions/DoorInteraction.cs
- * Descrição: Herda de BasePeekInteraction. 
- * CONTÉM a lógica de chamar o visitante e conectar com o PeepholeManager.
- */
 using UnityEngine;
+using DialogSystem;
 
 public class DoorInteraction : BasePeekInteraction
 {
-    // Chamado automaticamente quando a câmera termina de focar na porta
-    protected override void OnPeekReady()
+    // --- CORREÇÃO DO BUG: Usamos 'override' para garantir que esta lógica rode ---
+    public override void Interact()
     {
-        // Verifica se temos o gerente do dia
-        if (DayCycleManager.Instance != null)
+        // 1. Verifica se o DayCycleManager existe
+        if (DayCycleManager.Instance == null) return;
+
+        // 2. Verifica se TEM ALGUÉM ESPERANDO (IsVisitorWaiting)
+        if (DayCycleManager.Instance.IsVisitorWaiting)
         {
-            // AQUI está a lógica de visitantes: chama a UI do olho mágico
-            DayCycleManager.Instance.CheckDoorForVisitor();
+            // Se tem gente, chama a lógica base (entrar na câmera)
+            base.Interact();
         }
         else
         {
-            Debug.LogError("ERRO: DayCycleManager não encontrado!");
-            // Se der erro, sai do modo espiar para não travar o jogo
-            StopPeeking();
+            // 3. Se NÃO tem ninguém, mostra mensagem e BLOQUEIA a entrada
+            if (DialogManager.Instance != null)
+            {
+                DialogManager.Instance.ShowMessage("Não tem ninguém na porta agora.", 2f);
+            }
         }
     }
 
-    // --- IMPORTANTE: Como voltar ao normal? ---
-    // Este método agora é chamado pelo PeepholeManager quando o jogador clica em "Encerrar" ou "Fechar"
+    protected override void OnPeekReady()
+    {
+        if (DayCycleManager.Instance != null)
+        {
+            DayCycleManager.Instance.CheckDoorForVisitor();
+        }
+    }
+
     public void ExitInteraction()
     {
-        // Apenas sai da câmera (retorna para o PlayerController)
         StopPeeking();
     }
 }
