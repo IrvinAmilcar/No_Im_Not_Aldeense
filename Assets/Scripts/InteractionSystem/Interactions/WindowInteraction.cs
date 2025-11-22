@@ -1,29 +1,42 @@
 using UnityEngine;
+using System.Collections;
+using DialogSystem;
 
 public class WindowInteraction : BasePeekInteraction
 {
-    private bool waitingForExit = false;
-
-    // --- CORRE«√O DO ERRO: Este mÈtodo È OBRIGAT”RIO agora ---
+    // A corrotina ShowPeekDialogueCoroutine do DialogManager j√° cuida da espera e do input de espa√ßo.
+    
     protected override void OnPeekReady()
     {
-        // A c‚mera j· focou na janela. Agora habilitamos a saÌda.
-        waitingForExit = true;
-
-        // Opcional: Mostra dica visual se tiver o sistema de di·logo
-        if (DialogSystem.DialogManager.Instance != null)
-        {
-            DialogSystem.DialogManager.Instance.ShowMessage("Pressione [ESPA«O] para sair", 2f);
-        }
+        // Inicia a corrotina de di√°logo e espera que ela termine antes de liberar o jogador.
+        StartCoroutine(WindowDialogueSequence());
     }
-
-    void Update()
+    
+    // Corrotina para controlar o fluxo: di√°logo -> fim -> volta para o jogo.
+    private IEnumerator WindowDialogueSequence()
     {
-        // Se estamos olhando e o jogador aperta espaÁo...
-        if (waitingForExit && Input.GetKeyDown(KeyCode.Space))
-        {
-            waitingForExit = false;
-            StopPeeking(); // Chama o mÈtodo da base para voltar a c‚mera
-        }
+        dialogueActive = true; 
+        
+        // 1. Inicia o di√°logo paginado da Janela (Sistema 3 do DialogManager)
+        bool dialogueFinished = false;
+        
+        // Usa o di√°logo armazenado na BasePeekInteraction (dialoguePages)
+        // O callback 'dialogueFinished = true' √© chamado quando o jogador aperta [ESPA√áO] na √∫ltima p√°gina.
+        DialogManager.Instance.ShowPeekDialogue(
+            dialoguePages, 
+            () => { dialogueFinished = true; } // Callback
+        );
+
+        // 2. Esperar o DialogManager nos avisar que terminou
+        yield return new WaitUntil(() => dialogueFinished);
+        
+        // 3. Destravar e voltar
+        dialogueActive = false;
+        
+        // O StopPeeking cuida do Fade Out/In e de reabilitar os controles do jogador.
+        StopPeeking();
     }
+    
+    // O m√©todo Update() antigo que checava Input.GetKeyDown(KeyCode.Space) n√£o √© mais necess√°rio,
+    // pois a l√≥gica de avan√ßo de p√°gina e sa√≠da est√° toda dentro do DialogManager.
 }

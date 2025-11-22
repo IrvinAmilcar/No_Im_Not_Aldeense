@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using DialogSystem;
 
 public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 {
@@ -15,9 +16,19 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
     public float transitionSpeed = 2f;
     public Color highlightColor = Color.yellow;
 
+    // --- NOVO: Campo de Identificação ---
+    [Header("Configuração de Diálogo (Peek)")]
+    [Tooltip("ID único para este objeto, usado pelo DayCycleManager.")]
+    public string windowID = "default_window_id"; 
+    // --- NOVO: Armazenamento do Diálogo ---
+    [SerializeField]
+    protected string[] dialoguePages = new string[] { "Eu não vejo nada de novo por aqui." };
+    // ------------------------------------
+
     protected Renderer objRenderer;
     protected Color originalColor;
     protected bool isPeeking = false;
+    protected bool dialogueActive = false; // Novo: Estado para controle de diálogo na janela
 
     protected virtual void Start()
     {
@@ -95,11 +106,19 @@ public abstract class BasePeekInteraction : MonoBehaviour, IInteractable
 
     private void TogglePlayerControls(bool state)
     {
-        // AQUI ESTAVA O ERRO: Removemos a lógica de cursor daqui.
-        // O BasePeekInteraction só liga/desliga os scripts de movimento.
-        // Quem cuida do cursor agora é o PeepholeManager (para a porta) ou ninguém (para a janela).
-
         if (playerController != null) playerController.enabled = state;
         if (cameraLookController != null) cameraLookController.enabled = state;
     }
+
+    // --- NOVO MÉTODO PÚBLICO: SetDailyDialogue ---
+    /// <summary>
+    /// Define o diálogo para a próxima interação do peek.
+    /// Chamado pelo DayCycleManager no início do dia.
+    /// </summary>
+    /// <param name="newPages">O novo array de strings do diálogo.</param>
+    public void SetDailyDialogue(string[] newPages)
+    {
+        this.dialoguePages = newPages;
+    }
+    // ----------------------------------------------
 }

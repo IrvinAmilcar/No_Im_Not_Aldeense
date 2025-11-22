@@ -38777,6 +38777,23 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 8785f731839b88b44b9ef51aecf8fc70, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue:
+    - "Bom dia Pernambuco!!\nNot\xEDcia do dia"
+    - "Um eclipse Imprev\xEDsto assustou os internautas, n\xE3o se sabe quando se
+      encerrar\xE1!"
+    - Por enquanto vamos aproveitar essa maravilha!
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - "[Voc\xEA observa a quieta mata de aldeia e se pergunta]"
+      - "Ser\xE1 que a Celpe vai demorar pra chegar?"
+    - windowID: 2
+      dialogue:
+      - "[Voc\xEA observa a casa de seus vizinhos]"
+      - "Ser\xE1 que eles tamb\xE9m t\xE3o sem energia?"
+    - windowID: 3
+      dialogue:
+      - Nada pra ver aqui..
   - dayName: Dia 2
     visitorsForThisDay:
     - {fileID: 11400000, guid: 566c9a4ea4da77b41b0ca72caa65ffb4, type: 2}
@@ -38784,6 +38801,18 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 5f3e52c1bf49e2b46ab0f316b4544a63, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue:
+    - 'testando
+
+      ola oala oal'
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - "N\xE3o gosto de olhar essa janela"
+    - windowID: 
+      dialogue: []
+    - windowID: 
+      dialogue: []
   - dayName: Dia 3
     visitorsForThisDay:
     - {fileID: 11400000, guid: 012d6d7c7ba420149ab215b087e8ad58, type: 2}
@@ -38792,6 +38821,8 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 9a10c9369ac9b5c42abca902ace79557, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
+    windowDialogues: []
   - dayName: Dia 4
     visitorsForThisDay:
     - {fileID: 11400000, guid: 11bde083202a76f45a4bc25493ff6b5c, type: 2}
@@ -38799,13 +38830,18 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 7154222a5ad671247a1129b4bd352963, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
+    windowDialogues: []
   - dayName: Dia 5
     visitorsForThisDay:
     - {fileID: 11400000, guid: 4ba25446f3cebc746a121562ba327e7f, type: 2}
     - {fileID: 11400000, guid: 4aa9a484f90eda04b83e701fa2c5f35a, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
+    radioDialogue: []
+    windowDialogues: []
   radioInteraction: {fileID: 1218564210}
+  allPeekInteractions: []
 --- !u!114 &335978925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96647,6 +96683,9 @@ MonoBehaviour:
   cameraLookController: {fileID: 144429473}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: default_window_id
+  dialoguePages:
+  - "Eu n\xE3o vejo nada de novo por aqui."
 --- !u!1001 &1062698026
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -125960,6 +125999,8 @@ MonoBehaviour:
   cameraLookController: {fileID: 1569853827}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: 3
+  dialoguePages: []
 --- !u!1 &1396972861
 GameObject:
   m_ObjectHideFlags: 0
@@ -157378,6 +157419,8 @@ MonoBehaviour:
   cameraLookController: {fileID: 566574591}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: 2
+  dialoguePages: []
 --- !u!64 &1724584006
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -185945,6 +185988,8 @@ MonoBehaviour:
   cameraLookController: {fileID: 1959727322}
   transitionSpeed: 2
   highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  windowID: 1
+  dialoguePages: []
 --- !u!64 &2053819255
 MeshCollider:
   m_ObjectHideFlags: 0
