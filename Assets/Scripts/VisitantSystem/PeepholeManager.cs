@@ -42,7 +42,9 @@ public class PeepholeManager : MonoBehaviour
 
         peepholePanel.SetActive(true);
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
-        if (de3000Manager) de3000Manager.DeactivateDevice();
+
+        // --- CORREÇÃO: Usa ForceClose para evitar callbacks indesejados ---
+        if (de3000Manager) de3000Manager.ForceClose();
 
         if (visitorImage)
         {

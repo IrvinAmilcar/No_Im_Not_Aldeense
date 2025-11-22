@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
-using XCharts.Runtime; // XCharts 3.x
+using XCharts.Runtime;
+using DG.Tweening;
 
 public class DE3000Manager : MonoBehaviour
 {
@@ -40,66 +41,110 @@ public class DE3000Manager : MonoBehaviour
     private VisitorProfile activeProfile;
     private bool activeIsHuman;
 
-    // Histórico
     private float deltaThermal = 0;
     private float deltaRetinal = 0;
     private float deltaNeural = 0;
 
-    void Awake() { Instance = this; }
+    // Animação
+    private RectTransform panelRect;
+    private float offScreenY = -1200f;
+    private float targetY;
+
+    void Awake()
+    {
+        Instance = this;
+        if (de3000Panel)
+        {
+            panelRect = de3000Panel.GetComponent<RectTransform>();
+            if (panelRect) targetY = panelRect.anchoredPosition.y;
+        }
+    }
 
     void Start()
     {
-        // --- CORREÇÃO: REMOVA A LINHA ABAIXO ---
-        // if (de3000Background) de3000Background.SetActive(false); <--- APAGUE ISSO
-
-        // Mantenha apenas a inicialização de variáveis
+        if (panelRect)
+        {
+            Vector2 pos = panelRect.anchoredPosition;
+            pos.y = offScreenY;
+            panelRect.anchoredPosition = pos;
+        }
         batteryLevel = 100f;
     }
 
-    // --- INICIALIZAÇÃO ---
+    // --- ATIVAÇÃO ---
 
     public void ActivateDevice(VisitorProfile profile, bool isHuman)
     {
         activeProfile = profile;
         activeIsHuman = isHuman;
 
-        // --- CORREÇÃO: Reseta variáveis de histórico ---
         pGlobal = 50f;
         deltaThermal = 0; deltaRetinal = 0; deltaNeural = 0;
 
-        // --- CORREÇÃO: Limpa TODOS os gráficos visualmente ao iniciar ---
-        // Isso impede que o gráfico do personagem anterior "pisque" na tela
         CleanChart(thermalChart);
         CleanChart(retinalChart);
         CleanChart(neuralChart);
         CleanChart(historyChart);
 
+        UpdateBatteryUI();
+        UpdateGlobalProbUI();
+        SwitchMode(ScanMode.Idle);
+
         if (de3000Background) de3000Background.SetActive(true);
         if (de3000Panel) de3000Panel.SetActive(true);
 
-        UpdateBatteryUI();
-        UpdateGlobalProbUI();
-
-        SwitchMode(ScanMode.Idle);
-    }
-
-    // Método auxiliar para limpar gráficos com segurança
-    private void CleanChart(BaseChart chart)
-    {
-        if (chart != null)
+        if (panelRect)
         {
-            chart.RemoveAllSerie();
-            chart.ClearData();
+            Vector2 pos = panelRect.anchoredPosition;
+            pos.y = offScreenY;
+            panelRect.anchoredPosition = pos;
+            panelRect.DOAnchorPosY(targetY, 1.2f).SetEase(Ease.OutBack);
         }
     }
 
     public void DeactivateDevice()
     {
-        if (de3000Background) de3000Background.SetActive(false);
-        if (PeepholeManager.Instance != null) PeepholeManager.Instance.ReturnToDialogue();
+        // Animação de saída normal (com callback para voltar ao diálogo)
+        if (panelRect)
+        {
+            panelRect.DOAnchorPosY(offScreenY, 0.4f)
+                .SetEase(Ease.InBack)
+                .OnComplete(() =>
+                {
+                    if (de3000Background) de3000Background.SetActive(false);
+                    if (PeepholeManager.Instance != null)
+                        PeepholeManager.Instance.ReturnToDialogue();
+                });
+        }
+        else
+        {
+            ForceClose();
+            if (PeepholeManager.Instance != null)
+                PeepholeManager.Instance.ReturnToDialogue();
+        }
     }
 
-    // --- BOTÕES ---
+    // --- NOVO MÉTODO: FECHAMENTO INSTANTÂNEO (Para quando chega visita) ---
+    public void ForceClose()
+    {
+        // Mata a animação atual para impedir que o OnComplete rode e sobrescreva o texto
+        if (panelRect)
+        {
+            panelRect.DOKill();
+            Vector2 pos = panelRect.anchoredPosition;
+            pos.y = offScreenY;
+            panelRect.anchoredPosition = pos;
+        }
+
+        if (de3000Background) de3000Background.SetActive(false);
+    }
+
+    // --- RESTO DO SCRIPT (IGUAL) ---
+
+    private void CleanChart(BaseChart chart)
+    {
+        if (chart != null) { chart.RemoveAllSerie(); chart.ClearData(); }
+    }
 
     public void OnClick_ModeThermal() { if (!isScanning) SwitchMode(ScanMode.Thermal); }
     public void OnClick_ModeRetinal() { if (!isScanning) SwitchMode(ScanMode.Retinal); }
@@ -130,13 +175,10 @@ public class DE3000Manager : MonoBehaviour
 
     public void OnClick_Back() { DeactivateDevice(); }
 
-    // --- LÓGICA CORE ---
-
     private void SwitchMode(ScanMode mode)
     {
         currentMode = mode;
 
-        // Esconde tudo
         if (thermalChart) thermalChart.gameObject.SetActive(false);
         if (retinalChart) retinalChart.gameObject.SetActive(false);
         if (neuralChart) neuralChart.gameObject.SetActive(false);
@@ -150,22 +192,18 @@ public class DE3000Manager : MonoBehaviour
                 if (modeText) modeText.text = "DE-3000";
                 if (statusText) statusText.text = "SELECIONE UM MODO";
                 break;
-
             case ScanMode.Thermal:
                 if (thermalChart) thermalChart.gameObject.SetActive(true);
                 if (modeText) modeText.text = "TÉRMICA";
                 break;
-
             case ScanMode.Retinal:
                 if (retinalChart) retinalChart.gameObject.SetActive(true);
                 if (modeText) modeText.text = "RETINA";
                 break;
-
             case ScanMode.Neural:
                 if (neuralChart) neuralChart.gameObject.SetActive(true);
                 if (modeText) modeText.text = "NEURAL";
                 break;
-
             case ScanMode.History:
                 if (historyChart) historyChart.gameObject.SetActive(true);
                 if (modeText) modeText.text = "HISTÓRICO";
@@ -223,28 +261,12 @@ public class DE3000Manager : MonoBehaviour
         isScanning = false;
     }
 
-    // --- IMPLEMENTAÇÃO DOS GRÁFICOS ---
-
-    // --- NOVO MATH DE LEITURA (Mais difícil) ---
-
     private float PerformThermalScan()
     {
         float reading;
+        if (activeIsHuman) reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
+        else reading = Random.Range(34.5f, 36.0f) + Random.Range(-0.2f, 0.2f);
 
-        if (activeIsHuman)
-        {
-            // Humano: Média 36.5, variação pequena
-            reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
-        }
-        else
-        {
-            // IMPOSTOR ESPERTO: Tenta imitar humanos (34.5 a 36.0)
-            // Isso cria uma sobreposição com humanos que estão com frio
-            float impostorBase = Random.Range(34.5f, 36.0f);
-            reading = impostorBase + Random.Range(-0.2f, 0.2f);
-        }
-
-        // (Visualização do Gráfico igual ao anterior...)
         if (thermalChart != null)
         {
             thermalChart.RemoveAllSerie();
@@ -261,29 +283,23 @@ public class DE3000Manager : MonoBehaviour
                 float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
                 thermalChart.AddData(0, i, y);
             }
-
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
             if (readingY < 0.01f) readingY = 0.01f;
             thermalChart.AddData(1, reading, readingY);
         }
-
         return StatisticalUtils.CalculateThermalDelta(reading);
     }
 
     private float PerformRetinalScan()
     {
         int successes = 0;
-
         if (activeIsHuman)
         {
-            // Humano: Alta chance de sucesso (p=0.8)
             float p = activeProfile.retinalProbability;
             for (int i = 0; i < 10; i++) if (Random.value < p) successes++;
         }
         else
         {
-            // IMPOSTOR: Tem micro-movimentos, mas erráticos (p=0.4 a 0.5)
-            // Vai gerar resultados entre 3 e 6, confundindo com humano cansado
             float pImpostor = Random.Range(0.35f, 0.55f);
             for (int i = 0; i < 10; i++) if (Random.value < pImpostor) successes++;
         }
@@ -297,7 +313,6 @@ public class DE3000Manager : MonoBehaviour
             retinalChart.ClearData();
             retinalChart.AddData(0, 0, successes);
         }
-
         return StatisticalUtils.CalculateRetinalDelta(successes);
     }
 
@@ -309,24 +324,18 @@ public class DE3000Manager : MonoBehaviour
 
         if (activeIsHuman)
         {
-            // Padrão Humano (Picos em Alpha/Beta)
             pattern[0] = Random.Range(0.1f, 0.3f);
-            pattern[1] = Random.Range(0.7f, 0.9f); // Pico
+            pattern[1] = Random.Range(0.7f, 0.9f);
             pattern[2] = Random.Range(0.5f, 0.7f);
             pattern[3] = Random.Range(0.2f, 0.4f);
-            pattern[4] = Random.Range(0.6f, 0.8f); // Pico
+            pattern[4] = Random.Range(0.6f, 0.8f);
             isHumanPattern = true;
         }
         else
         {
-            // IMPOSTOR: Tenta emular ruído cerebral
-            // Não é mais só flatline. É um padrão "estranho" e uniforme.
             float noiseLevel = Random.Range(0.3f, 0.5f);
-            for (int i = 0; i < 5; i++)
-            {
-                pattern[i] = noiseLevel + Random.Range(-0.1f, 0.1f);
-            }
-            flatline = (noiseLevel < 0.1f); // Só é flatline se for muito baixo
+            for (int i = 0; i < 5; i++) pattern[i] = noiseLevel + Random.Range(-0.1f, 0.1f);
+            flatline = (noiseLevel < 0.1f);
         }
 
         if (neuralChart != null)
@@ -337,92 +346,48 @@ public class DE3000Manager : MonoBehaviour
             neuralChart.ClearData();
             for (int i = 0; i < 5; i++) neuralChart.AddData(0, i, pattern[i]);
         }
-
         return StatisticalUtils.CalculateNeuralDelta(flatline, isHumanPattern);
     }
 
-    // --- CORREÇÃO DO NULL REFERENCE (HistoryChart) ---
-    // --- CORREÇÃO: Método Blindado contra NullReference ---
     private void UpdateHistoryChart()
     {
-        // 1. Segurança básica
         if (historyChart == null) return;
-
-        // 2. Limpeza Total
         historyChart.RemoveAllSerie();
         historyChart.ClearData();
 
-        // 3. Garantir que os Eixos existem (Cria se não existirem)
         var xAxis = historyChart.EnsureChartComponent<XAxis>();
         var yAxis = historyChart.EnsureChartComponent<YAxis>();
 
-        if (xAxis == null || yAxis == null)
+        if (xAxis != null && yAxis != null)
         {
-            Debug.LogError("Erro: Não foi possível criar os eixos do HistoryChart.");
-            return;
-        }
+            xAxis.type = Axis.AxisType.Category;
+            if (xAxis.data != null) { xAxis.data.Clear(); xAxis.data.Add("Térmica"); xAxis.data.Add("Retina"); xAxis.data.Add("Neural"); }
+            yAxis.type = Axis.AxisType.Value;
 
-        // 4. Configurar Eixo X (Categorias) com segurança
-        xAxis.type = Axis.AxisType.Category;
-        if (xAxis.data != null)
-        {
-            xAxis.data.Clear();
-            xAxis.data.Add("Térmica");
-            xAxis.data.Add("Retina");
-            xAxis.data.Add("Neural");
-        }
-
-        // 5. Configurar Eixo Y (Valores)
-        yAxis.type = Axis.AxisType.Value;
-
-        // 6. Adicionar a Série e verificar se foi criada
-        var barSerie = historyChart.AddSerie<Bar>("Historico");
-
-        if (barSerie != null)
-        {
-            // Configura visual da barra
-            barSerie.itemStyle.color = new Color(1f, 0.8f, 0f, 0.8f); // Amarelo/Laranja
-
-            // Verificação extra para o Label (causa comum do erro)
-            if (barSerie.label != null)
+            var barSerie = historyChart.AddSerie<Bar>("Historico");
+            if (barSerie != null)
             {
-                barSerie.label.show = true;
-                barSerie.label.position = LabelStyle.Position.Top;
+                barSerie.itemStyle.color = new Color(1f, 0.8f, 0f, 0.8f);
+                if (barSerie.label != null) { barSerie.label.show = true; barSerie.label.position = LabelStyle.Position.Top; }
+
+                historyChart.AddData(0, deltaThermal);
+                historyChart.AddData(0, deltaRetinal);
+                historyChart.AddData(0, deltaNeural);
+                historyChart.RefreshChart();
             }
-
-            // 7. Adicionar os Dados (Sequencialmente: 0=Térmica, 1=Retina, 2=Neural)
-            // AddData(SerieIndex, Valor) -> O XCharts distribui nas categorias automaticamente
-            historyChart.AddData(0, deltaThermal);
-            historyChart.AddData(0, deltaRetinal);
-            historyChart.AddData(0, deltaNeural);
-
-            // Força atualização visual
-            historyChart.RefreshChart();
-        }
-        else
-        {
-            Debug.LogError("Erro: Falha ao criar a série 'Bar' no HistoryChart.");
         }
     }
 
-    // --- UI ---
-
     private void UpdateBatteryUI()
     {
-        if (batteryText)
-        {
-            batteryText.text = $"{batteryLevel:F0}%";
-            batteryText.color = batteryLevel < 20 ? Color.red : Color.green;
-        }
+        if (batteryText) { batteryText.text = $"{batteryLevel:F0}%"; batteryText.color = batteryLevel < 20 ? Color.red : Color.green; }
     }
 
     private void UpdateGlobalProbUI()
     {
         if (globalProbText)
         {
-            // --- CORREÇÃO: Texto mais explicativo ---
             globalProbText.text = $"P(Humano): {pGlobal:F0}%";
-
             if (pGlobal > 80) globalProbText.color = Color.green;
             else if (pGlobal < 40) globalProbText.color = Color.red;
             else globalProbText.color = Color.yellow;
