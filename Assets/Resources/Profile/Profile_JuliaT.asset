@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: Profile_JuliaT
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: JuliaT
-  characterSprite: {fileID: 21300000, guid: 0d3ab993ded1ef1439e60ffa04982809, type: 3}
+  characterSprite: {fileID: 21300000, guid: f456763b44f8c3545bd4f1bc29a27cc5, type: 3}
   startNodeID: JuliaT-Conversa1
   humanityType: 0
   isScannable: 1
-  baseTemperature: 36.5
-  baseRetinalAccuracy: 0.8
+  meanTemp: 36.5
+  tempStdDev: 0.5
+  retinalProbability: 0.8
+  neuralPattern:
+  - 0.2
+  - 0.8
+  - 0.3
+  - 0.7
+  - 0.2

@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: Profile_Fabi
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Fabi
-  characterSprite: {fileID: 21300000, guid: ea6d0871671bb7d42bf244caf4abed74, type: 3}
+  characterSprite: {fileID: 21300000, guid: ec7302c908157d74b87624f21014205b, type: 3}
   startNodeID: Fabi-Conversa1
   humanityType: 0
   isScannable: 1
-  baseTemperature: 36.5
-  baseRetinalAccuracy: 0.8
+  meanTemp: 36.5
+  tempStdDev: 0.5
+  retinalProbability: 0.8
+  neuralPattern:
+  - 0.2
+  - 0.8
+  - 0.3
+  - 0.7
+  - 0.2

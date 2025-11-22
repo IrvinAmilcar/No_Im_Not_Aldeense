@@ -13,9 +13,16 @@ MonoBehaviour:
   m_Name: Profile_Super_Dia5
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Homem Palido
-  characterSprite: {fileID: 1991766728, guid: 020a6e5f5f4a5a142a988342d0dcc739, type: 3}
+  characterSprite: {fileID: -1575821146, guid: 020a6e5f5f4a5a142a988342d0dcc739, type: 3}
   startNodeID: HomemPalido3-OlhoMagico
   humanityType: 2
   isScannable: 0
-  baseTemperature: 36.5
-  baseRetinalAccuracy: 0.8
+  meanTemp: 36.5
+  tempStdDev: 0.5
+  retinalProbability: 0.8
+  neuralPattern:
+  - 0.2
+  - 0.8
+  - 0.3
+  - 0.7
+  - 0.2
