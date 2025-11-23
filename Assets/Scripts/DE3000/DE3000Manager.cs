@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
-using XCharts.Runtime; // Requer XCharts 3.x
-using DG.Tweening;     // Requer DOTween
+using XCharts.Runtime;
+using DG.Tweening;
 
 public class DE3000Manager : MonoBehaviour
 {
@@ -13,15 +13,14 @@ public class DE3000Manager : MonoBehaviour
     public enum ScanMode { Idle, Thermal, Retinal, Neural, History }
 
     [Header("Hierarquia Principal")]
-    public GameObject de3000Panel;      // O Painel com os botões e tela
-    public GameObject de3000Background; // O Pai (Corpo do aparelho) que será animado
+    public GameObject de3000Panel;
+    public GameObject de3000Background;
 
     [Header("Sistema de Ajuda")]
-    public GameObject helpContainer;        // Painel preto que cobre a tela (Overlay)
-    public CanvasGroup helpCanvasGroup;     // Para animar o Fade
-    // REMOVIDO: public TextMeshProUGUI helpTitleText;
-    public TextMeshProUGUI helpBodyText;    // Corpo do texto
-    public ScrollRect helpScrollRect;       // Para resetar o scroll
+    public GameObject helpContainer;
+    public CanvasGroup helpCanvasGroup;
+    public TextMeshProUGUI helpBodyText;
+    public ScrollRect helpScrollRect;
 
     [Header("Visualização XCharts")]
     public LineChart thermalChart;
@@ -30,19 +29,20 @@ public class DE3000Manager : MonoBehaviour
     public BarChart historyChart;
 
     [Header("UI de Texto")]
-    public TextMeshProUGUI modeText;        // "TÉRMICA", "RETINA"...
-    public TextMeshProUGUI globalProbText;  // "P(Humano): 50%"
-    public TextMeshProUGUI batteryText;     // "100%"
-    public TextMeshProUGUI statusText;      // "PRONTO", "ANALISANDO..."
+    public TextMeshProUGUI modeText;
+    public TextMeshProUGUI globalProbText;
+    public TextMeshProUGUI batteryText;
+    public TextMeshProUGUI statusText;
 
     [Header("Configurações de Gameplay")]
     public float pGlobal = 50f;
     public float batteryLevel = 100f;
 
+    // Custos de Bateria
     private const float BASE_COST = 10f;
-    private const float MULT_THERMAL = 0.5f;
-    private const float MULT_RETINAL = 1.0f;
-    private const float MULT_NEURAL = 1.5f;
+    private const float MULT_THERMAL = 0.5f; // 5%
+    private const float MULT_RETINAL = 1.0f; // 10%
+    private const float MULT_NEURAL = 1.5f;  // 15%
 
     // Estado Interno
     private ScanMode currentMode = ScanMode.Idle;
@@ -54,19 +54,19 @@ public class DE3000Manager : MonoBehaviour
 
     // Dificuldade Dinâmica
     private int currentDayIndex = 0;
-    private float mimicFactor = 0f; // 0.0 (Fácil) a 1.0 (Difícil)
+    private float mimicFactor = 0f;
 
     // Histórico de Deltas
     private float deltaThermal = 0;
     private float deltaRetinal = 0;
     private float deltaNeural = 0;
 
-    // Animação de Entrada/Saída
+    // Animação
     private RectTransform animationRect;
     private float offScreenY = -1200f;
     private float targetY;
 
-    // --- TEXTOS DO MANUAL ---
+    // Textos de Ajuda
     [TextArea(3, 5)] private string txtHelpIdle = "MANUAL GERAL:\n\nSelecione um modo acima para iniciar a verificação.\n\nO DE3000 calcula a probabilidade baseada em 3 testes distintos.\n\nUse os botões acima para ler sobre cada teste específico.";
     [TextArea(3, 5)] private string txtHelpThermal = "ANÁLISE TÉRMICA:\n\nBaseada na Curva Gaussiana.\n\nHumanos mantêm temperatura constante (~36.5ºC).\n\nImpostores tendem a ser frios (<34ºC) ou apresentar variações anormais.\n\nObserve se o ponto vermelho se alinha com o topo da curva.";
     [TextArea(3, 5)] private string txtHelpRetinal = "ANÁLISE RETINAL:\n\nBaseada na Distribuição Binomial.\n\nDetecta micro-movimentos oculares involuntários.\n\nHumanos: 7 a 10 movimentos (Alta frequência).\n\nImpostores: 0 a 4 movimentos (Olhar fixo/morto).";
@@ -77,7 +77,6 @@ public class DE3000Manager : MonoBehaviour
     {
         Instance = this;
 
-        // Configura quem será animado (O Pai/Background é a prioridade)
         if (de3000Background)
         {
             animationRect = de3000Background.GetComponent<RectTransform>();
@@ -89,14 +88,12 @@ public class DE3000Manager : MonoBehaviour
             if (animationRect) targetY = animationRect.anchoredPosition.y;
         }
 
-        // Estado Inicial da UI de Ajuda
         if (helpContainer) helpContainer.SetActive(false);
         if (helpCanvasGroup) helpCanvasGroup.alpha = 0;
     }
 
     void Start()
     {
-        // Posiciona fora da tela imediatamente
         if (animationRect)
         {
             Vector2 pos = animationRect.anchoredPosition;
@@ -104,62 +101,51 @@ public class DE3000Manager : MonoBehaviour
             animationRect.anchoredPosition = pos;
         }
 
-        // --- CORREÇÃO DO BUG ---
-        // Removida a linha que desligava o objeto no Start.
-        // O estado inicial (inativo) deve ser definido no Inspector ou pelo PeepholeManager.
-
         batteryLevel = 100f;
     }
 
-    // --- ATIVAÇÃO DO APARELHO ---
+    // --- ATIVAÇÃO ---
 
     public void ActivateDevice(VisitorProfile profile, bool isHuman)
     {
         activeProfile = profile;
         activeIsHuman = isHuman;
 
-        // 1. Calcula Dificuldade (Camuflagem) baseada no dia
         if (DayCycleManager.Instance != null) currentDayIndex = DayCycleManager.Instance.GetCurrentDayIndex();
         else currentDayIndex = 0;
 
-        mimicFactor = Mathf.Clamp01(currentDayIndex / 4f); // Dia 1=0.0 ... Dia 5=1.0
-        Debug.Log($"[DE3000] Ativado. Mimic Factor: {mimicFactor:F2}");
+        mimicFactor = Mathf.Clamp01(currentDayIndex / 4f);
 
-        // 2. Reseta Dados
         pGlobal = 50f;
         deltaThermal = 0; deltaRetinal = 0; deltaNeural = 0;
 
-        // 3. Reseta Gráficos
         CleanChart(thermalChart);
         CleanChart(retinalChart);
         CleanChart(neuralChart);
         CleanChart(historyChart);
 
-        // 4. Reseta UI e Ajuda
         UpdateBatteryUI();
         UpdateGlobalProbUI();
         SwitchMode(ScanMode.Idle);
+
         isHelpOpen = false;
         if (helpContainer) helpContainer.SetActive(false);
 
-        // 5. Liga Objetos e Anima Entrada
         if (de3000Background) de3000Background.SetActive(true);
         if (de3000Panel) de3000Panel.SetActive(true);
 
         if (animationRect)
         {
-            animationRect.DOKill(); // Para animações anteriores
+            animationRect.DOKill();
             Vector2 pos = animationRect.anchoredPosition;
             pos.y = offScreenY;
             animationRect.anchoredPosition = pos;
-
             animationRect.DOAnchorPosY(targetY, 1.2f).SetEase(Ease.OutBack);
         }
     }
 
     public void DeactivateDevice()
     {
-        // Anima Saída
         if (animationRect)
         {
             animationRect.DOAnchorPosY(offScreenY, 0.4f)
@@ -181,7 +167,6 @@ public class DE3000Manager : MonoBehaviour
 
     public void ForceClose()
     {
-        // Fecha instantaneamente (usado para evitar bugs de sobreposição de texto)
         if (animationRect)
         {
             animationRect.DOKill();
@@ -198,12 +183,11 @@ public class DE3000Manager : MonoBehaviour
         if (de3000Background) de3000Background.SetActive(false);
     }
 
-    // --- SISTEMA DE AJUDA (SEM TÍTULO) ---
+    // --- AJUDA ---
 
     public void OnClick_Help()
     {
         if (isScanning) return;
-
         if (isHelpOpen) CloseHelp();
         else OpenHelp();
     }
@@ -211,11 +195,9 @@ public class DE3000Manager : MonoBehaviour
     private void OpenHelp()
     {
         if (!helpContainer || !helpCanvasGroup) return;
-
         isHelpOpen = true;
         helpContainer.SetActive(true);
         UpdateHelpText(currentMode);
-
         helpCanvasGroup.alpha = 0;
         helpCanvasGroup.DOFade(1, 0.3f);
         helpContainer.transform.localScale = Vector3.one * 0.9f;
@@ -225,74 +207,42 @@ public class DE3000Manager : MonoBehaviour
     private void CloseHelp()
     {
         if (!helpContainer || !helpCanvasGroup) return;
-
         isHelpOpen = false;
-        helpCanvasGroup.DOFade(0, 0.2f).OnComplete(() =>
-        {
-            helpContainer.SetActive(false);
-        });
+        helpCanvasGroup.DOFade(0, 0.2f).OnComplete(() => { helpContainer.SetActive(false); });
     }
 
     private void UpdateHelpText(ScanMode mode)
     {
-        // --- MUDANÇA: Não checamos mais helpTitleText ---
         if (!helpBodyText) return;
         if (helpScrollRect) helpScrollRect.verticalNormalizedPosition = 1f;
 
         switch (mode)
         {
-            case ScanMode.Idle:
-                helpBodyText.text = txtHelpIdle;
-                break;
-            case ScanMode.Thermal:
-                helpBodyText.text = txtHelpThermal;
-                break;
-            case ScanMode.Retinal:
-                helpBodyText.text = txtHelpRetinal;
-                break;
-            case ScanMode.Neural:
-                helpBodyText.text = txtHelpNeural;
-                break;
-            case ScanMode.History:
-                helpBodyText.text = txtHelpHistory;
-                break;
+            case ScanMode.Idle: helpBodyText.text = txtHelpIdle; break;
+            case ScanMode.Thermal: helpBodyText.text = txtHelpThermal; break;
+            case ScanMode.Retinal: helpBodyText.text = txtHelpRetinal; break;
+            case ScanMode.Neural: helpBodyText.text = txtHelpNeural; break;
+            case ScanMode.History: helpBodyText.text = txtHelpHistory; break;
         }
     }
 
-    // --- BOTÕES DE CONTROLE ---
+    // --- CONTROLES ---
 
     public void OnClick_ModeThermal()
     {
-        if (!isScanning)
-        {
-            SwitchMode(ScanMode.Thermal);
-            if (isHelpOpen) UpdateHelpText(ScanMode.Thermal);
-        }
+        if (!isScanning) { SwitchMode(ScanMode.Thermal); if (isHelpOpen) UpdateHelpText(ScanMode.Thermal); }
     }
     public void OnClick_ModeRetinal()
     {
-        if (!isScanning)
-        {
-            SwitchMode(ScanMode.Retinal);
-            if (isHelpOpen) UpdateHelpText(ScanMode.Retinal);
-        }
+        if (!isScanning) { SwitchMode(ScanMode.Retinal); if (isHelpOpen) UpdateHelpText(ScanMode.Retinal); }
     }
     public void OnClick_ModeNeural()
     {
-        if (!isScanning)
-        {
-            SwitchMode(ScanMode.Neural);
-            if (isHelpOpen) UpdateHelpText(ScanMode.Neural);
-        }
+        if (!isScanning) { SwitchMode(ScanMode.Neural); if (isHelpOpen) UpdateHelpText(ScanMode.Neural); }
     }
     public void OnClick_GraphHistory()
     {
-        if (!isScanning)
-        {
-            SwitchMode(ScanMode.History);
-            UpdateHistoryChart();
-            if (isHelpOpen) UpdateHelpText(ScanMode.History);
-        }
+        if (!isScanning) { SwitchMode(ScanMode.History); UpdateHistoryChart(); if (isHelpOpen) UpdateHelpText(ScanMode.History); }
     }
 
     public void OnClick_Back()
@@ -315,7 +265,7 @@ public class DE3000Manager : MonoBehaviour
         StartCoroutine(ScanRoutine());
     }
 
-    // --- LÓGICA CENTRAL ---
+    // --- LÓGICA PRINCIPAL ---
 
     private void SwitchMode(ScanMode mode)
     {
@@ -326,7 +276,17 @@ public class DE3000Manager : MonoBehaviour
         if (neuralChart) neuralChart.gameObject.SetActive(false);
         if (historyChart) historyChart.gameObject.SetActive(false);
 
-        if (statusText) statusText.text = "PRONTO";
+        // --- CÁLCULO E EXIBIÇÃO DO CUSTO DE BATERIA ---
+        float cost = GetScanCost();
+        string statusMessage = "PRONTO";
+
+        // Se houver custo, mostra na tela (ex: "PRONTO (-5%)")
+        if (cost > 0)
+        {
+            statusMessage = $"PRONTO (-{cost:F0}%) de Bateria";
+        }
+
+        if (statusText) statusText.text = statusMessage;
 
         switch (mode)
         {
@@ -349,6 +309,8 @@ public class DE3000Manager : MonoBehaviour
             case ScanMode.History:
                 if (historyChart) historyChart.gameObject.SetActive(true);
                 if (modeText) modeText.text = "HISTÓRICO";
+                // Histórico não tem custo, removemos o texto de custo
+                if (statusText) statusText.text = "VISUALIZANDO";
                 break;
         }
     }
@@ -403,16 +365,12 @@ public class DE3000Manager : MonoBehaviour
         isScanning = false;
     }
 
-    // --- IMPLEMENTAÇÃO DOS MODOS DE SCAN (BLINDADOS) ---
+    // --- MODOS DE SCAN ---
 
     private float PerformThermalScan()
     {
         float reading;
-
-        if (activeIsHuman)
-        {
-            reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
-        }
+        if (activeIsHuman) reading = StatisticalUtils.RandomNormal(activeProfile.meanTemp, activeProfile.tempStdDev);
         else
         {
             float baseTemp = Mathf.Lerp(32.0f, 36.0f, mimicFactor);
@@ -422,35 +380,22 @@ public class DE3000Manager : MonoBehaviour
         if (thermalChart != null)
         {
             thermalChart.RemoveAllSerie();
-
             var lineSerie = thermalChart.AddSerie<Line>("Referencia");
-            lineSerie.symbol.show = false;
-            lineSerie.lineStyle.width = 2f;
-
+            lineSerie.symbol.show = false; lineSerie.lineStyle.width = 2f;
             var pointSerie = thermalChart.AddSerie<Scatter>("Leitura");
-            pointSerie.symbol.size = 8f;
-            pointSerie.symbol.type = SymbolType.Circle;
-            pointSerie.itemStyle.color = Color.red;
+            pointSerie.symbol.size = 8f; pointSerie.symbol.type = SymbolType.Circle; pointSerie.itemStyle.color = Color.red;
 
             thermalChart.ClearData();
-
-            for (float i = 32f; i <= 41f; i += 0.1f)
-            {
-                float y = StatisticalUtils.NormalPDF(i, 36.5f, 0.5f);
-                thermalChart.AddData(0, i, y);
-            }
-
+            for (float i = 32f; i <= 41f; i += 0.1f) thermalChart.AddData(0, i, StatisticalUtils.NormalPDF(i, 36.5f, 0.5f));
             float readingY = StatisticalUtils.NormalPDF(reading, 36.5f, 0.5f);
             thermalChart.AddData(1, reading, readingY);
         }
-
         return StatisticalUtils.CalculateThermalDelta(reading);
     }
 
     private float PerformRetinalScan()
     {
         int successes = 0;
-
         if (activeIsHuman)
         {
             float p = activeProfile.retinalProbability;
@@ -465,15 +410,11 @@ public class DE3000Manager : MonoBehaviour
         if (retinalChart != null)
         {
             retinalChart.RemoveAllSerie();
-
             var barSerie = retinalChart.AddSerie<Bar>("Acertos");
-            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f);
-            barSerie.barWidth = 40f;
-
+            barSerie.itemStyle.color = new Color(0f, 1f, 0f, 0.7f); barSerie.barWidth = 40f;
             retinalChart.ClearData();
             retinalChart.AddData(0, 0, successes);
         }
-
         return StatisticalUtils.CalculateRetinalDelta(successes);
     }
 
@@ -485,12 +426,9 @@ public class DE3000Manager : MonoBehaviour
 
         if (activeIsHuman)
         {
-            pattern[0] = Random.Range(0.1f, 0.3f);
-            pattern[1] = Random.Range(0.7f, 0.9f);
-            pattern[2] = Random.Range(0.5f, 0.7f);
-            pattern[3] = Random.Range(0.2f, 0.4f);
-            pattern[4] = Random.Range(0.6f, 0.8f);
-            isHumanPattern = true;
+            pattern[0] = Random.Range(0.1f, 0.3f); pattern[1] = Random.Range(0.7f, 0.9f);
+            pattern[2] = Random.Range(0.5f, 0.7f); pattern[3] = Random.Range(0.2f, 0.4f);
+            pattern[4] = Random.Range(0.6f, 0.8f); isHumanPattern = true;
         }
         else
         {
@@ -512,41 +450,26 @@ public class DE3000Manager : MonoBehaviour
 
         if (neuralChart != null)
         {
-            neuralChart.RemoveAllSerie();
-            neuralChart.ClearData();
-
+            neuralChart.RemoveAllSerie(); neuralChart.ClearData();
             var xAxis = neuralChart.EnsureChartComponent<XAxis>();
             if (xAxis != null)
             {
-                xAxis.type = Axis.AxisType.Category;
-                xAxis.data.Clear();
+                xAxis.type = Axis.AxisType.Category; xAxis.data.Clear();
                 xAxis.data.Add("5Hz"); xAxis.data.Add("10Hz"); xAxis.data.Add("15Hz"); xAxis.data.Add("20Hz"); xAxis.data.Add("25Hz");
-                xAxis.axisLabel.show = true;
-                xAxis.axisLabel.interval = 0;
-                xAxis.axisLabel.textStyle.color = Color.white;
+                xAxis.axisLabel.show = true; xAxis.axisLabel.interval = 0; xAxis.axisLabel.textStyle.color = Color.white;
             }
-
             var barSerie = neuralChart.AddSerie<Bar>("Frequencias");
             barSerie.itemStyle.color = new Color(0.5f, 0f, 1f, 0.8f);
-
-            for (int i = 0; i < 5; i++)
-            {
-                neuralChart.AddData(0, i, pattern[i]);
-            }
-
+            for (int i = 0; i < 5; i++) neuralChart.AddData(0, i, pattern[i]);
             neuralChart.RefreshChart();
         }
-
         return StatisticalUtils.CalculateNeuralDelta(flatline, isHumanPattern);
     }
 
     private void UpdateHistoryChart()
     {
         if (historyChart == null) return;
-
-        historyChart.RemoveAllSerie();
-        historyChart.ClearData();
-
+        historyChart.RemoveAllSerie(); historyChart.ClearData();
         var xAxis = historyChart.EnsureChartComponent<XAxis>();
         var yAxis = historyChart.EnsureChartComponent<YAxis>();
 
@@ -555,33 +478,20 @@ public class DE3000Manager : MonoBehaviour
             xAxis.type = Axis.AxisType.Category;
             if (xAxis.data != null)
             {
-                xAxis.data.Clear();
-                xAxis.data.Add("Térmica"); xAxis.data.Add("Retina"); xAxis.data.Add("Neural");
+                xAxis.data.Clear(); xAxis.data.Add("Térmica"); xAxis.data.Add("Retina"); xAxis.data.Add("Neural");
                 xAxis.axisLabel.textStyle.color = Color.white;
             }
             yAxis.type = Axis.AxisType.Value;
-
             var barSerie = historyChart.AddSerie<Bar>("Historico");
             if (barSerie != null)
             {
                 barSerie.itemStyle.color = new Color(1f, 0.8f, 0f, 0.8f);
-                if (barSerie.label != null)
-                {
-                    barSerie.label.show = true;
-                    barSerie.label.position = LabelStyle.Position.Top;
-                    barSerie.label.textStyle.color = Color.white;
-                }
-
-                historyChart.AddData(0, deltaThermal);
-                historyChart.AddData(0, deltaRetinal);
-                historyChart.AddData(0, deltaNeural);
-
+                if (barSerie.label != null) { barSerie.label.show = true; barSerie.label.position = LabelStyle.Position.Top; barSerie.label.textStyle.color = Color.white; }
+                historyChart.AddData(0, deltaThermal); historyChart.AddData(0, deltaRetinal); historyChart.AddData(0, deltaNeural);
                 historyChart.RefreshChart();
             }
         }
     }
-
-    // --- MÉTODOS AUXILIARES ---
 
     private void UpdateBatteryUI()
     {
@@ -599,8 +509,5 @@ public class DE3000Manager : MonoBehaviour
         }
     }
 
-    private void CleanChart(BaseChart chart)
-    {
-        if (chart != null) { chart.RemoveAllSerie(); chart.ClearData(); }
-    }
+    private void CleanChart(BaseChart chart) { if (chart != null) { chart.RemoveAllSerie(); chart.ClearData(); } }
 }
