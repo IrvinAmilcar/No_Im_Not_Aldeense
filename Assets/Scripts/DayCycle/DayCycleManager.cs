@@ -9,15 +9,19 @@ public class DayCycleManager : MonoBehaviour
     public static DayCycleManager Instance { get; private set; }
     public static event System.Action<int> OnDayStarted;
 
-    // Estruturas de Dados (Mantidas iguais)
     [System.Serializable] public struct WindowDayConfig { public string windowID; [TextArea(3, 5)] public string[] dialogue; }
+
     [System.Serializable]
     public struct DayConfig
     {
         public string dayName;
         public List<VisitorProfile> visitorsForThisDay;
         public DayMusicSetup musicSetup;
-        [TextArea] public string wakeUpMessage;
+
+        [Header("Mensagens de Início (Sequência)")]
+        [Tooltip("Lista de frases que aparecerão uma por uma no início do dia.")]
+        [TextArea(2, 4)] public string[] wakeUpMessages; // --- MUDANÇA: Agora é uma lista (Array) ---
+
         [TextArea(3, 5)] public string[] radioDialogue;
         public WindowDayConfig[] windowDialogues;
     }
@@ -40,8 +44,6 @@ public class DayCycleManager : MonoBehaviour
     private int visitorsProcessedToday = 0;
 
     public bool IsVisitorWaiting { get; private set; } = false;
-
-    // --- NOVO: Estado de Game Over (Trava a porta do quarto) ---
     public bool IsGameOver { get; private set; } = false;
 
     void Awake()
@@ -50,11 +52,16 @@ public class DayCycleManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start() { StartDay(0); }
+    void Start()
+    {
+        // Inicia o Dia 1
+        StartDay(0);
+        // Inicia a sequência de mensagens do Dia 1
+        StartCoroutine(DayStartSequence());
+    }
 
     private void StartDay(int dayIndex)
     {
-        // Se o gerador já quebrou durante a noite, para tudo.
         if (GeneratorManager.Instance != null && GeneratorManager.Instance.IsBroken) return;
 
         currentDayIndex = dayIndex;
@@ -98,6 +105,49 @@ public class DayCycleManager : MonoBehaviour
         }
 
         OnDayStarted?.Invoke(currentDayIndex);
+
+        // NOTA: Removemos o agendamento imediato aqui. 
+        // Agora ele acontece APÓS as mensagens terminarem, no DayStartSequence.
+    }
+
+    // --- SEQUÊNCIA DE MENSAGENS (PARCELADA) ---
+    private IEnumerator DayStartSequence()
+    {
+        if (currentDayIndex >= allDays.Length) yield break;
+
+        DayConfig config = allDays[currentDayIndex];
+
+        // Se houver mensagens na lista
+        if (config.wakeUpMessages != null && config.wakeUpMessages.Length > 0)
+        {
+            // Pequeno delay inicial para o fade da câmera terminar
+            yield return new WaitForSeconds(1.0f);
+
+            // Loop por cada frase da lista
+            foreach (string message in config.wakeUpMessages)
+            {
+                if (string.IsNullOrWhiteSpace(message)) continue;
+
+                // Calcula tempo de leitura (Mínimo 3s + tempo pelo tamanho do texto)
+                float msgDuration = Mathf.Max(3.0f, 2.0f + (message.Length * 0.06f));
+
+                // Exibe a frase
+                if (DialogManager.Instance != null)
+                    DialogManager.Instance.ShowMessage(message, msgDuration);
+
+                // Espera a mensagem sumir + um pequeno respiro antes da próxima
+                // (msgDuration é o tempo que ela fica na tela, + 1.0s para o fade out e silêncio)
+                yield return new WaitForSeconds(msgDuration + 1.0f);
+            }
+        }
+        else
+        {
+            // Se não tiver mensagem, só espera um pouco
+            yield return new WaitForSeconds(1.5f);
+        }
+
+        // SÓ AGORA os visitantes começam a chegar
+        Debug.Log($"[Dia {currentDayIndex + 1}] Mensagens finalizadas. Iniciando fila de visitantes.");
         StartCoroutine(ScheduleNextVisitor());
     }
 
@@ -112,7 +162,6 @@ public class DayCycleManager : MonoBehaviour
         float delay = Random.Range(minArrivalDelay, maxArrivalDelay);
         yield return new WaitForSeconds(delay);
 
-        // Verificação extra: Se deu Game Over durante o delay, cancela
         if (IsGameOver) yield break;
 
         IsVisitorWaiting = true;
@@ -138,7 +187,6 @@ public class DayCycleManager : MonoBehaviour
 
     public void RegisterVisitorProcessed()
     {
-        // Se estiver em Game Over, não processa mais nada normal
         if (IsGameOver) return;
 
         if (dailyQueue.Count > 0) dailyQueue.Dequeue();
@@ -157,23 +205,15 @@ public class DayCycleManager : MonoBehaviour
         }
     }
 
-    // --- MÉTODO DE GAME OVER (Chamado pelo GeneratorManager) ---
     public void TriggerGameOverEvent(VisitorProfile paleMan)
     {
         Debug.Log("DAYCYCLE: Modo Game Over Ativado.");
-
-        // 1. Para tudo que estava acontecendo
         StopAllCoroutines();
-
-        // 2. Limpa a fila e injeta o Homem Pálido
         dailyQueue.Clear();
         dailyQueue.Enqueue(paleMan);
+        IsGameOver = true;
+        IsVisitorWaiting = true;
 
-        // 3. Define estados
-        IsGameOver = true; // Bloqueia quarto
-        IsVisitorWaiting = true; // Libera porta da frente
-
-        // 4. Toca som de batida (Lento/Ameaçador se tiver no perfil)
         if (GameAudioManager.Instance != null)
         {
             AudioClip sound = paleMan.specificKnockSound != null ? paleMan.specificKnockSound : knockingSound;
@@ -193,17 +233,14 @@ public class DayCycleManager : MonoBehaviour
 
         if (GeneratorManager.Instance != null) GeneratorManager.Instance.TransitionToNextDay();
 
-        // Se o gerador quebrar na transição, o GeneratorManager vai iniciar a sequencia
-        // e o StartDay vai ser abortado pelo check "if (IsBroken)".
         StartDay(currentDayIndex);
 
         if (CameraFader.Instance != null) yield return StartCoroutine(CameraFader.Instance.Fade(0f, 2f));
 
+        // Inicia a Sequência de Mensagens do novo dia
         if (currentDayIndex < allDays.Length && !IsGameOver)
         {
-            string msg = allDays[currentDayIndex].wakeUpMessage;
-            if (!string.IsNullOrEmpty(msg) && DialogManager.Instance != null)
-                DialogManager.Instance.ShowMessage(msg, 4f);
+            yield return StartCoroutine(DayStartSequence());
         }
     }
 
