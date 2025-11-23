@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Controla a visibilidade e interatividade de um objeto com base no dia atual do jogo.
+/// Controla a visibilidade, interatividade e iluminação de um objeto com base no dia atual do jogo.
 /// O script deve estar em um GameObject que PERMANECE ATIVO (no Inspector) para que possa
 /// receber o evento de mudança de dia.
 /// </summary>
@@ -12,16 +12,18 @@ public class DayObjectVisibility : MonoBehaviour
     [Tooltip("Índices dos dias em que este objeto DEVE estar ativo (0 = Dia 1, 1 = Dia 2, 2 = Dia 3, etc.).")]
     public int[] visibleDayIndices = new int[] { 0 }; 
 
-    // Referências para controlar a visibilidade e colisão
+    // Referências para controlar os componentes
     private Renderer[] renderers;
     private Collider[] colliders;
+    private Light[] lights; // NOVO: Referência para componentes de luz
 
     void Awake()
     {
-        // 1. Encontra todos os componentes de Renderer e Collider no objeto e em seus filhos.
+        // 1. Encontra todos os componentes a serem controlados
         // O parâmetro 'true' garante que encontramos os desativados também.
         renderers = GetComponentsInChildren<Renderer>(true);
         colliders = GetComponentsInChildren<Collider>(true);
+        lights = GetComponentsInChildren<Light>(true); // NOVO: Busca Luzes
 
         // Chamada inicial (caso Awake ocorra depois do Start do DayCycleManager)
         if (DayCycleManager.Instance != null)
@@ -32,13 +34,13 @@ public class DayObjectVisibility : MonoBehaviour
 
     void OnEnable()
     {
-        // 2. Assina o evento do DayCycleManager, garantindo que o script sempre receberá a notificação
+        // 2. Assina o evento do DayCycleManager
         DayCycleManager.OnDayStarted += UpdateVisibility;
     }
 
     void OnDisable()
     {
-        // 3. Desassina o evento (boa prática, só é chamado se o objeto for destruído/desativado manualmente)
+        // 3. Desassina o evento
         DayCycleManager.OnDayStarted -= UpdateVisibility;
     }
 
@@ -59,7 +61,7 @@ public class DayObjectVisibility : MonoBehaviour
             }
         }
 
-        // NOVO: Ativa/desativa os componentes de renderização e colisão
+        // NOVO: Ativa/desativa todos os componentes
         SetComponentsActive(shouldBeActive);
     }
 
@@ -74,8 +76,13 @@ public class DayObjectVisibility : MonoBehaviour
         // Controla os Colliders (tornando-o interativo ou não)
         foreach (Collider c in colliders)
         {
-            // Colliders precisam ser controlados para evitar que o jogador interaja com objetos invisíveis
             c.enabled = state;
+        }
+        
+        // NOVO: Controla os Lights (tornando-o ligado ou desligado)
+        foreach (Light l in lights)
+        {
+            l.enabled = state;
         }
     }
 }

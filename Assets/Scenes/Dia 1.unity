@@ -38789,10 +38789,11 @@ MonoBehaviour:
     musicSetup: {fileID: 0}
     wakeUpMessage: 
     radioDialogue:
-    - "Bom dia Pernambuco!!\nNot\xEDcia do dia"
-    - "Um eclipse Imprev\xEDsto assustou os internautas, n\xE3o se sabe quando se
-      encerrar\xE1!"
-    - Por enquanto vamos aproveitar essa maravilha!
+    - '...BOM ...IA
+
+      ..PER...BUCO'
+    - "N\xE3o temos... inform.. acerca\ndo miste...so eclipse"
+    - Por hora.. evitem.. ir.. de casa!!
     windowDialogues:
     - windowID: 1
       dialogue:
@@ -38801,9 +38802,11 @@ MonoBehaviour:
     - windowID: 2
       dialogue:
       - "[Voc\xEA observa a casa de seus vizinhos]"
-      - "Ser\xE1 que eles tamb\xE9m t\xE3o sem energia?"
+      - "Ser\xE1 que a energia caiu s\xF3 aqui? ou ser\xE1 que eles tamb\xE9m tem
+        um gerador.."
     - windowID: 3
       dialogue:
+      - "[Voc\xEA sente como se alguem estivesse olhando pra voc\xEA]"
       - Nada pra ver aqui..
   - dayName: Dia 2
     visitorsForThisDay:
@@ -38813,17 +38816,26 @@ MonoBehaviour:
     musicSetup: {fileID: 0}
     wakeUpMessage: 
     radioDialogue:
-    - 'testando
-
-      ola oala oal'
+    - Alou.. ALO!
+    - "Consegue me ouvir?? \n\xC9 irvin, consegui chegar em casa!"
+    - 'Meu gerador aqui segue firme, '
+    - "To dando uma olhada nas redondezas, muita coisa esquisita por ai, cuidado
+      com quem voc\xEA deixa entrar!"
     windowDialogues:
     - windowID: 1
       dialogue:
-      - "N\xE3o gosto de olhar essa janela"
-    - windowID: 
-      dialogue: []
-    - windowID: 
-      dialogue: []
+      - "[Voc\xEA entra em choque ao ver uma pessoa sendo chutada na rua]"
+      - Oxi, oque que ta acontecendo??
+      - "[Pensamentos invadem sua cabe\xE7a]"
+      - "Isso s\xF3 pode ser um pesadelo.."
+    - windowID: 2
+      dialogue:
+      - "[Voc\xEA nota uma fam\xEDlia de capivaras andando pelas matas de aldeia]"
+      - Pelo menos algo segue normal...
+    - windowID: 3
+      dialogue:
+      - "[Voc\xEA nota o mesmo homem p\xE1lido de mais cedo te observado de longe]"
+      - Melhor eu sair logo daqui...
   - dayName: Dia 3
     visitorsForThisDay:
     - {fileID: 11400000, guid: 012d6d7c7ba420149ab215b087e8ad58, type: 2}
@@ -38832,8 +38844,25 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 9a10c9369ac9b5c42abca902ace79557, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
-    radioDialogue: []
-    windowDialogues: []
+    radioDialogue:
+    - Cara.. acho que o gerador da casa de marcos pifou...
+    - Ele apareceu por ai??
+    - Espero que ele esteja bem.. pelo menos tais com o DE3000.
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - "[Voc\xEA nota o carro do vizinho batido na arvore e se pergunta]"
+      - "Como ser\xE1 que eles est\xE3o?? Espero que tenham escapado.."
+    - windowID: 2
+      dialogue:
+      - "[Voc\xEA nota a casa de marcos submersa em um breu]"
+      - Me pergunto se o ele vai conseguir escapar dessa..
+    - windowID: 3
+      dialogue:
+      - "[O mesmo visitante de ontem est\xE1 mais perto]"
+      - "[Ele aparenta segurar algo redondo em suas m\xE3os]"
+      - "Espero que isso n\xE3o seja oque estou pensando que \xE9..."
+      - "[Voc\xEA se sente mais ansioso quanto ao futuro]"
   - dayName: Dia 4
     visitorsForThisDay:
     - {fileID: 11400000, guid: 11bde083202a76f45a4bc25493ff6b5c, type: 2}
@@ -38841,16 +38870,57 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 7154222a5ad671247a1129b4bd352963, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
-    radioDialogue: []
-    windowDialogues: []
+    radioDialogue:
+    - "Ei.. con..gue me escu..\nDRO.. DE R\xC1D... VELHO!"
+    - Minha gas..ina ta acaband...
+    - '.... ..  ....
+
+      ..  ....'
+    - "Antes de acab... vou tentar voltar..\nA\xED"
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - "[Voc\xEA nota que o carro dos vizinhos segue l\xE1]"
+      - "[Voc\xEA sente um desconforto na garganta e os ombros cada vez mais tensos]"
+    - windowID: 2
+      dialogue:
+      - "[Voc\xEA nota um grupo em volta da casa de marcos]"
+      - "[Voc\xEA perde quaisqueres esperan\xE7as em ver marcos de novo]"
+      - "Espero que eles n\xE3o venham pra c\xE1.."
+      - "N\xE3o tenho muni\xE7\xE3o pra lidar com todos."
+    - windowID: 3
+      dialogue:
+      - "[Voc\xEA sente uma anguistiante afli\xE7\xE3o enquanto olha para o visitante
+        a poucos metros de voc\xEA]"
+      - Melhor eu sair logo daqui...
   - dayName: Dia 5
     visitorsForThisDay:
     - {fileID: 11400000, guid: 4ba25446f3cebc746a121562ba327e7f, type: 2}
     - {fileID: 11400000, guid: 4aa9a484f90eda04b83e701fa2c5f35a, type: 2}
     musicSetup: {fileID: 0}
     wakeUpMessage: 
-    radioDialogue: []
-    windowDialogues: []
+    radioDialogue:
+    - 'shhh... shhhhhh
+
+
+      shhhh...'
+    - "[Voc\xEA nota no meio do shiado o som de uma risada sinistra]"
+    windowDialogues:
+    - windowID: 1
+      dialogue:
+      - "[Voc\xEA nota que o carro simplesmente desapareceu]"
+      - "N\xE3o me lembro de ouvir o barulho do motor, oque que t\xE1 acontecendo!!"
+    - windowID: 2
+      dialogue:
+      - "[Voc\xEA percebe as casas de seus vizinhos completamente apagadas e sem
+        vida]"
+      - "[Afli\xE7\xE3o, desespero, ansiedade, milh\xF5es de pensamentos invadem
+        sua cabe\xE7a]"
+      - Queria poder simplesmente acordar..
+    - windowID: 3
+      dialogue:
+      - "[Voc\xEA nota que o visitante p\xE1lido sumiu]"
+      - "Ta a\xED uma coisa que n\xE3o vou sentir falta!"
   knockingSound: {fileID: 0}
   minArrivalDelay: 2
   maxArrivalDelay: 5
@@ -121031,7 +121101,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 620801461}
   m_HandleRect: {fileID: 620801460}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -169613,6 +169683,7 @@ GameObject:
   - component: {fileID: 1850413957}
   - component: {fileID: 1850413956}
   - component: {fileID: 1850413955}
+  - component: {fileID: 1850413958}
   m_Layer: 0
   m_Name: Point Light (3)
   m_TagString: Untagged
@@ -169729,6 +169800,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1850413958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850413954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 212c9516611edb145bfd66cbdb53b908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayObjectVisibility
+  visibleDayIndices: 0000000002000000
 --- !u!4 &1851181903 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 492809423632337723, guid: 365f1ceb594617c4e9a4197a9778235e,
