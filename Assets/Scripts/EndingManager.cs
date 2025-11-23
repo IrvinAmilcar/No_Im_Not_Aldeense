@@ -9,6 +9,13 @@ public class EndingManager : MonoBehaviour
 {
     public static EndingManager Instance { get; private set; }
 
+    [Header("--- ARRASTE SEUS CONTROLES AQUI ---")]
+    [Tooltip("Arraste aqui o SCRIPT PRINCIPAL que faz o jogador andar (ex: FirstPersonController).")]
+    public MonoBehaviour playerMovementScript;
+
+    [Tooltip("Arraste aqui o objeto que tem o script 'PlayerInteraction'.")]
+    public PlayerInteraction playerInteractionScript;
+
     [Header("Referências UI e Cena")]
     public CanvasGroup blackScreenCanvasGroup;
     public TextMeshProUGUI cinematicText;
@@ -34,10 +41,10 @@ public class EndingManager : MonoBehaviour
         public List<EndingStep> sequenceSteps;
     }
 
-    [Header("--- CONFIGURAÇÃO DOS FINAIS ---")]
+    [Header("Configuração dos Finais")]
     public EndingConfig finalA_Porta;
     public EndingConfig finalB_Arma;
-    public EndingConfig finalC_GameOver; // --- NOVO: Final C ---
+    public EndingConfig finalC_GameOver;
 
     [Header("Estado do Jogo")]
     public bool isGunUnlocked = false;
@@ -55,38 +62,26 @@ public class EndingManager : MonoBehaviour
         if (cinematicText != null) cinematicText.text = "";
     }
 
-    // --- GATILHOS PÚBLICOS ---
+    // --- GATILHOS ---
+    public void TriggerBadEnding_OpenDoor() { StartCoroutine(PlayEndingSequence(finalA_Porta)); }
+    public void UnlockGunInteraction() { isGunUnlocked = true; }
+    public void TriggerGunEnding_Shoot() { StartCoroutine(PlayEndingSequence(finalB_Arma)); }
+    public void TriggerGameOver_Blackout() { StartCoroutine(PlayEndingSequence(finalC_GameOver)); }
 
-    public void TriggerBadEnding_OpenDoor()
-    {
-        StartCoroutine(PlayEndingSequence(finalA_Porta));
-    }
-
-    public void UnlockGunInteraction()
-    {
-        isGunUnlocked = true;
-    }
-
-    public void TriggerGunEnding_Shoot()
-    {
-        StartCoroutine(PlayEndingSequence(finalB_Arma));
-    }
-
-    // --- NOVO: GATILHO DO GERADOR ---
-    public void TriggerGameOver_Blackout()
-    {
-        Debug.Log("Iniciando Final C: Game Over (Gerador)");
-        StartCoroutine(PlayEndingSequence(finalC_GameOver));
-    }
-
-    // --- SEQUÊNCIA PRINCIPAL (Igual ao anterior) ---
+    // --- SEQUÊNCIA PRINCIPAL ---
     private IEnumerator PlayEndingSequence(EndingConfig config)
     {
+        // 1. TRAVA TUDO
         PrepareForCutscene();
 
-        blackScreenCanvasGroup.blocksRaycasts = true;
-        yield return FadeCanvas(0, 1, 2.0f);
+        // 2. Tela Preta
+        if (blackScreenCanvasGroup != null)
+        {
+            blackScreenCanvasGroup.blocksRaycasts = true;
+            yield return FadeCanvas(0, 1, 2.0f);
+        }
 
+        // 3. Música
         if (config.backgroundMusic != null && musicSource != null)
         {
             musicSource.clip = config.backgroundMusic;
@@ -96,6 +91,7 @@ public class EndingManager : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
+        // 4. Passos
         foreach (EndingStep step in config.sequenceSteps)
         {
             if (step.audioClip != null && sfxSource != null)
@@ -123,24 +119,51 @@ public class EndingManager : MonoBehaviour
         SceneManager.LoadScene(creditsSceneName);
     }
 
+    // --- MÉTODO DE TRAVAMENTO ---
     private void PrepareForCutscene()
     {
+        // 1. Fecha UI do olho mágico
         if (PeepholeManager.Instance != null)
             PeepholeManager.Instance.ClosePeephole();
 
-        // Desabilita controle de câmera (ajuste o nome do namespace se necessário)
-        var camController = FindObjectOfType<UnityTemplateProjects.SimpleCameraController>();
-        if (camController != null) camController.enabled = false;
+        // 2. DESLIGA MOVIMENTO
+        if (playerMovementScript != null)
+        {
+            playerMovementScript.enabled = false;
+        }
 
+        // 3. DESLIGA INTERAÇÃO
+        if (playerInteractionScript != null)
+        {
+            playerInteractionScript.enabled = false;
+        }
+        else
+        {
+            var interaction = FindObjectOfType<PlayerInteraction>();
+            if (interaction != null) interaction.enabled = false;
+        }
+
+        // 4. TRAVA O MOUSE
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
+        // 5. PARA MÚSICA GLOBAL E BATIDAS
         if (GameAudioManager.Instance != null)
         {
-            // Para todos os sons, inclusive a batida na porta
             GameAudioManager.Instance.StopKnocking();
-            // O resto da lógica de parar sons...
+            GameAudioManager.Instance.StopMainMusic();
         }
+
+        // 6. SILENCIA O RÁDIO (REINSERIDO)
+        // Procura o rádio na cena automaticamente e manda calar a boca
+        var radio = FindObjectOfType<RadioInteraction>();
+        if (radio != null)
+        {
+            radio.ForceSilenceRadio();
+        }
+
+        // 7. Silencia Gerador
+        if (GeneratorManager.Instance != null) GeneratorManager.Instance.RemoveEnergy(0);
     }
 
     private IEnumerator FadeCanvas(float start, float end, float duration)

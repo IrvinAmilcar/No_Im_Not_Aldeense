@@ -25,7 +25,7 @@ public class CinematicManager : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip newsTheme;
 
-    // --- DIÁLOGOS LIMPOS (Sem Vinicius, Sem acumular) ---
+    // Diálogos
     private string[] dialogueLines = new string[]
     {
         "...e essa foi a cobertura das chuvas no Agreste.",
@@ -76,38 +76,40 @@ public class CinematicManager : MonoBehaviour
 
         // --- FASE 2: CORTE PARA O REPÓRTER ---
 
-        // Revela o repórter
+        // Revela o repórter (Esconde a tela de vídeo)
         if (introScreenObject != null) introScreenObject.SetActive(false);
 
-        // Música
+        // MÚSICA EM LOOP
         if (audioSource != null && newsTheme != null)
         {
             audioSource.clip = newsTheme;
+            audioSource.loop = true; // <--- LINHA ADICIONADA: Ativa o Loop infinito
             audioSource.Play();
         }
 
         yield return new WaitForSeconds(0.5f);
 
-        // --- LOOP DE DIÁLOGO (SOBRESCREVENDO) ---
+        // --- LOOP DE DIÁLOGO ---
         foreach (string line in dialogueLines)
         {
-            // 1. Limpa o texto anterior para o novo começar do zero
             reporterTextBlock.text = "";
 
-            // 2. Digita a nova linha (DOTween Pro)
-            // Como o texto começa vazio, ele vai digitar a frase inteira
             yield return reporterTextBlock.DOText(line, typingSpeed)
                 .SetSpeedBased()
                 .SetEase(Ease.Linear)
                 .WaitForCompletion();
 
-            // 3. Tempo de leitura (ajuste aqui se achar rápido/lento demais)
             yield return new WaitForSeconds(2.0f);
         }
 
         // --- FASE 3: FINAL ---
         yield return new WaitForSeconds(1f);
+
+        // Para a música antes de sair
+        if (audioSource != null) audioSource.Stop();
+
         if (tvContainer != null) tvContainer.DOShakeAnchorPos(0.5f, 30f, 50, 90, false, true);
+
         yield return new WaitForSeconds(1f);
 
         DOTween.KillAll();

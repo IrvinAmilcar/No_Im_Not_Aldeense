@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VisitorProfile
   characterName: Vinicius
   characterSprite: {fileID: 21300000, guid: a1198a2b71ee1874ea177fc9373d2fa7, type: 3}
+  specificKnockSound: {fileID: 8300000, guid: ed35dbc991bfe75468c3dccb49d954a0, type: 3}
   startNodeID: Vinicius-Conversa1
   humanityType: 0
   isScannable: 1

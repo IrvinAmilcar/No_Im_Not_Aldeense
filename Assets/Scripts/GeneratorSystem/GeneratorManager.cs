@@ -127,4 +127,12 @@ public class GeneratorManager : MonoBehaviour
     {
         return CurrentEnergy;
     }
+
+    public void ForceSilenceGenerator()
+    {
+        if (generatorAudioSource != null)
+        {
+            generatorAudioSource.Stop();
+        }
+    }
 }

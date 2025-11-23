@@ -174,4 +174,15 @@ public class RadioInteraction : MonoBehaviour, IInteractable
         isInteracting = false;
         StartAudioLoop(attentionClip);
     }
+
+    public void ForceSilenceRadio()
+    {
+        if (audioSource != null)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+        }
+        // Desativa este script para impedir interação
+        this.enabled = false;
+    }
 }
