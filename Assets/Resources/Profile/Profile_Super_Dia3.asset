@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: Homem Palido
   characterSprite: {fileID: 1991766728, guid: 020a6e5f5f4a5a142a988342d0dcc739, type: 3}
   specificKnockSound: {fileID: 8300000, guid: 2734ca48491576a489a20af4559777fb, type: 3}
+  specialEncounterMusic: {fileID: 8300000, guid: 9a65968f370c51641925abb583cb5c07,
+    type: 3}
   startNodeID: HomemPalido2-OlhoMagico
   humanityType: 2
   isScannable: 0

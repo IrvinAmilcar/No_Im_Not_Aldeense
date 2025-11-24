@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using DialogSystem; // Necessário para mostrar mensagens na tela
+using DialogSystem;
 
 public class PeepholeManager : MonoBehaviour
 {
@@ -20,13 +20,10 @@ public class PeepholeManager : MonoBehaviour
     public GameObject dialogueUIContainer;
     public DE3000Manager de3000Manager;
 
-    [Header("Configuração de Gameplay (Combustível)")]
-    [Tooltip("Quanto de energia ganha ao deixar um Humano entrar.")]
+    [Header("Configuração de Gameplay")]
     public int energyReward = 15;
-    [Tooltip("Quanto de energia PERDE ao deixar um Impostor entrar.")]
     public int energyPenalty = 30;
 
-    // Estado Interno
     private VisitorProfile currentProfile;
     private DialogueNode currentNode;
     public bool IsCurrentVisitorHuman { get; private set; }
@@ -35,7 +32,6 @@ public class PeepholeManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-
         if (peepholePanel) peepholePanel.SetActive(false);
     }
 
@@ -47,10 +43,15 @@ public class PeepholeManager : MonoBehaviour
         currentProfile = profile;
         IsCurrentVisitorHuman = DetermineHumanity(profile);
 
+        // --- NOVO: TOCA MÚSICA ESPECÍFICA DO VISITANTE (Se houver) ---
+        if (profile.specialEncounterMusic != null && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.PlayVisitorMusic(profile.specialEncounterMusic);
+        }
+
         peepholePanel.SetActive(true);
         if (dialogueUIContainer) dialogueUIContainer.SetActive(true);
 
-        // Garante que o DE3000 esteja fechado visualmente
         if (de3000Manager) de3000Manager.ForceHide();
 
         if (visitorImage)
@@ -252,5 +253,12 @@ public class PeepholeManager : MonoBehaviour
         peepholePanel.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Sempre tenta restaurar a música ao fechar o olho mágico.
+        // O GameAudioManager é inteligente o suficiente para não reiniciar a música se ela já for a correta.
+        if (GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.RestoreDayMusic();
+        }
     }
 }

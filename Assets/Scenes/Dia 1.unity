@@ -39066,7 +39066,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: c4c694806d7eb0d4abfd05f82c12d1a6, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.087
   m_Pitch: 1
@@ -39185,7 +39185,7 @@ MonoBehaviour:
     visitorsForThisDay:
     - {fileID: 11400000, guid: ce509f828d52b2b4bb9c0a68d5554165, type: 2}
     - {fileID: 11400000, guid: 8785f731839b88b44b9ef51aecf8fc70, type: 2}
-    musicSetup: {fileID: 0}
+    musicSetup: {fileID: 11400000, guid: 5bc5ca04596899549a8d7de0286567c8, type: 2}
     wakeUpMessages:
     - Porcaria de TV...
     - Acho que ela pifou
@@ -39216,7 +39216,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 566c9a4ea4da77b41b0ca72caa65ffb4, type: 2}
     - {fileID: 11400000, guid: cbe2d4cbbf9a1ce418a2a2bf0e060538, type: 2}
     - {fileID: 11400000, guid: 5f3e52c1bf49e2b46ab0f316b4544a63, type: 2}
-    musicSetup: {fileID: 0}
+    musicSetup: {fileID: 11400000, guid: 003980057a536dd48970c3adb91c01b6, type: 2}
     wakeUpMessages:
     - "[A manh\xE3 chega, mas a escurid\xE3o permanece.]"
     - '[O gerador continua roncando.]'
@@ -39248,7 +39248,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: ae11cca20056db341b95dfc9fb4e56ea, type: 2}
     - {fileID: 11400000, guid: ab048a67282214444a774343dca92e28, type: 2}
     - {fileID: 11400000, guid: 9a10c9369ac9b5c42abca902ace79557, type: 2}
-    musicSetup: {fileID: 0}
+    musicSetup: {fileID: 11400000, guid: 0cb97b247e7d8c84781166bb9ae59c21, type: 2}
     wakeUpMessages: []
     radioDialogue:
     - Cara.. acho que o gerador da casa de marcos pifou...
@@ -39274,7 +39274,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 11bde083202a76f45a4bc25493ff6b5c, type: 2}
     - {fileID: 11400000, guid: aa7078e7817988346b05be08337a4044, type: 2}
     - {fileID: 11400000, guid: 7154222a5ad671247a1129b4bd352963, type: 2}
-    musicSetup: {fileID: 0}
+    musicSetup: {fileID: 11400000, guid: ef44e6049ca70204dbe58864fd277f9c, type: 2}
     wakeUpMessages: []
     radioDialogue:
     - "Ei.. con..gue me escu..\nDRO.. DE R\xC1D... VELHO!"
@@ -39304,7 +39304,7 @@ MonoBehaviour:
     visitorsForThisDay:
     - {fileID: 11400000, guid: 4ba25446f3cebc746a121562ba327e7f, type: 2}
     - {fileID: 11400000, guid: 4aa9a484f90eda04b83e701fa2c5f35a, type: 2}
-    musicSetup: {fileID: 0}
+    musicSetup: {fileID: 11400000, guid: 09cc8090f08228b4cae2569a9c24e345, type: 2}
     wakeUpMessages: []
     radioDialogue:
     - 'shhh... shhhhhh
@@ -128925,13 +128925,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7526a355f6e0c3d4897d51b17f0d0e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableTarget
-  promptText: Ver
-  promptCanvasPrefab: {fileID: 3493227135951344004, guid: 6b6430630a8d7f94e9c590f9df0967cf,
-    type: 3}
-  verticalOffset: 1.5
-  promptCanvasGroup: {fileID: 0}
-  mainCameraTransform: {fileID: 0}
-  instantiatedPrompt: {fileID: 0}
 --- !u!114 &1396684747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160833,13 +160826,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7526a355f6e0c3d4897d51b17f0d0e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableTarget
-  promptText: Ver
-  promptCanvasPrefab: {fileID: 3493227135951344004, guid: 6b6430630a8d7f94e9c590f9df0967cf,
-    type: 3}
-  verticalOffset: 1.5
-  promptCanvasGroup: {fileID: 0}
-  mainCameraTransform: {fileID: 0}
-  instantiatedPrompt: {fileID: 0}
 --- !u!114 &1724584010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189753,13 +189739,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7526a355f6e0c3d4897d51b17f0d0e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableTarget
-  promptText: Ver
-  promptCanvasPrefab: {fileID: 3493227135951344004, guid: 6b6430630a8d7f94e9c590f9df0967cf,
-    type: 3}
-  verticalOffset: 1.5
-  promptCanvasGroup: {fileID: 0}
-  mainCameraTransform: {fileID: 0}
-  instantiatedPrompt: {fileID: 0}
 --- !u!114 &2053819259
 MonoBehaviour:
   m_ObjectHideFlags: 0

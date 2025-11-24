@@ -18,6 +18,9 @@ public class VisitorProfile : ScriptableObject
     [Tooltip("Se deixado vazio, usará o som padrão de batida do DayCycleManager.")]
     public AudioClip specificKnockSound; // --- NOVO CAMPO ---
 
+    [Tooltip("Música de fundo que toca ENQUANTO você está atendendo este visitante (substitui a música do dia).")]
+    public AudioClip specialEncounterMusic; // --- NOVO CAMPO ---
+
     [Header("Cérebro (Twine)")]
     [Tooltip("O nome EXATO da passagem inicial no arquivo .twee")]
     public string startNodeID;
