@@ -1,76 +1,88 @@
-/*
- * Arquivo: PlayerInteraction.cs
- * Pasta: Core
- * Descri��o: Fica no jogador. Detecta objetos interativos � frente
- * e chama os m�todos da interface IInteractable.
- */
-
 using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [Header("Configura��o de Intera��o")]
+    [Header("Configuração")]
     public Camera playerCamera;
     public float interactionDistance = 3f;
+    public LayerMask interactionLayers = -1;
 
-    // Armazena o objeto que est� atualmente em foco
-    private IInteractable interactableInView;
+    private IInteractable currentInteractable;
+    private InteractionPrompt currentPrompt;
 
     void Update()
     {
+        // --- CORREÇÃO 1: Se a câmera estiver desligada (ex: Olho Mágico ativo), limpa tudo ---
+        if (playerCamera != null && !playerCamera.enabled)
+        {
+            ClearFocus();
+            return;
+        }
+
         DetectObjectInView();
         HandleInteraction();
     }
 
+    // --- CORREÇÃO 2: Se o script for desligado (ex: Final do Jogo), limpa tudo ---
+    void OnDisable()
+    {
+        ClearFocus();
+    }
+
     void DetectObjectInView()
     {
+        // Se a câmera não existe ou está desligada, não faz nada
+        if (playerCamera == null) return;
+
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, interactionDistance))
+        if (Physics.Raycast(ray, out hit, interactionDistance, interactionLayers))
         {
-            // Tenta pegar o componente que assina o contrato
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            InteractionPrompt prompt = hit.collider.GetComponent<InteractionPrompt>();
 
-            if (interactable != null)
+            // Se mudou de objeto
+            if (interactable != currentInteractable)
             {
-                // Se for um objeto novo, troca o foco
-                if (interactable != interactableInView)
-                {
-                    ClearFocus(); // Limpa o foco do objeto antigo
-                    interactableInView = interactable;
-                    interactableInView.OnFocus();
-                }
-            }
-            else
-            {
-                // Se mirou em algo que n�o � interativo (ex: parede)
                 ClearFocus();
+
+                if (interactable != null)
+                {
+                    currentInteractable = interactable;
+                    currentInteractable.OnFocus();
+
+                    currentPrompt = prompt;
+                    if (currentPrompt != null) currentPrompt.Show();
+                }
             }
         }
         else
         {
-            // Se n�o mirou em nada
             ClearFocus();
         }
     }
 
     void HandleInteraction()
     {
-        // Se temos um objeto em foco e pressionamos Espa�o
-        if (interactableInView != null && Input.GetKeyDown(KeyCode.Space))
+        if (currentInteractable != null && Input.GetKeyDown(KeyCode.Space))
         {
-            interactableInView.Interact();
+            currentInteractable.Interact();
         }
     }
 
-    /// Avisa ao objeto que ele n�o est� mais em foco.
     void ClearFocus()
     {
-        if (interactableInView != null)
+        if (currentInteractable != null)
         {
-            interactableInView.OnLoseFocus();
-            interactableInView = null;
+            currentInteractable.OnLoseFocus();
+            currentInteractable = null;
+        }
+
+        if (currentPrompt != null)
+        {
+            currentPrompt.Hide();
+            currentPrompt = null;
         }
     }
 }

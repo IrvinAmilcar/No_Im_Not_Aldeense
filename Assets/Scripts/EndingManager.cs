@@ -13,8 +13,8 @@ public class EndingManager : MonoBehaviour
     [Tooltip("Arraste aqui o SCRIPT PRINCIPAL que faz o jogador andar (ex: FirstPersonController).")]
     public MonoBehaviour playerMovementScript;
 
-    [Tooltip("Arraste aqui o objeto que tem o script 'PlayerInteraction'.")]
-    public PlayerInteraction playerInteractionScript;
+    [Tooltip("Arraste aqui o SCRIPT que faz o jogador interagir (ex: PlayerInteraction ou PlayerInteractor).")]
+    public MonoBehaviour playerInteractionScript; // <--- CORREÇÃO: Agora aceita qualquer script!
 
     [Header("Referências UI e Cena")]
     public CanvasGroup blackScreenCanvasGroup;
@@ -119,48 +119,39 @@ public class EndingManager : MonoBehaviour
         SceneManager.LoadScene(creditsSceneName);
     }
 
-    // --- MÉTODO DE TRAVAMENTO ---
+    // --- MÉTODO DE TRAVAMENTO UNIVERSAL ---
     private void PrepareForCutscene()
     {
         // 1. Fecha UI do olho mágico
         if (PeepholeManager.Instance != null)
             PeepholeManager.Instance.ClosePeephole();
 
-        // 2. DESLIGA MOVIMENTO
+        // 2. DESLIGA MOVIMENTO (Genérico)
         if (playerMovementScript != null)
         {
             playerMovementScript.enabled = false;
         }
 
-        // 3. DESLIGA INTERAÇÃO
+        // 3. DESLIGA INTERAÇÃO (Genérico)
         if (playerInteractionScript != null)
         {
             playerInteractionScript.enabled = false;
-        }
-        else
-        {
-            var interaction = FindObjectOfType<PlayerInteraction>();
-            if (interaction != null) interaction.enabled = false;
         }
 
         // 4. TRAVA O MOUSE
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // 5. PARA MÚSICA GLOBAL E BATIDAS
+        // 5. PARA MÚSICA GLOBAL
         if (GameAudioManager.Instance != null)
         {
             GameAudioManager.Instance.StopKnocking();
             GameAudioManager.Instance.StopMainMusic();
         }
 
-        // 6. SILENCIA O RÁDIO (REINSERIDO)
-        // Procura o rádio na cena automaticamente e manda calar a boca
+        // 6. Silencia Rádio
         var radio = FindObjectOfType<RadioInteraction>();
-        if (radio != null)
-        {
-            radio.ForceSilenceRadio();
-        }
+        if (radio != null) radio.ForceSilenceRadio();
 
         // 7. Silencia Gerador
         if (GeneratorManager.Instance != null) GeneratorManager.Instance.RemoveEnergy(0);
