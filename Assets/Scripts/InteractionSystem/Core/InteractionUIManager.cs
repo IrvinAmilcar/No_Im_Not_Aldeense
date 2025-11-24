@@ -1,21 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using DG.Tweening; // DOTween
+using DG.Tweening;
 
 public class InteractionUIManager : MonoBehaviour
 {
     public static InteractionUIManager Instance { get; private set; }
 
-    [Header("Referências da UI (Canvas Overlay)")]
-    [Tooltip("O painel (quadradinho) inteiro.")]
+    [Header("Referências da UI")]
     public RectTransform promptPanel;
-
-    [Tooltip("O texto dentro do painel (ex: '[Espaço] Abrir').")]
-    public TextMeshProUGUI promptText;
-
-    [Tooltip("Canvas Group para controlar a opacidade.")]
     public CanvasGroup canvasGroup;
+
+    [Header("Componentes de Texto (Separados)")]
+    [Tooltip("Texto que fica na parte PRETA (Topo). Ex: 'Abrir'.")]
+    public TextMeshProUGUI titleText;
+
+    [Tooltip("Texto que fica na parte BRANCA (Baixo). Ex: '[ESPAÇO]'.")]
+    public TextMeshProUGUI keyText;
 
     [Header("Configuração DOTween")]
     public float fadeDuration = 0.2f;
@@ -35,8 +36,6 @@ public class InteractionUIManager : MonoBehaviour
     void Start()
     {
         mainCam = Camera.main;
-
-        // Garante que comece invisível e zerado
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 0;
@@ -46,47 +45,41 @@ public class InteractionUIManager : MonoBehaviour
 
     void LateUpdate()
     {
-        // Segue o objeto na tela (Tracking)
         if (currentTarget != null && promptPanel != null && isVisible)
         {
-            // Pega a posição do objeto + o ajuste de altura (offset)
             Vector3 worldPos = currentTarget.position + currentOffset;
-
-            // Converte para a tela
             Vector3 screenPos = mainCam.WorldToScreenPoint(worldPos);
 
-            // Se o objeto está atrás da câmera (Z negativo), esconde
             if (screenPos.z < 0)
             {
                 if (canvasGroup.alpha > 0) canvasGroup.alpha = 0;
             }
             else
             {
-                // Se estava escondido por estar atrás, mostra de volta (sem animação lenta)
                 if (canvasGroup.alpha < 1) canvasGroup.alpha = 1;
-
                 promptPanel.position = screenPos;
             }
         }
     }
 
-    public void ShowPrompt(Transform target, string text, Vector3 offset)
+    // --- MUDANÇA: Recebe Título e Tecla separados ---
+    public void ShowPrompt(Transform target, string actionName, string keyString, Vector3 offset)
     {
-        if (isVisible && currentTarget == target) return; // Já está mostrando esse
+        if (isVisible && currentTarget == target) return;
 
         currentTarget = target;
         currentOffset = offset;
 
-        if (promptText != null) promptText.text = text;
+        // Define os textos separadamente
+        if (titleText != null) titleText.text = actionName; // Ex: "Radio"
+        if (keyText != null) keyText.text = keyString;      // Ex: "[ESPAÇO]"
 
-        // Posiciona imediatamente antes de aparecer (para não "pular" na tela)
         if (mainCam != null)
         {
             Vector3 screenPos = mainCam.WorldToScreenPoint(target.position + offset);
             promptPanel.position = screenPos;
         }
 
-        // Animação DOTween (Aparecer)
         isVisible = true;
         canvasGroup.DOKill();
         promptPanel.DOKill();
@@ -102,11 +95,10 @@ public class InteractionUIManager : MonoBehaviour
         isVisible = false;
         currentTarget = null;
 
-        // Animação DOTween (Sumir)
         canvasGroup.DOKill();
         promptPanel.DOKill();
 
         canvasGroup.DOFade(0, fadeDuration);
-        promptPanel.DOScale(0.8f, fadeDuration); // Diminui um pouco ao sumir
+        promptPanel.DOScale(0.8f, fadeDuration);
     }
 }

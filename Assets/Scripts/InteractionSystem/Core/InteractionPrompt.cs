@@ -3,20 +3,22 @@ using UnityEngine;
 public class InteractionPrompt : MonoBehaviour
 {
     [Header("Configuração")]
-    public string actionText = "Abrir"; // Ex: "Ver", "Pegar"
+    public string actionText = "Abrir";
 
-    [Tooltip("Ajuste a altura do ícone (Y) para ficar acima do objeto.")]
+    [Tooltip("Ajuste a altura do ícone.")]
     public Vector3 promptOffset = new Vector3(0, 1.5f, 0);
 
     public void Show()
     {
         if (InteractionUIManager.Instance != null)
         {
-            // Monta o texto final: "[SPACE] Abrir"
-            // Você pode trocar "SPACE" por um ícone de botão se preferir depois
-            string fullText = $"<size=80%>[ESPAÇO]</size>\n{actionText}";
-
-            InteractionUIManager.Instance.ShowPrompt(this.transform, fullText, promptOffset);
+            // Envia separado: (Alvo, Título, Tecla, Offset)
+            InteractionUIManager.Instance.ShowPrompt(
+                this.transform,
+                actionText,       // Vai para a área PRETA
+                "[ESPAÇO]",       // Vai para a área BRANCA
+                promptOffset
+            );
         }
     }
 
@@ -28,7 +30,6 @@ public class InteractionPrompt : MonoBehaviour
         }
     }
 
-    // Desenha uma bolinha verde no editor para você ajustar a altura (Offset)
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
