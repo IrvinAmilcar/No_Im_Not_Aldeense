@@ -15,6 +15,8 @@ MonoBehaviour:
   characterName: Super
   characterSprite: {fileID: -1158429968, guid: 020a6e5f5f4a5a142a988342d0dcc739, type: 3}
   specificKnockSound: {fileID: 8300000, guid: 4fd3a4aef7b2b3448a0a1dd63ea6cbe8, type: 3}
+  specialEncounterMusic: {fileID: 8300000, guid: 9a65968f370c51641925abb583cb5c07,
+    type: 3}
   startNodeID: HomemPalido-GameOver
   humanityType: 2
   isScannable: 0

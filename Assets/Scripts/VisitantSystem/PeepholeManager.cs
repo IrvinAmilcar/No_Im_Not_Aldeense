@@ -201,32 +201,33 @@ public class PeepholeManager : MonoBehaviour
 
         if (letIn)
         {
-            // Se o jogador deixou entrar, aplicamos as consequências
             if (GeneratorManager.Instance != null)
             {
                 if (IsCurrentVisitorHuman)
                 {
-                    Debug.Log("HUMANO entrou. Recompensa de energia.");
+                    Debug.Log("HUMANO entrou.");
                     GeneratorManager.Instance.AddEnergy(energyReward);
 
+                    // Mensagem Positiva (Verde)
                     if (DialogManager.Instance != null)
-                        DialogManager.Instance.ShowMessage($"Você aceitou um humano.\nGerador +{energyReward}%", 3f);
+                        DialogManager.Instance.ShowMessage($"<color=#00FF00>HUMANO ACEITO</color>\nGerador abastecido: +{energyReward}%", 4f);
                 }
                 else
                 {
-                    Debug.Log("IMPOSTOR entrou. Penalidade de energia.");
+                    Debug.Log("IMPOSTOR entrou.");
                     GeneratorManager.Instance.RemoveEnergy(energyPenalty);
 
+                    // Mensagem Negativa (Vermelha)
                     if (DialogManager.Instance != null)
-                        DialogManager.Instance.ShowMessage($"IMPOSTOR DETECTADO!\nEle sabotou o gerador: -{energyPenalty}%", 4f);
+                        DialogManager.Instance.ShowMessage($"<color=#FF0000>IMPOSTOR DETECTADO</color>\nSabotagem no gerador: -{energyPenalty}%", 5f);
                 }
             }
         }
         else
         {
-            // Se mandou embora, não acontece nada com o gerador
+            // Mensagem Neutra
             if (DialogManager.Instance != null)
-                DialogManager.Instance.ShowMessage("Você recusou a entrada.", 2f);
+                DialogManager.Instance.ShowMessage("Entrada Recusada.", 2.5f);
         }
 
         NotifyDayCycle();

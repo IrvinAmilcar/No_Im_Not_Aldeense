@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI; // Importante para a UI
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro; // Se estiver usando TextMeshPro para as outras partes
+using DG.Tweening; // Adicionado para animações suaves
 
 namespace DialogSystem
 {
-    // NÃO REQUER MAIS O AUDIOSOURCE
     public class DialogManager : MonoBehaviour
     {
         public static DialogManager Instance { get; private set; }
@@ -14,51 +15,47 @@ namespace DialogSystem
         public Font messageFont;
         private float fadeSpeed = 4f;
 
-        // --- Sistema 1: Mensagem Simples (Arma) ---
+        // --- Sistema 1: Mensagem Simples (Com Fila) ---
         [Header("Config. Mensagem Simples")]
-        [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 0.75f);
-        [SerializeField] private int panelFontSize = 20;
-        [SerializeField] private Vector2 panelSize = new Vector2(650f, 60f);
-        [SerializeField] private float panelBottomOffset = 50f;
+        [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 0.85f);
+        [SerializeField] private int panelFontSize = 22;
+        [SerializeField] private float panelWidth = 700f;
+        [SerializeField] private float panelBottomOffset = 80f;
 
         private CanvasGroup messageCanvasGroup;
         private Text messageText;
-        private Coroutine currentMessageCoroutine;
 
-        // --- Sistema 2: Diálogo do Rádio ---
+        // --- NOVO: SISTEMA DE FILA ---
+        private struct MessageRequest
+        {
+            public string text;
+            public float duration;
+        }
+        private Queue<MessageRequest> messageQueue = new Queue<MessageRequest>();
+        private bool isShowingMessage = false;
+
+        // --- Sistemas 2 e 3 (Rádio e Janela) ---
         [Header("Config. Diálogo do Rádio")]
         [SerializeField] private Color radioBackgroundColor = new Color(0f, 0f, 0f, 0.85f);
         [SerializeField] private float radioImageBottomOffset = 0f;
         [SerializeField] private Vector2 radioImageSize = new Vector2(800f, 300f);
-
-        // REMOVEMOS O [SerializeField] private AudioSource radioAudioSource; 
-
-        [Header("Config. Textos do Rádio")]
         [SerializeField] private float radioTextWidth = 800f;
         [SerializeField] private int radioDialogueFontSize = 22;
         [SerializeField] private int radioPromptFontSize = 18;
-
         [SerializeField] private string radioContinueMessage = "Pressione [ESPAÇO] para continuar...";
         [SerializeField] private string radioCloseMessage = "Pressione [ESPAÇO] para guardar";
 
         private CanvasGroup radioCanvasGroup;
         private Image radioImageComponent;
-        // private AudioSource radioAudioSource; // REMOVIDO
         private Text radioDialogueText;
         private Text radioPromptText;
-
         private Coroutine currentRadioCoroutine;
 
-        // --- Sistema 3: Diálogo de Peek (Janela) ---
-        // (NENHUMA MUDANÇA AQUI)
         [Header("Config. Diálogo de Peek (Janela)")]
         [SerializeField] private Color peekPanelColor = new Color(0f, 0f, 0f, 0.75f);
-        [Tooltip("Tamanho da caixa de diálogo principal")]
-        [SerializeField] private Vector2 peekPanelSize = new Vector2(700f, 60f); // Caixa menor
-        [Tooltip("Distância do fundo da tela para a CAIXA DE DIÁLOGO")]
-        [SerializeField] private float peekPanelBottomOffset = 50f; // Posição da caixa
-        [Tooltip("Distância do fundo da tela para o TEXTO DE PROMPT")]
-        [SerializeField] private float peekPromptBottomOffset = 20f; // Posição do prompt (abaixo da caixa)
+        [SerializeField] private Vector2 peekPanelSize = new Vector2(700f, 60f);
+        [SerializeField] private float peekPanelBottomOffset = 50f;
+        [SerializeField] private float peekPromptBottomOffset = 20f;
         [SerializeField] private int peekDialogueFontSize = 18;
         [SerializeField] private int peekPromptFontSize = 14;
         [SerializeField] private string peekContinueMessage = "Pressione [ESPAÇO] para continuar...";
@@ -75,17 +72,13 @@ namespace DialogSystem
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // Cria as UIs para os 3 sistemas
             CreateMessageUI();
             CreateRadioDialogUI();
             CreatePeekDialogueUI();
-
-            // REMOVEMOS TODA A CONFIGURAÇÃO DE AUDIOSOURCE DAQUI
         }
 
-        #region Sistema 1: Mensagem Simples (Arma)
+        #region Sistema 1: Mensagem Simples (Fila)
 
-        // (NENHUMA MUDANÇA AQUI)
         void CreateMessageUI()
         {
             GameObject canvasObject = new GameObject("DialogMessageCanvas");
@@ -95,19 +88,32 @@ namespace DialogSystem
             canvas.sortingOrder = 998;
             canvasObject.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             canvasObject.AddComponent<GraphicRaycaster>();
+
             GameObject panelObject = new GameObject("MessagePanel");
             panelObject.transform.SetParent(canvasObject.transform);
             RectTransform panelRect = panelObject.AddComponent<RectTransform>();
+
             panelRect.anchorMin = new Vector2(0.5f, 0f);
             panelRect.anchorMax = new Vector2(0.5f, 0f);
             panelRect.pivot = new Vector2(0.5f, 0f);
-            panelRect.sizeDelta = panelSize;
             panelRect.anchoredPosition = new Vector2(0, panelBottomOffset);
+            panelRect.sizeDelta = new Vector2(panelWidth, 0);
+
             panelObject.AddComponent<Image>().color = panelColor;
+
+            // Layout Automático
+            VerticalLayoutGroup layout = panelObject.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(20, 20, 15, 15);
+            layout.childControlHeight = true;
+            layout.childControlWidth = true;
+            layout.childForceExpandHeight = false;
+
+            ContentSizeFitter fitter = panelObject.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
             messageCanvasGroup = panelObject.AddComponent<CanvasGroup>();
             messageCanvasGroup.alpha = 0f;
-            // --- CORREÇÃO DE CLICK: Desliga Raycast quando invisível ---
             messageCanvasGroup.blocksRaycasts = false;
 
             GameObject textObject = new GameObject("MessageText");
@@ -118,26 +124,53 @@ namespace DialogSystem
             messageText.color = Color.white;
             messageText.alignment = TextAnchor.MiddleCenter;
             messageText.raycastTarget = false;
-            RectTransform textRect = textObject.GetComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = new Vector2(15, 10);
-            textRect.offsetMax = new Vector2(-15, -10);
+            messageText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            messageText.verticalOverflow = VerticalWrapMode.Truncate;
+            // Habilita Rich Text para usarmos cores na mensagem de gasolina
+            messageText.supportRichText = true;
         }
 
         public void ShowMessage(string message, float duration)
         {
-            if (currentMessageCoroutine != null) StopCoroutine(currentMessageCoroutine);
-            messageText.text = message;
-            currentMessageCoroutine = StartCoroutine(ShowMessageCoroutine(duration));
+            // Adiciona na fila em vez de tocar imediatamente
+            messageQueue.Enqueue(new MessageRequest { text = message, duration = duration });
+
+            // Se não estiver mostrando nada, começa a processar
+            if (!isShowingMessage)
+            {
+                StartCoroutine(ProcessMessageQueue());
+            }
         }
 
-        private IEnumerator ShowMessageCoroutine(float duration)
+        private IEnumerator ProcessMessageQueue()
         {
-            yield return StartCoroutine(FadeCanvasGroup(messageCanvasGroup, 1f, fadeSpeed));
-            yield return new WaitForSeconds(duration);
-            yield return StartCoroutine(FadeCanvasGroup(messageCanvasGroup, 0f, fadeSpeed));
-            currentMessageCoroutine = null;
+            isShowingMessage = true;
+
+            while (messageQueue.Count > 0)
+            {
+                // Pega a próxima mensagem
+                MessageRequest req = messageQueue.Dequeue();
+
+                // Configura texto e tamanho
+                messageText.text = req.text;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(messageText.rectTransform.parent as RectTransform);
+
+                // Fade In (DOTween)
+                messageCanvasGroup.DOFade(1f, 0.5f);
+                yield return new WaitForSeconds(0.5f); // Espera o fade in
+
+                // Tempo de leitura
+                yield return new WaitForSeconds(req.duration);
+
+                // Fade Out (DOTween)
+                messageCanvasGroup.DOFade(0f, 0.5f);
+                yield return new WaitForSeconds(0.5f); // Espera o fade out
+
+                // Pequeno respiro antes da próxima mensagem
+                yield return new WaitForSeconds(0.2f);
+            }
+
+            isShowingMessage = false;
         }
 
         #endregion
