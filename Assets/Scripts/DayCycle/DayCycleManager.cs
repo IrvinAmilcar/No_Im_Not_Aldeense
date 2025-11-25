@@ -20,7 +20,7 @@ public class DayCycleManager : MonoBehaviour
 
         [Header("Mensagens de Início (Sequência)")]
         [Tooltip("Lista de frases que aparecerão uma por uma no início do dia.")]
-        [TextArea(2, 4)] public string[] wakeUpMessages; // --- MUDANÇA: Agora é uma lista (Array) ---
+        [TextArea(2, 4)] public string[] wakeUpMessages;
 
         [TextArea(3, 5)] public string[] radioDialogue;
         public WindowDayConfig[] windowDialogues;
@@ -54,9 +54,7 @@ public class DayCycleManager : MonoBehaviour
 
     void Start()
     {
-        // Inicia o Dia 1
         StartDay(0);
-        // Inicia a sequência de mensagens do Dia 1
         StartCoroutine(DayStartSequence());
     }
 
@@ -105,48 +103,34 @@ public class DayCycleManager : MonoBehaviour
         }
 
         OnDayStarted?.Invoke(currentDayIndex);
-
-        // NOTA: Removemos o agendamento imediato aqui. 
-        // Agora ele acontece APÓS as mensagens terminarem, no DayStartSequence.
     }
 
-    // --- SEQUÊNCIA DE MENSAGENS (PARCELADA) ---
     private IEnumerator DayStartSequence()
     {
         if (currentDayIndex >= allDays.Length) yield break;
 
         DayConfig config = allDays[currentDayIndex];
 
-        // Se houver mensagens na lista
         if (config.wakeUpMessages != null && config.wakeUpMessages.Length > 0)
         {
-            // Pequeno delay inicial para o fade da câmera terminar
             yield return new WaitForSeconds(1.0f);
 
-            // Loop por cada frase da lista
             foreach (string message in config.wakeUpMessages)
             {
                 if (string.IsNullOrWhiteSpace(message)) continue;
-
-                // Calcula tempo de leitura (Mínimo 3s + tempo pelo tamanho do texto)
                 float msgDuration = Mathf.Max(3.0f, 2.0f + (message.Length * 0.06f));
 
-                // Exibe a frase
                 if (DialogManager.Instance != null)
                     DialogManager.Instance.ShowMessage(message, msgDuration);
 
-                // Espera a mensagem sumir + um pequeno respiro antes da próxima
-                // (msgDuration é o tempo que ela fica na tela, + 1.0s para o fade out e silêncio)
                 yield return new WaitForSeconds(msgDuration + 1.0f);
             }
         }
         else
         {
-            // Se não tiver mensagem, só espera um pouco
             yield return new WaitForSeconds(1.5f);
         }
 
-        // SÓ AGORA os visitantes começam a chegar
         Debug.Log($"[Dia {currentDayIndex + 1}] Mensagens finalizadas. Iniciando fila de visitantes.");
         StartCoroutine(ScheduleNextVisitor());
     }
@@ -196,8 +180,13 @@ public class DayCycleManager : MonoBehaviour
 
         if (dailyQueue.Count == 0)
         {
-            if (DialogManager.Instance != null)
-                DialogManager.Instance.ShowMessage("O silêncio voltou... Acho que posso dormir agora.", 3f);
+            // --- CORREÇÃO: NÃO MOSTRAR MENSAGEM NO ÚLTIMO DIA ---
+            // Se for o último dia (índice == tamanho - 1), o jogo termina em evento, não em sono.
+            if (currentDayIndex < allDays.Length - 1)
+            {
+                if (DialogManager.Instance != null)
+                    DialogManager.Instance.ShowMessage("O silêncio voltou... Acho que posso dormir agora.", 3f);
+            }
         }
         else
         {
@@ -237,7 +226,6 @@ public class DayCycleManager : MonoBehaviour
 
         if (CameraFader.Instance != null) yield return StartCoroutine(CameraFader.Instance.Fade(0f, 2f));
 
-        // Inicia a Sequência de Mensagens do novo dia
         if (currentDayIndex < allDays.Length && !IsGameOver)
         {
             yield return StartCoroutine(DayStartSequence());
