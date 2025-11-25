@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro; // Se estiver usando TextMeshPro para as outras partes
-using DG.Tweening; // Adicionado para animações suaves
+using TMPro;
+using DG.Tweening;
+using System.Linq; // Necessário para verificar a fila facilmente
 
 namespace DialogSystem
 {
@@ -15,7 +16,7 @@ namespace DialogSystem
         public Font messageFont;
         private float fadeSpeed = 4f;
 
-        // --- Sistema 1: Mensagem Simples (Com Fila) ---
+        // --- Sistema 1: Mensagem Simples ---
         [Header("Config. Mensagem Simples")]
         [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 0.85f);
         [SerializeField] private int panelFontSize = 22;
@@ -25,7 +26,7 @@ namespace DialogSystem
         private CanvasGroup messageCanvasGroup;
         private Text messageText;
 
-        // --- NOVO: SISTEMA DE FILA ---
+        // Estrutura da Fila
         private struct MessageRequest
         {
             public string text;
@@ -33,6 +34,9 @@ namespace DialogSystem
         }
         private Queue<MessageRequest> messageQueue = new Queue<MessageRequest>();
         private bool isShowingMessage = false;
+
+        // --- NOVO: Variável para rastrear o texto atual na tela ---
+        private string currentDisplayingText = "";
 
         // --- Sistemas 2 e 3 (Rádio e Janela) ---
         [Header("Config. Diálogo do Rádio")]
@@ -77,7 +81,7 @@ namespace DialogSystem
             CreatePeekDialogueUI();
         }
 
-        #region Sistema 1: Mensagem Simples (Fila)
+        #region Sistema 1: Mensagem Simples (Com Anti-Spam)
 
         void CreateMessageUI()
         {
@@ -101,7 +105,6 @@ namespace DialogSystem
 
             panelObject.AddComponent<Image>().color = panelColor;
 
-            // Layout Automático
             VerticalLayoutGroup layout = panelObject.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(20, 20, 15, 15);
             layout.childControlHeight = true;
@@ -126,16 +129,29 @@ namespace DialogSystem
             messageText.raycastTarget = false;
             messageText.horizontalOverflow = HorizontalWrapMode.Wrap;
             messageText.verticalOverflow = VerticalWrapMode.Truncate;
-            // Habilita Rich Text para usarmos cores na mensagem de gasolina
             messageText.supportRichText = true;
         }
 
         public void ShowMessage(string message, float duration)
         {
-            // Adiciona na fila em vez de tocar imediatamente
+            // --- PROTEÇÃO ANTI-SPAM ---
+
+            // 1. Se a mensagem já está na tela, ignora
+            if (isShowingMessage && currentDisplayingText == message)
+            {
+                return;
+            }
+
+            // 2. Se a mensagem já está na fila esperando, ignora
+            // Usamos LINQ para checar se algum item na fila tem o mesmo texto
+            if (messageQueue.Any(req => req.text == message))
+            {
+                return;
+            }
+
+            // Se passou nos testes, adiciona na fila
             messageQueue.Enqueue(new MessageRequest { text = message, duration = duration });
 
-            // Se não estiver mostrando nada, começa a processar
             if (!isShowingMessage)
             {
                 StartCoroutine(ProcessMessageQueue());
@@ -148,25 +164,28 @@ namespace DialogSystem
 
             while (messageQueue.Count > 0)
             {
-                // Pega a próxima mensagem
                 MessageRequest req = messageQueue.Dequeue();
 
-                // Configura texto e tamanho
+                // Atualiza o rastreador de texto atual
+                currentDisplayingText = req.text;
                 messageText.text = req.text;
+
                 LayoutRebuilder.ForceRebuildLayoutImmediate(messageText.rectTransform.parent as RectTransform);
 
-                // Fade In (DOTween)
+                // Fade In
                 messageCanvasGroup.DOFade(1f, 0.5f);
-                yield return new WaitForSeconds(0.5f); // Espera o fade in
+                yield return new WaitForSeconds(0.5f);
 
-                // Tempo de leitura
+                // Espera leitura
                 yield return new WaitForSeconds(req.duration);
 
-                // Fade Out (DOTween)
+                // Fade Out
                 messageCanvasGroup.DOFade(0f, 0.5f);
-                yield return new WaitForSeconds(0.5f); // Espera o fade out
+                yield return new WaitForSeconds(0.5f);
 
-                // Pequeno respiro antes da próxima mensagem
+                // Limpa o rastreador
+                currentDisplayingText = "";
+
                 yield return new WaitForSeconds(0.2f);
             }
 

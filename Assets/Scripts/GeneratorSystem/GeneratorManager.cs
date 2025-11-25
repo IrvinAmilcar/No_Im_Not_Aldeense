@@ -45,7 +45,7 @@ public class GeneratorManager : MonoBehaviour
         if (IsBroken) return;
 
         currentDay++;
-        RemoveEnergy(50);
+        RemoveEnergy(40);
 
         Debug.Log($"Transição para o Dia {currentDay}. Energia restante: {CurrentEnergy}%");
     }

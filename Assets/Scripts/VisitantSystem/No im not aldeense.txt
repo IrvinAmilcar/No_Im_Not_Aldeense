@@ -129,8 +129,6 @@ Certo... Certo...
 [[Mandar sair->Amanda-Fim-Sai]]
 
 
-
-
 :: Bernardo-Conversa1 {"position":"5175,250","size":"100,100"}
 [Um rapaz com capuz preto, carregando um Laptop.]
 
@@ -225,8 +223,6 @@ Deixa so a energia voltar eu vou vazar seu historico do celular!
 
 [[Deixar entrar->Bernardo-Fim-Entra]]
 [[Mandar sair->Bernardo-Fim-Sai]]
-
-
 
 
 :: Cinematica-Abertura {"position":"150,200","size":"100,100"}
@@ -361,8 +357,6 @@ Acho melhor eu... voltar para rua
 [[Mandar sair->Claudia-Fim-Sai]]
 
 
-
-
 :: Dia1-Inicio-Gameplay {"position":"500,200","size":"100,100"}
 [O único som é o zumbido baixo do seu gerador a gasolina.]
 [Ouve-se uma batida forte e apressada na porta.]
@@ -393,8 +387,6 @@ Acho melhor eu... voltar para rua
 [E o barulho do motor fica fraco.]
 
 [[Abrir o olho mágico->HomemPalido3-OlhoMagico]]
-
-
 
 
 :: Fabi-Conversa1 {"position":"6250,125","size":"100,100"}
@@ -529,7 +521,6 @@ Quando o Shawn souber... ele... ele...
 [[Mandar sair->Fabi-Fim-Sai]]
 
 
-
 :: Fim-Dia1 {"position":"675,1725","size":"100,100"}
 [A noite continua. O gerador zumbe.]
 [Mas, por enquanto, a quietude reina.]
@@ -602,7 +593,7 @@ Casa espaçosa essa sua!
 
 
 :: HomemPalido1-Resposta {"position":"275,1625","size":"100,100"}
-Consigo escultar alguem cochichando ai dentro.
+Consigo escutar alguem cochichando ai dentro.
 O desespero dele tem um cheiro único. Doce.
 
 Seu gerador vai falhar.
@@ -634,7 +625,7 @@ Nos vemos em breve.
 
 
 :: HomemPalido1-Silencio {"position":"100,1725","size":"100,100"}
-Eu consigo escultar você ai dentro.
+Eu consigo escutar você ai dentro.
 Se escondendo atras dessa porta... dessa luz.
 
 Mas algo me diz que sua seguraça não vai durar muito tempo.
@@ -872,8 +863,8 @@ E aí? Funcionou?
 
 
 :: IrvinConversa4.5 {"position":"400,1025","size":"100,100"}
-Por causa da gasolina! Ninguém tem energia!
-E não tem previsão de voltar!
+Por causa da gasolina! 
+Seu gerador gasta 40% de energia por dia!
 Você não vai querer ficar no escuro, vai?
 
 [[...->IrvinConversa4.5_Seq2]]
@@ -1090,8 +1081,6 @@ Mas se eu achar um facão, eu volto.
 [[Mandar sair->Jp-Fim-Sai]]
 
 
-
-
 :: JuliaM-Conversa1 {"position":"1875,1725","size":"100,100"}
 [Uma garota com oculos juliete está na porta, batendo o pé.]
 
@@ -1299,7 +1288,6 @@ Melhor voce aproveitar essa sua espelunca enquanto ela não desaba!
 [[Mandar sair->JuliaT-Fim-Sai]]
 
 
-
 :: Matheus-Conversa1 {"position":"5275,950","size":"100,100"}
 [Um rapaz de óculos, camiseta do "Superman".]
 
@@ -1387,8 +1375,6 @@ Você está condenando a ciência!
 
 [[Deixar entrar->Matheus-Fim-Entra]]
 [[Mandar sair->Matheus-Fim-Sai]]
-
-
 
 
 :: Radio-Dia1 {"position":"350,200","size":"100,100"}
@@ -1506,8 +1492,6 @@ Irvin (Rádio): ...eu... eu vou tentar ir amanhã pra sua casa.
 [Você mexe no dial. Nada.]
 
 [[...->Dia5-Inicio-Gameplay]]
-
-
 
 
 :: Vinicius-Conversa1 {"position":"3625,875","size":"100,100"}

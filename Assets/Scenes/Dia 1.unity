@@ -59173,8 +59173,8 @@ MonoBehaviour:
     type: 3}
   dialogueUIContainer: {fileID: 1211657205}
   de3000Manager: {fileID: 251286240}
-  energyReward: 15
-  energyPenalty: 50
+  energyReward: 20
+  energyPenalty: 25
 --- !u!1001 &558124963
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -122674,7 +122674,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 620801461}
   m_HandleRect: {fileID: 620801460}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -191994,7 +191994,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -272.30994, y: -44.944}
+  m_AnchoredPosition: {x: -272.30994, y: -142}
   m_SizeDelta: {x: 458.9893, y: 796.11}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2083530546
